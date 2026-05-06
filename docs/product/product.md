@@ -15,7 +15,8 @@ The product is not fixed yet. The workspace exists so the team can move quickly 
 
 - Build a small, demoable experience rather than a broad platform.
 - Prefer an interaction where voice, narration, audio generation, or conversational behavior is central enough that ElevenLabs is not just a decorative integration.
-- Keep setup and deployment choices lightweight until the actual prototype shape is known.
+- Optimize for a live demo run from the developer machine and exposed through a public HTTPS tunnel when external callbacks or ElevenLabs MCP need to reach it.
+- Keep cloud deployment as a backup path, not the default, until the prototype needs a stable public backend.
 - Preserve decisions in docs when they affect future implementation.
 
 ## Target User
@@ -27,4 +28,3 @@ The target user will be defined at the event. Until then, assume a demo viewer w
 - No heavy architecture before the task is known.
 - No permanent product claims hidden only in work plans.
 - No integration with external services without clear demo value.
-

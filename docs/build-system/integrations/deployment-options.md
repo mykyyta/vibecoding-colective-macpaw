@@ -5,22 +5,23 @@ owner: Architect
 
 # Deployment Options
 
-This project does not have a fixed app stack yet. The deployment path should be chosen after the event task is known.
+This project does not have a fixed app stack yet. The default event posture is a live demo: run the prototype locally and expose it through a public HTTPS tunnel only when external services need to call back into it.
 
 ## Decision Rule
 
-Choose the smallest path that gives the demo a public HTTPS URL.
+Default to **local live demo + tunnel**. Move to cloud deployment only when the demo needs a stable public backend, a long-lived MCP server, collaboration after the event, or the laptop cannot stay online.
 
 | Need | Default choice | Why |
 | --- | --- | --- |
-| Local demo, webhook, or temporary MCP URL | ngrok or Cloudflare Tunnel | Fastest way to expose localhost without changing app architecture. |
-| Frontend-only or Next.js-style UI with simple serverless routes | Vercel | Fast Git or CLI deployment, preview URLs, environment variables. |
+| Live event demo | Local app + ngrok or Cloudflare Tunnel | Fastest path; avoids cloud setup while the idea is still changing. |
+| Temporary webhook or MCP URL | Local app + ngrok or Cloudflare Tunnel | Gives ElevenLabs a public HTTPS URL with minimal ceremony. |
+| Frontend-only demo that must stay online after the laptop closes | Vercel | Fast Git or CLI deployment, preview URLs, environment variables. |
 | Public backend, API, or MCP server that should stay reachable | Railway | Simple GitHub or CLI deploy, public domain generation, normal web service model. |
 | Public backend backup option | Render | Simple persistent web service hosting with public URL and env vars. |
 
 ## Option A: Local Tunnel
 
-Use this when the prototype runs locally and only needs a public HTTPS URL for the event.
+This is the default path for the event. Use it when the prototype can run on the developer machine and only needs a public HTTPS URL for the room, webhooks, or ElevenLabs MCP.
 
 Good for:
 
@@ -44,9 +45,17 @@ ngrok http 3000
 
 or a Cloudflare Tunnel equivalent if Cloudflare is already available.
 
+Live demo requirements:
+
+- The local app starts with one command.
+- The app reads `PORT` or documents the fixed local port.
+- The tunnel URL is copied into any external tool that calls the app.
+- The presenter keeps the laptop awake and connected.
+- A fallback screenshot or recorded clip is useful if venue networking fails.
+
 ## Option B: Vercel
 
-Use this when the project is primarily a web UI or a Next.js-style app with light serverless routes.
+Use this when the project is primarily a web UI or a Next.js-style app with light serverless routes and needs to remain available after the local demo.
 
 Good for:
 
@@ -69,7 +78,7 @@ npx vercel --prod
 
 ## Option C: Railway
 
-Use this as the default cloud path when the prototype needs a public backend or MCP server.
+Use this as the default cloud path when the prototype needs a public backend or MCP server that should stay reachable after the live demo.
 
 Good for:
 
@@ -121,13 +130,12 @@ Before the event:
 
 At the event:
 
-1. If the app is local-only, expose it with ngrok or Cloudflare Tunnel.
-2. If it is frontend-only, deploy to Vercel.
-3. If it needs a public backend or MCP server, deploy to Railway first.
-4. Set secrets in the hosting platform.
-5. Copy the public HTTPS URL into ElevenLabs MCP setup if needed.
-6. Run `npm run elevenlabs:mcp:create`.
-7. Run `npm run elevenlabs:mcp:tools -- <mcp_server_id>` to confirm tool visibility.
+1. Start the local app.
+2. Expose it with ngrok or Cloudflare Tunnel if a public URL is needed.
+3. Copy the tunnel URL into ElevenLabs MCP setup if needed.
+4. Run `npm run elevenlabs:mcp:create`.
+5. Run `npm run elevenlabs:mcp:tools -- <mcp_server_id>` to confirm tool visibility.
+6. Deploy to Vercel, Railway, or Render only if local live demo constraints fail.
 
 ## References
 
@@ -139,4 +147,3 @@ At the event:
 - [Render web services](https://render.com/docs/web-services/)
 - [ngrok secure tunnels](https://ngrok.com/docs/guides/share-localhost/tunnels)
 - [Cloudflare Tunnel](https://developers.cloudflare.com/tunnel/)
-

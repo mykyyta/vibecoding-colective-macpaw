@@ -65,7 +65,7 @@ After the MCP server is created and tools are visible, attach it to the target E
 
 ## Deployment Note
 
-For event-speed testing, the MCP server can be exposed through a local tunnel. For a more stable public URL, deploy the MCP server as a normal web service. See `deployment-options.md`.
+For the event, prefer exposing a local MCP server through a public HTTPS tunnel. Deploy the MCP server as a normal web service only if the URL must remain stable after the live demo or the local machine cannot stay online. See `deployment-options.md`.
 
 ## References
 

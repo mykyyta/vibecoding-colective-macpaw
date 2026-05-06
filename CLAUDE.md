@@ -11,6 +11,9 @@ other in the same edit.
 
 - **Demo first:** prefer one small, working, explainable slice over a broad
   unfinished platform.
+- **Live demo default:** assume the prototype will run locally during the event
+  and use a public HTTPS tunnel when ElevenLabs or external callbacks need to
+  reach it.
 - **Event speed:** keep setup, architecture, and process light until the event
   task is known.
 - **ElevenLabs-ready:** treat voice, audio, narration, or conversational
@@ -33,6 +36,8 @@ The stack is intentionally not fixed yet.
 - Browser-first prototypes are valid if they reduce setup time.
 - Server-side code is required for secrets, private API calls, webhooks, and
   any ElevenLabs operation that must not expose credentials.
+- For event delivery, prefer a local live demo over cloud deployment unless a
+  stable public backend is required.
 - Do not add frameworks, databases, queues, auth, or deployment complexity until
   the prototype needs them.
 
@@ -83,6 +88,9 @@ The stack is intentionally not fixed yet.
 - **Frontend checks:** after adding a runnable UI, start the dev server and
   provide the local URL. Verify layout across at least desktop and mobile when
   the change is user-facing.
+- **Live demo checks:** keep the app runnable with one command; if external
+  services need access, expose the local port through ngrok or Cloudflare
+  Tunnel and verify the public HTTPS URL.
 - **MCP checks:** when ElevenLabs credentials and an MCP URL exist, use:
   - `npm run elevenlabs:mcp:create`
   - `npm run elevenlabs:mcp:list`
@@ -205,4 +213,3 @@ Canonical role taxonomy: `docs/build-system/operating-model/roles.md`.
   the task.
 - If a skill and a doc disagree, treat it as Methodologist friction and update
   the source of truth instead of improvising silently.
-
