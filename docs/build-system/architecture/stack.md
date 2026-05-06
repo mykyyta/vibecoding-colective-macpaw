@@ -62,13 +62,23 @@ npm start
 
 - `PORT` controls the Vite client port for local demo.
 - `SERVER_PORT` controls the Express API port.
-- `ELEVENLABS_API_KEY` stays server-side only.
+- `CLAUDE_API_KEY` and `CLAUDE_MODEL` configure server-side Claude text generation.
+- `GEMINI_API_KEY` and `GEMINI_MODEL` configure server-side Gemini text generation and image-generation readiness.
+- `ELEVENLABS_API_KEY`, `ELEVENLABS_TTS_MODEL`, and `ELEVENLABS_DEFAULT_VOICE_ID` configure server-side ElevenLabs direct API calls.
 - `ELEVENLABS_MCP_SERVER_URL` is used by the MCP registration helper.
+- `DEMO_API_TOKEN` can protect paid provider endpoints if a demo route is exposed through a public tunnel.
+
+## Provider Boundary
+
+Direct provider API calls live under `src/server/providers/` and are called only from the Express server. The browser may receive readiness metadata, generated content, or audio responses through server routes, but it must never receive raw provider API keys.
+
+The direct ElevenLabs connector is separate from the ElevenLabs MCP registration helper. Use the direct connector when this app calls ElevenLabs APIs. Use MCP registration when an ElevenLabs Conversational AI agent needs to call tools exposed by this project or another MCP server.
 
 ## Rules
 
 - Keep secrets server-side.
 - Keep shared request/response shapes in `src/shared/`.
-- Add backend routes only when the client, ElevenLabs, MCP, or webhook flow needs them.
+- Add backend routes only when the client, direct provider APIs, MCP, or webhook flow needs them.
+- Protect paid provider routes before exposing them through a public tunnel.
 - Keep the first demo route small enough to explain in under a minute.
 - Keep Vite `allowedHosts` compatible with ngrok tunnel domains used for live demo testing.

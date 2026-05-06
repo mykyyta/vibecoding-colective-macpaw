@@ -7,6 +7,8 @@ owner: Architect
 
 This project is prepared to register a remote MCP server with ElevenLabs Conversational AI.
 
+This is separate from the app's direct ElevenLabs API connector under `src/server/providers/`. Use the direct connector when the Express server calls ElevenLabs APIs such as text-to-speech. Use this MCP flow when an ElevenLabs Conversational AI agent needs to call tools exposed by an MCP server.
+
 ## What ElevenLabs Supports
 
 ElevenLabs MCP integrations connect Conversational AI agents to external MCP servers. The MCP server must be reachable by ElevenLabs and must use either SSE or streamable HTTP transport.
