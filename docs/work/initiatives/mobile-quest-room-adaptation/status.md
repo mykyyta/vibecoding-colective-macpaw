@@ -127,3 +127,11 @@ Packet 4 handoff:
     work completes.
   - Playwright mobile smoke with mocked ElevenLabs reply audio verified one
     audio context, one resume, one decode, and successful reply playback.
+- Mobile reply audio arming follow-up:
+  - `npm run typecheck` passed.
+  - Reply playback now keeps a short-lived silent Web Audio/HTMLAudio arm alive
+    after the mic gesture instead of clearing the unlock immediately.
+  - The arm expires after `45s`, is stopped on restart, and is released before
+    real reply playback.
+  - This is intended to better match real mobile browser audio policies where
+    the TTS reply arrives after async STT, quest, and TTS calls.

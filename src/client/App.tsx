@@ -97,9 +97,15 @@ interface ActiveReplyPlayback {
   stop(): void;
 }
 
+interface ReplyAudioArm {
+  stop(options?: { keepElement?: boolean }): void;
+}
+
 let activeReplyPlayback: ActiveReplyPlayback | null = null;
 let replyAudioContext: AudioContext | null = null;
 let replyAudioElement: HTMLAudioElement | null = null;
+let replyAudioArm: ReplyAudioArm | null = null;
+let replyAudioArmTimer: number | null = null;
 let replyAudioUnlockId = 0;
 const ELEVENLABS_STT_SAMPLE_RATE = 16_000;
 const MIN_RECORDED_STT_DURATION_MS = 300;
@@ -107,6 +113,7 @@ const MIN_RECORDED_STT_BYTES = 512;
 const ESCAPE_REWARD_DELAY_MS = 350;
 const REPLY_BUSY_GATE_MS = 700;
 const MAX_REPLY_PLAYBACK_WAIT_MS = 10_000;
+const REPLY_AUDIO_ARM_MS = 45_000;
 const SILENT_REPLY_AUDIO_DATA_URL =
   "data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQIAAAAAAA==";
 const PURR_MARKER_PATTERN =
@@ -587,6 +594,7 @@ export function App() {
     recognitionRef.current?.abort();
     recognitionRef.current = null;
     stopActiveAudio();
+    stopReplyAudioArm();
     window.speechSynthesis?.cancel();
 
     if (escapeTimerRef.current !== null) {
@@ -1469,6 +1477,7 @@ async function playBase64Audio(base64: string, contentType: string): Promise<voi
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
       audio.pause();
+      audio.loop = false;
       audio.removeAttribute("src");
       audio.load();
       URL.revokeObjectURL(audioUrl);
@@ -1504,6 +1513,7 @@ async function playBase64Audio(base64: string, contentType: string): Promise<voi
     };
     activeReplyPlayback = playback;
 
+    stopReplyAudioArm({ keepElement: true });
     playbackTimer = window.setTimeout(() => {
       settle(resolve);
     }, MAX_REPLY_PLAYBACK_WAIT_MS);
@@ -1513,9 +1523,14 @@ async function playBase64Audio(base64: string, contentType: string): Promise<voi
     audio.addEventListener("error", handleError);
 
     audio.muted = false;
+    audio.loop = false;
     audio.src = audioUrl;
     audio.load();
     void audio.play().catch((error: unknown) => {
+      console.info("[audio] HTMLAudio reply playback failed.", {
+        error: error instanceof Error ? error.message : String(error),
+        contentType,
+      });
       settle(() =>
         reject(error instanceof Error ? error : new Error("Audio playback failed.")),
       );
@@ -1537,6 +1552,7 @@ async function playDecodedAudio(
   const audioBuffer = await audioContext.decodeAudioData(audioData);
 
   stopActiveAudio();
+  stopReplyAudioArm();
 
   return new Promise((resolve, reject) => {
     const source = audioContext.createBufferSource();
@@ -1719,20 +1735,29 @@ function getBrowserSpeechSettings(actor: QuestActor): {
 }
 
 function unlockReplyAudio(): void {
+  stopReplyAudioArm();
   const audioContext = getReplyAudioContext();
+  const cleanupTasks: Array<(options?: { keepElement?: boolean }) => void> = [];
 
   if (audioContext) {
     const source = audioContext.createBufferSource();
     const gain = audioContext.createGain();
 
-    source.buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+    source.buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
+    source.loop = true;
     gain.gain.value = 0;
     source.connect(gain);
     gain.connect(audioContext.destination);
-    source.onended = () => {
+    cleanupTasks.push(() => {
+      try {
+        source.stop();
+      } catch {
+        // The arming source may already have stopped.
+      }
+
       source.disconnect();
       gain.disconnect();
-    };
+    });
 
     try {
       source.start();
@@ -1754,8 +1779,29 @@ function unlockReplyAudio(): void {
   replyAudioUnlockId = unlockId;
 
   audio.muted = true;
+  audio.loop = true;
   audio.src = SILENT_REPLY_AUDIO_DATA_URL;
   audio.load();
+  cleanupTasks.push((options) => {
+    if (options?.keepElement) {
+      return;
+    }
+
+    audio.pause();
+    audio.loop = false;
+    audio.currentTime = 0;
+    audio.removeAttribute("src");
+    audio.load();
+    audio.muted = false;
+  });
+  replyAudioArm = {
+    stop(options) {
+      for (const cleanup of cleanupTasks) {
+        cleanup(options);
+      }
+    },
+  };
+  scheduleReplyAudioArmExpiry(unlockId);
 
   void audio
     .play()
@@ -1763,11 +1809,6 @@ function unlockReplyAudio(): void {
       if (unlockId !== replyAudioUnlockId || activeReplyPlayback) {
         return;
       }
-
-      audio.pause();
-      audio.currentTime = 0;
-      audio.removeAttribute("src");
-      audio.load();
     })
     .catch((error: unknown) => {
       console.info("[audio] Could not unlock reply audio element.", {
@@ -1776,9 +1817,35 @@ function unlockReplyAudio(): void {
     })
     .finally(() => {
       if (unlockId === replyAudioUnlockId && !activeReplyPlayback) {
-        audio.muted = false;
+        audio.muted = true;
       }
     });
+}
+
+function scheduleReplyAudioArmExpiry(unlockId: number): void {
+  if (replyAudioArmTimer !== null) {
+    window.clearTimeout(replyAudioArmTimer);
+  }
+
+  replyAudioArmTimer = window.setTimeout(() => {
+    if (unlockId === replyAudioUnlockId && !activeReplyPlayback) {
+      stopReplyAudioArm();
+    }
+  }, REPLY_AUDIO_ARM_MS);
+}
+
+function stopReplyAudioArm(options?: { keepElement?: boolean }): void {
+  if (replyAudioArmTimer !== null) {
+    window.clearTimeout(replyAudioArmTimer);
+    replyAudioArmTimer = null;
+  }
+
+  if (!replyAudioArm) {
+    return;
+  }
+
+  replyAudioArm.stop(options);
+  replyAudioArm = null;
 }
 
 function getReplyAudioContext(): AudioContext | undefined {
