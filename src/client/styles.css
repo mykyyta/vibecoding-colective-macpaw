@@ -909,7 +909,7 @@ button {
 
 .pixel {
   position: absolute;
-  right: 35%;
+  right: 10%;
   bottom: 22%;
   width: 74px;
   height: 64px;
@@ -1063,7 +1063,7 @@ button {
 }
 
 .speech-bubble--pixel {
-  right: 28%;
+  right: 4%;
   bottom: 39%;
 }
 
@@ -1495,7 +1495,7 @@ button {
   }
 
   .pixel {
-    right: 32%;
+    right: 9%;
     --pixel-scale: scale(0.9);
     transform: var(--pixel-scale);
     transform-origin: bottom center;
@@ -1514,7 +1514,7 @@ button {
   }
 
   .speech-bubble--pixel {
-    right: 24%;
+    right: 3%;
   }
 }
 
@@ -1575,8 +1575,8 @@ button {
   }
 
   .pixel {
-    right: 34%;
-    bottom: 24%;
+    right: 29%;
+    bottom: 20%;
     --pixel-scale: scale(0.76);
     transform: var(--pixel-scale);
   }
