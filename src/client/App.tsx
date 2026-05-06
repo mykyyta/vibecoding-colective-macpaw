@@ -99,11 +99,16 @@ interface ActiveReplyPlayback {
 
 let activeReplyPlayback: ActiveReplyPlayback | null = null;
 let replyAudioContext: AudioContext | null = null;
+let replyAudioElement: HTMLAudioElement | null = null;
+let replyAudioUnlockId = 0;
 const ELEVENLABS_STT_SAMPLE_RATE = 16_000;
 const MIN_RECORDED_STT_DURATION_MS = 300;
 const MIN_RECORDED_STT_BYTES = 512;
 const ESCAPE_REWARD_DELAY_MS = 350;
+const REPLY_BUSY_GATE_MS = 700;
 const MAX_REPLY_PLAYBACK_WAIT_MS = 10_000;
+const SILENT_REPLY_AUDIO_DATA_URL =
+  "data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQIAAAAAAA==";
 const PURR_MARKER_PATTERN =
   /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/giu;
 
@@ -189,6 +194,8 @@ export function App() {
     pendingStopAfterStartRef.current = false;
     const listenAttempt = listenAttemptRef.current + 1;
     listenAttemptRef.current = listenAttempt;
+    stopActiveAudio();
+    window.speechSynthesis?.cancel();
     recordedRecognitionRef.current?.abort();
     realtimeRecognitionRef.current?.abort();
     recognitionRef.current?.abort();
@@ -638,7 +645,14 @@ export function App() {
 
       setReadout(response.reply);
       setBubble(replyBubble);
-      await playTurnReply(response);
+      const replyPlayback = playTurnReply(response);
+
+      void replyPlayback.catch((error: unknown) => {
+        console.info("[audio] Reply playback ended without audible output.", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
+      await waitForReplyBusyGate(replyPlayback);
 
       if (turnId === turnIdRef.current && nextRoomState === "doorOpening") {
         scheduleEscapedState();
@@ -931,6 +945,7 @@ function SceneMic({
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
 
+    unlockReplyAudio();
     onStop();
   }
 
@@ -1424,20 +1439,15 @@ async function playBase64Audio(base64: string, contentType: string): Promise<voi
     }
   }
 
-  const audioUrl = URL.createObjectURL(new Blob([bytes], { type: contentType }));
-  const audio = new Audio(audioUrl);
-
   stopActiveAudio();
-  const playback: ActiveReplyPlayback = {
-    stop() {
-      audio.pause();
-    },
-  };
-  activeReplyPlayback = playback;
+  replyAudioUnlockId += 1;
+  const audioUrl = URL.createObjectURL(new Blob([bytes], { type: contentType }));
+  const audio = getReplyAudioElement();
 
   return new Promise((resolve, reject) => {
     let settled = false;
     let playbackTimer: number | null = null;
+    let playback: ActiveReplyPlayback | null = null;
 
     const settle = (complete: () => void) => {
       if (settled) {
@@ -1455,46 +1465,56 @@ async function playBase64Audio(base64: string, contentType: string): Promise<voi
         activeReplyPlayback = null;
       }
 
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
       URL.revokeObjectURL(audioUrl);
       complete();
     };
+
+    const handleLoadedMetadata = () => {
+      if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+        return;
+      }
+
+      if (playbackTimer !== null) {
+        window.clearTimeout(playbackTimer);
+      }
+
+      playbackTimer = window.setTimeout(() => {
+        settle(resolve);
+      }, Math.min(audio.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
+    };
+
+    const handleEnded = () => {
+      settle(resolve);
+    };
+
+    const handleError = () => {
+      settle(() => reject(new Error("Audio playback failed.")));
+    };
+
+    playback = {
+      stop() {
+        settle(resolve);
+      },
+    };
+    activeReplyPlayback = playback;
 
     playbackTimer = window.setTimeout(() => {
       settle(resolve);
     }, MAX_REPLY_PLAYBACK_WAIT_MS);
 
-    audio.addEventListener(
-      "loadedmetadata",
-      () => {
-        if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
-          return;
-        }
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("error", handleError);
 
-        if (playbackTimer !== null) {
-          window.clearTimeout(playbackTimer);
-        }
-
-        playbackTimer = window.setTimeout(() => {
-          settle(resolve);
-        }, Math.min(audio.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
-      },
-      { once: true },
-    );
-    audio.addEventListener(
-      "ended",
-      () => {
-        settle(resolve);
-      },
-      { once: true },
-    );
-    audio.addEventListener(
-      "error",
-      () => {
-        settle(() => reject(new Error("Audio playback failed.")));
-      },
-      { once: true },
-    );
-
+    audio.muted = false;
+    audio.src = audioUrl;
+    audio.load();
     void audio.play().catch((error: unknown) => {
       settle(() =>
         reject(error instanceof Error ? error : new Error("Audio playback failed.")),
@@ -1674,6 +1694,15 @@ function speakWithBrowser(text: string, actor: QuestActor): Promise<void> {
   });
 }
 
+async function waitForReplyBusyGate(playback: Promise<void>): Promise<void> {
+  await Promise.race([
+    playback,
+    new Promise<void>((resolve) => {
+      window.setTimeout(resolve, REPLY_BUSY_GATE_MS);
+    }),
+  ]).catch(() => undefined);
+}
+
 function getBrowserSpeechSettings(actor: QuestActor): {
   rate: number;
   pitch: number;
@@ -1692,28 +1721,64 @@ function getBrowserSpeechSettings(actor: QuestActor): {
 function unlockReplyAudio(): void {
   const audioContext = getReplyAudioContext();
 
-  if (!audioContext) {
-    return;
+  if (audioContext) {
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+
+    source.buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+    gain.gain.value = 0;
+    source.connect(gain);
+    gain.connect(audioContext.destination);
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+    };
+
+    try {
+      source.start();
+    } catch {
+      source.disconnect();
+      gain.disconnect();
+    }
+
+    void audioContext.resume().catch((error: unknown) => {
+      console.info("[audio] Could not unlock reply audio context.", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    });
   }
 
-  const source = audioContext.createBufferSource();
-  const gain = audioContext.createGain();
+  const audio = getReplyAudioElement();
+  const unlockId = replyAudioUnlockId + 1;
 
-  source.buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
-  gain.gain.value = 0;
-  source.connect(gain);
-  gain.connect(audioContext.destination);
-  source.onended = () => {
-    source.disconnect();
-    gain.disconnect();
-  };
-  source.start();
+  replyAudioUnlockId = unlockId;
 
-  void audioContext.resume().catch((error: unknown) => {
-    console.info("[audio] Could not unlock reply audio context.", {
-      error: error instanceof Error ? error.message : String(error),
+  audio.muted = true;
+  audio.src = SILENT_REPLY_AUDIO_DATA_URL;
+  audio.load();
+
+  void audio
+    .play()
+    .then(() => {
+      if (unlockId !== replyAudioUnlockId || activeReplyPlayback) {
+        return;
+      }
+
+      audio.pause();
+      audio.currentTime = 0;
+      audio.removeAttribute("src");
+      audio.load();
+    })
+    .catch((error: unknown) => {
+      console.info("[audio] Could not unlock reply audio element.", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    })
+    .finally(() => {
+      if (unlockId === replyAudioUnlockId && !activeReplyPlayback) {
+        audio.muted = false;
+      }
     });
-  });
 }
 
 function getReplyAudioContext(): AudioContext | undefined {
@@ -1731,6 +1796,16 @@ function getReplyAudioContext(): AudioContext | undefined {
   }
 
   return replyAudioContext;
+}
+
+function getReplyAudioElement(): HTMLAudioElement {
+  if (!replyAudioElement) {
+    replyAudioElement = new Audio();
+    replyAudioElement.preload = "auto";
+    replyAudioElement.setAttribute("playsinline", "true");
+  }
+
+  return replyAudioElement;
 }
 
 function stopActiveAudio(): void {
