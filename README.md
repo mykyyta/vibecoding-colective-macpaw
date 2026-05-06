@@ -38,6 +38,7 @@
 - `docs/product/product.md` — продуктова точка правди;
 - `docs/build-system/operating-model/` — ролі, масштаб роботи та handoff;
 - `docs/build-system/integrations/elevenlabs-mcp.md` — підготовка MCP-підключення до ElevenLabs;
+- `docs/build-system/integrations/deployment-options.md` — прості варіанти деплою для демо;
 - `docs/work/` — тимчасове місце для активних ініціатив і backlog-сигналів.
 
 Під час івенту це має допомогти швидко перейти від ідеї до плану, від плану до пакета роботи, а від пакета — до робочого демо.

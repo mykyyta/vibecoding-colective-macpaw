@@ -10,6 +10,7 @@ Project documentation is intentionally small until the event task is known.
 - `build-system/operating-model/readme.md` — role model and workflow entry point.
 - `build-system/standards/documentation.md` — documentation structure and lifecycle.
 - `build-system/integrations/elevenlabs-mcp.md` — ElevenLabs MCP setup notes.
+- `build-system/integrations/deployment-options.md` — simple deployment paths for event demos.
 - `work/readme.md` — temporary execution control plane.
 
 ## Rule

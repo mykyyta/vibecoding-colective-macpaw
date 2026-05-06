@@ -63,6 +63,10 @@ npm run elevenlabs:mcp:tools -- <mcp_server_id>
 
 After the MCP server is created and tools are visible, attach it to the target ElevenLabs agent in the dashboard. Keep approval mode on `Always Ask` or fine-grained approval until the tool behavior is verified.
 
+## Deployment Note
+
+For event-speed testing, the MCP server can be exposed through a local tunnel. For a more stable public URL, deploy the MCP server as a normal web service. See `deployment-options.md`.
+
 ## References
 
 - [ElevenLabs MCP tools](https://elevenlabs.io/docs/eleven-agents/customization/tools/mcp)
