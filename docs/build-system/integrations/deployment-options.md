@@ -11,6 +11,11 @@ This project does not have a fixed app stack yet. The default event posture is a
 
 Default to **local live demo + tunnel**. Move to cloud deployment only when the demo needs a stable public backend, a long-lived MCP server, collaboration after the event, or the laptop cannot stay online.
 
+For the CloudFront + Railway path requested on 2026-05-06, use
+`docs/build-system/integrations/cloud-deployment.md` as the deployment contract.
+The cloud path keeps CloudFront as the public entrypoint and Railway as the
+single Express runtime.
+
 | Need | Default choice | Why |
 | --- | --- | --- |
 | Live event demo | Local app + ngrok or Cloudflare Tunnel | Fastest path; avoids cloud setup while the idea is still changing. |

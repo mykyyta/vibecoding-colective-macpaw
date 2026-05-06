@@ -15,6 +15,7 @@ Project documentation is intentionally small until the event task is known.
 - `build-system/standards/documentation.md` — documentation structure and lifecycle.
 - `build-system/integrations/elevenlabs-mcp.md` — ElevenLabs MCP setup notes.
 - `build-system/integrations/deployment-options.md` — simple deployment paths for event demos.
+- `build-system/integrations/cloud-deployment.md` — CloudFront + Railway deployment contract.
 - `work/readme.md` — temporary execution control plane.
 
 ## Rule
