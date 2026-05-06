@@ -46,16 +46,17 @@ export function App() {
     <main className="app-shell">
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Live demo workspace</p>
+          <div className="hero-meta">
+            <p className="eyebrow">Live demo workspace</p>
+            <span>ElevenLabs-ready base</span>
+          </div>
           <h1>Vibecoding Collective</h1>
           <p className="lede">
-            A small event-ready base for building a fast ElevenLabs-powered
-            prototype from a local machine, with a public tunnel when outside
-            services need to call in.
+            A live stage for fast voice, audio, and conversational prototypes.
           </p>
           <div className="demo-marker">
             Tunnel test placeholder
-            <span>Open this page through ngrok to confirm the live demo path.</span>
+            <span>Public path is active when this page loads through ngrok.</span>
           </div>
         </div>
         <StatusPanel loadState={loadState} />
@@ -72,7 +73,7 @@ function StatusPanel({ loadState }: { loadState: LoadState }) {
   if (loadState.state === "error") {
     return (
       <aside className="status-panel status-panel--error">
-        <span>Server check failed</span>
+        <span>Server signal</span>
         <strong>{loadState.message}</strong>
       </aside>
     );
@@ -82,21 +83,25 @@ function StatusPanel({ loadState }: { loadState: LoadState }) {
 
   return (
     <aside className="status-panel">
-      <div>
+      <header className="status-header">
+        <span>Readiness board</span>
+        <strong>{status.app}</strong>
+      </header>
+      <div className="status-row">
         <span>Mode</span>
         <strong>{status.mode}</strong>
       </div>
-      <div>
+      <div className="status-row">
         <span>API server</span>
         <strong>:{status.environment.port}</strong>
       </div>
-      <div>
+      <div className="status-row">
         <span>ElevenLabs key</span>
         <strong>
           {status.environment.elevenLabsApiKeyConfigured ? "set" : "missing"}
         </strong>
       </div>
-      <div>
+      <div className="status-row">
         <span>MCP URL</span>
         <strong>
           {status.environment.elevenLabsMcpServerUrlConfigured
@@ -104,6 +109,17 @@ function StatusPanel({ loadState }: { loadState: LoadState }) {
             : "missing"}
         </strong>
       </div>
+      <footer className="status-footer">
+        Last server pulse <time>{formatTime(status.serverTime)}</time>
+      </footer>
     </aside>
   );
+}
+
+function formatTime(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date(value));
 }
