@@ -1,0 +1,12 @@
+{
+  "name": "vibecoding-colective",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "elevenlabs:mcp:create": "node scripts/elevenlabs-mcp.mjs create",
+    "elevenlabs:mcp:list": "node scripts/elevenlabs-mcp.mjs list",
+    "elevenlabs:mcp:tools": "node scripts/elevenlabs-mcp.mjs tools"
+  }
+}
+

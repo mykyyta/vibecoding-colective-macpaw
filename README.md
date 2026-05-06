@@ -36,6 +36,20 @@
 - `.agents/skills/` — локальні скіли ролей;
 - `docs/product/product.md` — продуктова точка правди;
 - `docs/build-system/operating-model/` — ролі, масштаб роботи та handoff;
+- `docs/build-system/integrations/elevenlabs-mcp.md` — підготовка MCP-підключення до ElevenLabs;
 - `docs/work/` — тимчасове місце для активних ініціатив і backlog-сигналів.
 
 Під час івенту це має допомогти швидко перейти від ідеї до плану, від плану до пакета роботи, а від пакета — до робочого демо.
+
+## ElevenLabs MCP
+
+Для підключення віддаленого MCP server до ElevenLabs Conversational AI підготовлено:
+
+- `.env.example` — шаблон локальних змінних;
+- `scripts/elevenlabs-mcp.mjs` — реєстрація MCP server через ElevenLabs API;
+- npm scripts:
+  - `npm run elevenlabs:mcp:create`
+  - `npm run elevenlabs:mcp:list`
+  - `npm run elevenlabs:mcp:tools -- <mcp_server_id>`
+
+Реальне підключення потребує `ELEVENLABS_API_KEY` і публічного `ELEVENLABS_MCP_SERVER_URL`.
