@@ -95,6 +95,8 @@ const initialQuestState: QuestState = {
 
 let activeAudio: HTMLAudioElement | null = null;
 const ELEVENLABS_STT_SAMPLE_RATE = 16_000;
+const MIN_RECORDED_STT_DURATION_MS = 300;
+const MIN_RECORDED_STT_BYTES = 512;
 const PURR_MARKER_PATTERN =
   /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/giu;
 
@@ -248,6 +250,7 @@ export function App() {
     );
     let stopped = false;
     let stopResolver: (() => void) | null = null;
+    const recordingStartedAt = performance.now();
     const stoppedPromise = new Promise<void>((resolve) => {
       stopResolver = resolve;
     });
@@ -285,14 +288,40 @@ export function App() {
       mediaStream.getTracks().forEach((track) => track.stop());
       await stoppedPromise;
 
-      if (!shouldTranscribe || chunks.length === 0) {
+      if (!shouldTranscribe) {
         setVoiceBusy(false);
+        return;
+      }
+
+      if (chunks.length === 0) {
+        setVoiceBusy(false);
+        setRoomState(previousStateRef.current);
+        setBubble({
+          actor: "room",
+          name: "Мікрофон",
+          text: "Потримай кнопку трохи довше і скажи фразу ще раз.",
+        });
         return;
       }
 
       const audio = new Blob(chunks, {
         type: recorder.mimeType || "audio/webm",
       });
+      const recordedDurationMs = performance.now() - recordingStartedAt;
+
+      if (
+        recordedDurationMs < MIN_RECORDED_STT_DURATION_MS ||
+        audio.size < MIN_RECORDED_STT_BYTES
+      ) {
+        setVoiceBusy(false);
+        setRoomState(previousStateRef.current);
+        setBubble({
+          actor: "room",
+          name: "Мікрофон",
+          text: "Потримай кнопку трохи довше і скажи фразу ще раз.",
+        });
+        return;
+      }
 
       setInterimTranscript("");
       setVoiceBusy(true);
@@ -318,14 +347,22 @@ export function App() {
 
         observePurrMarkers("elevenlabs-recorded", "committed", transcription.text);
         await applyTranscript(transcription.text);
-      } catch {
+      } catch (error) {
+        console.info("[elevenlabs-stt] Recorded transcription failed.", {
+          error: error instanceof Error ? error.message : String(error),
+          bytes: audio.size,
+          contentType: audio.type,
+          durationMs: Math.round(recordedDurationMs),
+        });
         elevenLabsSttAvailableRef.current = false;
         setVoiceBusy(false);
         setRoomState(previousStateRef.current);
         setBubble({
           actor: "room",
           name: "Мікрофон",
-          text: "ElevenLabs STT не відповів. Спробуй ще раз або онови сторінку.",
+          text: getSpeechRecognitionConstructor()
+            ? "ElevenLabs не розшифрував. Спробуй ще раз: наступна спроба піде через браузер."
+            : "ElevenLabs не розшифрував. Перевір мікрофон і спробуй ще раз.",
         });
       }
     };
@@ -837,6 +874,8 @@ function SceneMic({
   onStart: () => void;
   onStop: () => void;
 }) {
+  const activePointerIdRef = useRef<number | null>(null);
+  const keyboardHoldActiveRef = useRef(false);
   const prompt =
     isListening
       ? "Говори"
@@ -847,17 +886,27 @@ function SceneMic({
         : "Мікрофон заблоковано";
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0 || isListening || isBusy) {
+    if (
+      (event.pointerType === "mouse" && event.button !== 0) ||
+      isListening ||
+      isBusy
+    ) {
       return;
     }
 
     event.preventDefault();
+    activePointerIdRef.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
     onStart();
   }
 
   function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
+    if (activePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
     event.preventDefault();
+    activePointerIdRef.current = null;
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -867,6 +916,12 @@ function SceneMic({
   }
 
   function handlePointerCancel(event: PointerEvent<HTMLButtonElement>) {
+    if (activePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
+    activePointerIdRef.current = null;
+
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -885,6 +940,7 @@ function SceneMic({
     }
 
     event.preventDefault();
+    keyboardHoldActiveRef.current = true;
     onStart();
   }
 
@@ -894,7 +950,17 @@ function SceneMic({
     }
 
     event.preventDefault();
+    keyboardHoldActiveRef.current = false;
 
+    onStop();
+  }
+
+  function handleBlur() {
+    if (!keyboardHoldActiveRef.current) {
+      return;
+    }
+
+    keyboardHoldActiveRef.current = false;
     onStop();
   }
 
@@ -902,7 +968,7 @@ function SceneMic({
     <button
       className={`scene-mic ${isListening ? "scene-mic--active" : ""}`}
       type="button"
-      onBlur={onStop}
+      onBlur={handleBlur}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       onPointerCancel={handlePointerCancel}
@@ -988,10 +1054,30 @@ async function requestRecordedStt(audio: Blob): Promise<RecordedSttResponse> {
   });
 
   if (!response.ok) {
-    throw new Error(`Recorded STT failed with ${response.status}.`);
+    const errorText = await readResponseError(response);
+
+    throw new Error(
+      `Recorded STT failed with ${response.status}${errorText ? `: ${errorText}` : ""}.`,
+    );
   }
 
   return (await response.json()) as RecordedSttResponse;
+}
+
+async function readResponseError(response: Response): Promise<string> {
+  const body = await response.text();
+
+  if (!body) {
+    return "";
+  }
+
+  try {
+    const parsed = JSON.parse(body) as { error?: unknown };
+
+    return typeof parsed.error === "string" ? parsed.error : body;
+  } catch {
+    return body;
+  }
 }
 
 function getSupportedRecordingMimeType(): string {

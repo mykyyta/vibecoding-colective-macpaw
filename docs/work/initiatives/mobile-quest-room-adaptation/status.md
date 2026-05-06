@@ -18,8 +18,8 @@ promise.
 | --- | --- | --- | --- |
 | Mobile Layout Audit | Codex | Completed | Audited `390x844`, `320x568`, and `1440x900` viewports across idle, hint, listening, guard reply, Pixel reply, and door-opened states. |
 | Responsive Room Composition | Codex | Completed | Fixed mobile mic copy clipping and moved mobile speech bubbles away from the door/keypad/character cluster. |
-| Mobile Voice Control Ergonomics | Unassigned | Ready | Next packet. Audit did not expose a blocker, but touch behavior still needs explicit smoke. |
-| Mobile Visual QA And Integration Pass | Unassigned | Pending | Waits for responsive layout and control packets. |
+| Mobile Voice Control Ergonomics | Codex | Completed | Hardened mobile hold/release behavior, short-recording handling, and ElevenLabs STT error diagnostics. |
+| Mobile Visual QA And Integration Pass | Unassigned | Ready | Next packet. Responsive layout and control packets are complete. |
 
 ## Current Decisions
 
@@ -34,30 +34,29 @@ promise.
 
 ## Active Constraints
 
-- Existing local worktree has uncommitted UI edits in `src/client/App.tsx` and
-  `src/client/styles.css`. Packet owners must account for them and avoid
-  reverting unrelated user changes.
 - Keep the app runnable with `npm run dev`.
 - Validate with the smallest meaningful checks: `npm run typecheck` and mobile
   plus desktop screenshot review once implementation starts.
 - Do not change ElevenLabs STT/TTS behavior as part of mobile layout work unless
   a mobile browser issue requires a narrowly scoped control fix.
+- The separate worktree does not have its own `.env`; run it with the main
+  checkout environment loaded when verifying real ElevenLabs calls.
 
 ## Next Action
 
-Dispatch Packet 3, **Mobile Voice Control Ergonomics**, in the separate worktree.
+Dispatch Packet 4, **Mobile Visual QA And Integration Pass**, in the separate
+worktree.
 
-Packet 3 handoff:
+Packet 4 handoff:
 
-- Goal: verify and refine mobile press-and-hold voice control behavior.
-- Scope in: `src/client/App.tsx` touch/pointer hold, release, cancel, busy, and
-  permission/error states.
-- Scope out: typed input, command buttons, provider replacement, and visual
-  redesign.
-- Acceptance: touch hold starts listening, release stops/submits reliably,
-  busy/listening states do not trap the user, desktop pointer/keyboard behavior
-  still works, and `npm run typecheck` passes.
-- Validation: `npm run typecheck`; emulated pointer smoke on mobile viewport.
+- Goal: verify the integrated mobile experience across the key quest states.
+- Scope in: screenshots for idle, listening, guard reply, Pixel reply, code
+  revealed, and door opened states on mobile and desktop.
+- Scope out: new features, provider replacement, and broad redesign.
+- Acceptance: key states pass mobile and desktop screenshot review, remaining
+  limitations are documented, and `npm run typecheck` passes.
+- Validation: `npm run typecheck`; screenshot review on mobile and desktop
+  viewports.
 
 ## Risks
 
@@ -96,3 +95,16 @@ Packet 3 handoff:
   - Pixel and guard reply bubbles no longer overlap the exit, Pixel, Oleg, or
     mic at `390x844` or `320x568`.
   - Desktop idle screenshot remains visually consistent.
+- Mobile voice-control validation:
+  - `npm run typecheck` passed.
+  - In-app browser smoke opened `http://localhost:3100/`.
+  - Playwright mobile pointer smoke with fake microphone and mocked ElevenLabs
+    recorded STT verified that an `80ms` tap does not call STT and shows a
+    longer-hold prompt.
+  - Playwright mobile pointer smoke verified that a `700ms` hold calls recorded
+    STT once, submits the returned transcript, and returns the mic to idle.
+  - Failure-path smoke verified that a recorded STT error leaves the mic enabled
+    and shows a retry message instead of trapping the user in busy/listening.
+  - Real ElevenLabs STT was not called during this packet because it consumes
+    paid API quota; use the main checkout `.env` when doing the final live API
+    verification from the separate worktree.
