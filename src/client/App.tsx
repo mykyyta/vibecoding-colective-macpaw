@@ -97,6 +97,8 @@ let activeAudio: HTMLAudioElement | null = null;
 const ELEVENLABS_STT_SAMPLE_RATE = 16_000;
 const MIN_RECORDED_STT_DURATION_MS = 300;
 const MIN_RECORDED_STT_BYTES = 512;
+const ESCAPE_REWARD_DELAY_MS = 350;
+const MAX_REPLY_PLAYBACK_WAIT_MS = 10_000;
 const PURR_MARKER_PATTERN =
   /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/giu;
 
@@ -160,11 +162,17 @@ export function App() {
 
     setRoomState(nextState);
 
-    if (nextState === "doorOpening") {
-      escapeTimerRef.current = window.setTimeout(() => {
-        setRoomState("escaped");
-      }, 1350);
+  }
+
+  function scheduleEscapedState(delayMs = ESCAPE_REWARD_DELAY_MS) {
+    if (escapeTimerRef.current !== null) {
+      window.clearTimeout(escapeTimerRef.current);
     }
+
+    escapeTimerRef.current = window.setTimeout(() => {
+      setRoomState("escaped");
+      escapeTimerRef.current = null;
+    }, delayMs);
   }
 
   function startListening() {
@@ -614,7 +622,8 @@ export function App() {
 
       questStateRef.current = response.nextQuestState;
       setQuestState(response.nextQuestState);
-      setRoomStateSafely(getRoomStateForVoiceTurn(response));
+      const nextRoomState = getRoomStateForVoiceTurn(response);
+      setRoomStateSafely(nextRoomState);
 
       const replyBubble = getBubbleForVoiceTurn(
         response.actor,
@@ -625,6 +634,10 @@ export function App() {
       setReadout(response.reply);
       setBubble(replyBubble);
       await playTurnReply(response);
+
+      if (turnId === turnIdRef.current && nextRoomState === "doorOpening") {
+        scheduleEscapedState();
+      }
     } catch {
       if (turnId !== turnIdRef.current) {
         return;
@@ -640,7 +653,7 @@ export function App() {
         name: "Кімната",
         text: message,
       });
-      speakWithBrowser(message, "system");
+      void speakWithBrowser(message, "system");
     } finally {
       if (turnId === turnIdRef.current) {
         setVoiceBusy(false);
@@ -1372,14 +1385,14 @@ function getAmbientHint(questState: QuestState, roomState: RoomState): string {
 
 async function playTurnReply(response: VoiceTurnResponse): Promise<void> {
   if (!response.audio) {
-    speakWithBrowser(response.reply, response.actor);
+    await speakWithBrowser(response.reply, response.actor);
     return;
   }
 
   try {
     await playBase64Audio(response.audio.base64, response.audio.contentType);
   } catch {
-    speakWithBrowser(response.reply, response.actor);
+    await speakWithBrowser(response.reply, response.actor);
   }
 }
 
@@ -1398,38 +1411,69 @@ function playBase64Audio(base64: string, contentType: string): Promise<void> {
   activeAudio = audio;
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    let playbackTimer: number | null = null;
+
+    const settle = (complete: () => void) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+
+      if (playbackTimer !== null) {
+        window.clearTimeout(playbackTimer);
+        playbackTimer = null;
+      }
+
+      if (activeAudio === audio) {
+        activeAudio = null;
+      }
+
+      URL.revokeObjectURL(audioUrl);
+      complete();
+    };
+
+    playbackTimer = window.setTimeout(() => {
+      settle(resolve);
+    }, MAX_REPLY_PLAYBACK_WAIT_MS);
+
+    audio.addEventListener(
+      "loadedmetadata",
+      () => {
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+          return;
+        }
+
+        if (playbackTimer !== null) {
+          window.clearTimeout(playbackTimer);
+        }
+
+        playbackTimer = window.setTimeout(() => {
+          settle(resolve);
+        }, Math.min(audio.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
+      },
+      { once: true },
+    );
     audio.addEventListener(
       "ended",
       () => {
-        if (activeAudio === audio) {
-          activeAudio = null;
-        }
-
-        URL.revokeObjectURL(audioUrl);
-        resolve();
+        settle(resolve);
       },
       { once: true },
     );
     audio.addEventListener(
       "error",
       () => {
-        if (activeAudio === audio) {
-          activeAudio = null;
-        }
-
-        URL.revokeObjectURL(audioUrl);
-        reject(new Error("Audio playback failed."));
+        settle(() => reject(new Error("Audio playback failed.")));
       },
       { once: true },
     );
 
     void audio.play().catch((error: unknown) => {
-      if (activeAudio === audio) {
-        activeAudio = null;
-      }
-
-      URL.revokeObjectURL(audioUrl);
-      reject(error instanceof Error ? error : new Error("Audio playback failed."));
+      settle(() =>
+        reject(error instanceof Error ? error : new Error("Audio playback failed.")),
+      );
     });
   });
 }
@@ -1501,9 +1545,9 @@ function observePurrMarkers(
   }
 }
 
-function speakWithBrowser(text: string, actor: QuestActor): void {
+function speakWithBrowser(text: string, actor: QuestActor): Promise<void> {
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
-    return;
+    return Promise.resolve();
   }
 
   const utterance = new SpeechSynthesisUtterance(text);
@@ -1515,7 +1559,23 @@ function speakWithBrowser(text: string, actor: QuestActor): void {
 
   stopActiveAudio();
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+
+  return new Promise((resolve) => {
+    const speechTimer = window.setTimeout(resolve, MAX_REPLY_PLAYBACK_WAIT_MS);
+
+    const settle = () => {
+      window.clearTimeout(speechTimer);
+      resolve();
+    };
+
+    utterance.onend = () => {
+      settle();
+    };
+    utterance.onerror = () => {
+      settle();
+    };
+    window.speechSynthesis.speak(utterance);
+  });
 }
 
 function getBrowserSpeechSettings(actor: QuestActor): {

@@ -108,3 +108,10 @@ Packet 4 handoff:
   - Real ElevenLabs STT was not called during this packet because it consumes
     paid API quota; use the main checkout `.env` when doing the final live API
     verification from the separate worktree.
+- Final room voice fix validation:
+  - `npm run typecheck` passed.
+  - Playwright smoke with mocked final ElevenLabs audio verified that the app
+    remains in `doorOpening` while the final reply is still playing, then moves
+    to `escaped` after playback completes.
+  - Playback now also has a metadata-based timeout fallback so the UI does not
+    stay in `doorOpening` if a browser fails to emit the audio `ended` event.
