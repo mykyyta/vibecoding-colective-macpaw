@@ -293,30 +293,90 @@ button {
 
 .ambient-hint {
   position: absolute;
-  left: 13%;
-  top: 19%;
-  max-width: 66%;
+  left: 5.5%;
+  top: 18%;
+  max-width: 34%;
   padding: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
   color: color-mix(in oklch, var(--green), var(--plaster-lit) 18%);
   font-size: 0.74rem;
   font-weight: 650;
   letter-spacing: 0;
   line-height: 1.15;
-  opacity: 0.34;
   text-shadow: 0 0 10px color-mix(in oklch, var(--green), transparent 42%);
-  z-index: 3;
-  pointer-events: none;
+  z-index: 20;
+  pointer-events: auto;
 }
 
-.ambient-hint span {
+.ambient-hint__button {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in oklch, var(--green), transparent 46%);
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--stage), transparent 18%);
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 14%);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0.54;
+  text-shadow: inherit;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease-out),
+    opacity 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+  list-style: none;
+}
+
+.ambient-hint__button:hover,
+.ambient-hint__button:focus-visible,
+.ambient-hint[open] .ambient-hint__button {
+  border-color: color-mix(in oklch, var(--green), transparent 20%);
+  opacity: 0.86;
+}
+
+.ambient-hint__button::-webkit-details-marker {
+  display: none;
+}
+
+.ambient-hint__button:active {
+  transform: scale(0.94);
+}
+
+.ambient-hint__text {
   display: block;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  transition:
+    max-width 180ms var(--ease-out),
+    opacity 140ms var(--ease-out);
+}
+
+.ambient-hint[open] .ambient-hint__text {
+  max-width: 18rem;
+  opacity: 0.46;
 }
 
 .quest-app--listening .ambient-hint,
 .quest-app--codeRevealed .ambient-hint,
 .quest-app--doorOpening .ambient-hint,
 .quest-app--escaped .ambient-hint {
-  opacity: 0.46;
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 24%);
+}
+
+.quest-app--listening .ambient-hint[open] .ambient-hint__text,
+.quest-app--codeRevealed .ambient-hint[open] .ambient-hint__text,
+.quest-app--doorOpening .ambient-hint[open] .ambient-hint__text,
+.quest-app--escaped .ambient-hint[open] .ambient-hint__text {
+  opacity: 0.58;
 }
 
 .wood-columns {

@@ -672,12 +672,12 @@ function RoomScene({
 
       <div className="presentation-wall">
         <div className="screen-sheen" aria-hidden="true" />
-        <AmbientHint questState={questState} roomState={roomState} />
         <div className="stage-success" aria-hidden="true">
           <span>EXIT 404 RESOLVED</span>
         </div>
         <span className="stage-label">MacPaw Space</span>
       </div>
+      <AmbientHint questState={questState} roomState={roomState} />
 
       <div className="back-signage" aria-hidden="true">
         <span>Exit MacPaw Space</span>
@@ -732,9 +732,14 @@ function AmbientHint({
   const hint = getAmbientHint(questState, roomState);
 
   return (
-    <div className="ambient-hint" aria-live="polite">
-      <span>{hint}</span>
-    </div>
+    <details className="ambient-hint" key={hint}>
+      <summary className="ambient-hint__button" aria-label="Показати підказку">
+        ?
+      </summary>
+      <span className="ambient-hint__text" aria-live="polite">
+        {hint}
+      </span>
+    </details>
   );
 }
 
