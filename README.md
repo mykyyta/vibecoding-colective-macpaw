@@ -66,6 +66,14 @@ npm run dev
 - UI: `http://localhost:3000`
 - API: `http://localhost:8787`
 
+Перевірка через ngrok:
+
+```bash
+ngrok http 3000
+```
+
+Поточний live-demo flow уже перевірений: публічний ngrok URL відкриває UI, а `/api/status` проходить через Vite proxy до Express API. Конкретний ngrok URL є тимчасовим і може змінюватися між запусками.
+
 ## ElevenLabs MCP
 
 Для підключення віддаленого MCP server до ElevenLabs Conversational AI підготовлено:

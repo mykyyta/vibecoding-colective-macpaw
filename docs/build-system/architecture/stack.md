@@ -34,6 +34,15 @@ Browser
               -> ElevenLabs / MCP / webhook integrations
 ```
 
+With ngrok live demo:
+
+```text
+Public ngrok URL
+  -> localhost:3000
+      -> Vite UI and /api proxy
+          -> localhost:8787 Express API
+```
+
 For cloud deployment, build output is:
 
 - `dist/` for the client;
@@ -62,4 +71,4 @@ npm start
 - Keep shared request/response shapes in `src/shared/`.
 - Add backend routes only when the client, ElevenLabs, MCP, or webhook flow needs them.
 - Keep the first demo route small enough to explain in under a minute.
-
+- Keep Vite `allowedHosts` compatible with ngrok tunnel domains used for live demo testing.

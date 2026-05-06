@@ -53,6 +53,45 @@ Live demo requirements:
 - The presenter keeps the laptop awake and connected.
 - A fallback screenshot or recorded clip is useful if venue networking fails.
 
+### Verified ngrok Flow
+
+Current local flow:
+
+```bash
+npm run dev
+ngrok http 3000
+```
+
+Verified on 2026-05-06:
+
+- Vite UI served at `http://localhost:3000`.
+- Express API served at `http://localhost:8787`.
+- ngrok public URL forwarded to `http://localhost:3000`.
+- Public root URL returned `HTTP 200`.
+- Public `/api/status` URL returned the Express status JSON through the Vite proxy.
+
+The tested ngrok URL was:
+
+```text
+https://shingle-washcloth-outreach.ngrok-free.dev
+```
+
+This URL is an ephemeral tunnel URL and should not be treated as stable project configuration.
+
+Vite requires explicit allowed hosts for ngrok. The project currently allows:
+
+```ts
+allowedHosts: [".ngrok-free.dev", ".ngrok-free.app"]
+```
+
+Useful checks:
+
+```bash
+curl -I https://<ngrok-host>
+curl https://<ngrok-host>/api/status
+curl http://127.0.0.1:4040/api/tunnels
+```
+
 ## Option B: Vercel
 
 Use this when the project is primarily a web UI or a Next.js-style app with light serverless routes and needs to remain available after the local demo.
