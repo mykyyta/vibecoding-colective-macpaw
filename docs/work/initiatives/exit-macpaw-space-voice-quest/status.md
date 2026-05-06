@@ -21,6 +21,7 @@ Initiative created to coordinate the visual frontend and backend voice work for 
 | ElevenLabs Realtime STT Bridge | Laplace | Completed | Added fail-closed ElevenLabs realtime STT session/capability endpoints and client fallback to browser speech recognition. |
 | Frontend/Backend Integration | Newton | Completed | Connected browser speech transcripts to `/api/voice-turn`, maps backend quest state to visual room state, and plays ElevenLabs audio or browser speech fallback. |
 | Claude-First Quest Brain | Unassigned | Ready | New packet: Claude proposes the quest transition and varied reply first; backend validates against allowed transitions and falls back to deterministic logic on unavailable, invalid, illegal, or unsafe output. |
+| Distinct ElevenLabs Character Voices | Codex | Completed | Added actor-specific ElevenLabs voice mapping for guard, Pixel, and room/door, with Pixel replies shaped as lazy male-cat first-person speech. |
 
 ## Current Decisions
 
@@ -32,6 +33,12 @@ Initiative created to coordinate the visual frontend and backend voice work for 
 - Quest progression is pivoting from deterministic-parser-first to Claude-first. Claude may select one backend-provided allowed transition and write a varied reply.
 - Backend remains the authority for legal progression: it derives allowed transitions from current state, validates Claude output, computes next state server-side, blocks early `404` or door/escape claims, and uses deterministic parser/state machine fallback on any Claude failure.
 - Existing ElevenLabs STT/TTS behavior should remain unchanged by the Claude-first packet unless a minimal response-contract adjustment is required.
+- ElevenLabs TTS voice roles are `guard`, `pixel`, and `room`; `door` and `system` actors use the room voice.
+- Actor-specific ElevenLabs voice IDs are optional overrides and fall back to `ELEVENLABS_DEFAULT_VOICE_ID`.
+- The local room voice is set to the female ElevenLabs voice **Bella - Professional, Bright, Warm** via `ELEVENLABS_ROOM_VOICE_ID`.
+- Pixel is a male cat; the local Pixel voice is set to **Will - Relaxed Optimist**, a young laid-back male voice, via `ELEVENLABS_PIXEL_VOICE_ID`.
+- Pixel TTS uses slower, slightly stylized per-request voice settings so he reads as lazy and smug, not energetic or adult-masculine.
+- Pixel replies should sound like Pixel speaking as a cat, not room narration describing Pixel.
 - The first demo stays one room, two characters, one code, and one exit.
 - Scenario V2 is fixed as **404 Door Not Found**: the user must learn the guard's name, address Oleg by name, address Pixel directly, and gently purr before Pixel reveals code `404`.
 
@@ -48,7 +55,7 @@ Initiative created to coordinate the visual frontend and backend voice work for 
 
 ## Next Action
 
-Dispatch Packet 4, **Claude-First Quest Brain**, to Executor.
+Choose concrete ElevenLabs voice IDs for Oleg, Pixel, and the room in `.env`, then run a provider-enabled audio smoke. Packet 4, **Claude-First Quest Brain**, remains ready for Executor if Claude-first progression is still the next priority.
 
 First packet handoff:
 
@@ -80,8 +87,10 @@ First packet handoff:
 
 ## Latest Validation
 
+- `npm run typecheck` passed after adding actor-specific ElevenLabs TTS voice mapping.
+- Provider-disabled API smoke on `SERVER_PORT=8799` returned distinct actors for guard, Pixel, room/system, and door turns; Pixel fallback reply is first-person catlike speech and all turns fell back cleanly to browser speech when ElevenLabs was absent.
 - `npm run typecheck` passed after merging backend, frontend, dialogue, and STT bridge work.
-- Dev stack is running at `http://localhost:3000/` with API on `http://localhost:8787`.
-- `GET /api/status` reports Claude configured and ElevenLabs not configured in the current `.env`.
-- `GET /api/stt/capability` returns fail-closed fallback because `ELEVENLABS_API_KEY` is not configured.
-- `POST /api/voice-turn` with `як тебе звати` returns `oleg-name-learned`, Oleg's reply, and browser-speech fallback audio error.
+- Earlier full-stack validation used `http://localhost:3000/` with API on `http://localhost:8787`; those processes are not kept running by the distinct-voices packet.
+- Earlier `GET /api/status` reported Claude configured and ElevenLabs not configured in that validation environment.
+- Earlier `GET /api/stt/capability` returned fail-closed fallback because `ELEVENLABS_API_KEY` was not configured.
+- Earlier `POST /api/voice-turn` with `як тебе звати` returned `oleg-name-learned`, Oleg's reply, and browser-speech fallback audio error.

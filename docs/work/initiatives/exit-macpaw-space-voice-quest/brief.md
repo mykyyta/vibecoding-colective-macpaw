@@ -364,6 +364,46 @@ Risks:
 
 Status: ready for Executor.
 
+### Packet 5: Distinct ElevenLabs Character Voices
+
+Goal: Make spoken output identify the active speaker by ear: Oleg, Pixel, and the room/door should not all use the same ElevenLabs voice.
+
+Scope in:
+
+- actor-to-voice mapping for ElevenLabs TTS in `/api/voice-turn`;
+- environment variables for guard, Pixel, and room/door voice IDs;
+- Pixel replies that read as Pixel speaking like a cat, not narration about Pixel;
+- room/door replies mapped to a separate ambient room voice;
+- browser speech fallback with lightweight actor-specific pitch/rate differences.
+
+Scope out:
+
+- choosing real production voice IDs without ElevenLabs dashboard access;
+- voice cloning, custom voice design, or paid resource creation;
+- changing STT behavior;
+- frontend redesign beyond playback fallback behavior.
+
+Acceptance criteria:
+
+- `guard` replies synthesize with the guard voice ID when configured.
+- `pixel` replies synthesize with the Pixel voice ID when configured.
+- `system` and `door` replies synthesize with the room voice ID when configured.
+- Missing actor-specific voice IDs fall back to `ELEVENLABS_DEFAULT_VOICE_ID`.
+- Pixel fallback and Claude-guided replies are written as lazy, smug, male-cat first-person speech.
+- `npm run typecheck` passes.
+
+Validation:
+
+- `npm run typecheck`
+- provider-disabled `/api/voice-turn` smoke checks for guard, Pixel, and room fallback replies;
+- provider-enabled audio smoke only when `ELEVENLABS_API_KEY` and voice IDs exist in `.env`.
+
+Risks:
+
+- Actual “catlike” quality depends on the chosen ElevenLabs voice asset. The current local Pixel voice uses a laid-back young male voice plus slower Pixel-specific TTS settings.
+
+Status: completed in current local pass.
+
 ## Claude Brain Integration Contract
 
 The backend should treat Claude as a proposed transition selector and reply writer, not as the source of truth for state.
@@ -451,4 +491,4 @@ Executor packet:
 
 - Should the guard and Pixel replies be Ukrainian-only for the demo, or bilingual?
 - Is marker-based purr detection enough for the first demo, or should we add an audio-level purr detector later?
-- Which ElevenLabs voices should represent the guard and Pixel once credentials are available?
+- Which concrete ElevenLabs voice IDs should be curated for Oleg, Pixel, and the room before the event run?

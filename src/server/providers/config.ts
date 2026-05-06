@@ -30,6 +30,11 @@ export interface ElevenLabsProviderConfig {
   apiKey: string;
   ttsModel: string;
   defaultVoiceId: string;
+  voiceIds: {
+    guard: string;
+    pixel: string;
+    room: string;
+  };
 }
 
 export interface ElevenLabsRealtimeSttConfig {
@@ -87,10 +92,17 @@ export function getElevenLabsConfig(
     "ELEVENLABS_DEFAULT_VOICE_ID",
   ]);
 
+  const defaultVoiceId = readEnv(env, "ELEVENLABS_DEFAULT_VOICE_ID")!;
+
   return {
     apiKey: readEnv(env, "ELEVENLABS_API_KEY")!,
     ttsModel: readEnv(env, "ELEVENLABS_TTS_MODEL")!,
-    defaultVoiceId: readEnv(env, "ELEVENLABS_DEFAULT_VOICE_ID")!,
+    defaultVoiceId,
+    voiceIds: {
+      guard: readEnv(env, "ELEVENLABS_GUARD_VOICE_ID") ?? defaultVoiceId,
+      pixel: readEnv(env, "ELEVENLABS_PIXEL_VOICE_ID") ?? defaultVoiceId,
+      room: readEnv(env, "ELEVENLABS_ROOM_VOICE_ID") ?? defaultVoiceId,
+    },
   };
 }
 

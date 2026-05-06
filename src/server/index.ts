@@ -4,6 +4,7 @@ import express from "express";
 import type { AppStatus } from "../shared/status.js";
 import type {
   QuestState,
+  QuestActor,
   RealtimeSttCapabilityResponse,
   RealtimeSttSessionResponse,
   RecordedSttResponse,
@@ -169,7 +170,11 @@ app.post("/api/voice-turn", async (request, response) => {
 
   try {
     const tts = providerRegistry.getTextToSpeechProvider("elevenlabs");
-    const audio = await tts.synthesizeSpeech({ text: reply });
+    const audio = await tts.synthesizeSpeech({
+      text: reply,
+      voiceId: tts.voiceIds[getElevenLabsVoiceRoleForActor(turn.actor)],
+      voiceSettings: getElevenLabsVoiceSettingsForActor(turn.actor),
+    });
 
     payload.audio = {
       contentType: audio.contentType,
@@ -229,4 +234,42 @@ function getElevenLabsRealtimeSttConfigIfAvailable() {
 
     throw error;
   }
+}
+
+function getElevenLabsVoiceRoleForActor(
+  actor: QuestActor,
+): "guard" | "pixel" | "room" {
+  switch (actor) {
+    case "guard":
+      return "guard";
+    case "pixel":
+      return "pixel";
+    case "door":
+    case "system":
+      return "room";
+  }
+}
+
+function getElevenLabsVoiceSettingsForActor(
+  actor: QuestActor,
+):
+  | {
+      stability: number;
+      similarityBoost: number;
+      style: number;
+      speed: number;
+      useSpeakerBoost: boolean;
+    }
+  | undefined {
+  if (actor !== "pixel") {
+    return undefined;
+  }
+
+  return {
+    stability: 0.42,
+    similarityBoost: 0.78,
+    style: 0.28,
+    speed: 0.82,
+    useSpeakerBoost: true,
+  };
 }

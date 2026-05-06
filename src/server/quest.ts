@@ -107,7 +107,7 @@ export function createQuestTurn(
       actor = "pixel";
       if (!previousQuestState.guardHintGiven) {
         reply =
-          "Pixel лишається частиною інтер'єру. Спершу треба зрозуміти, чому він взагалі важливий для дверей.";
+          "Мр? Я Pixel, не декор на сходах. Спершу з'ясуй у охоронця, чому мої лапи взагалі важливі.";
         break;
       }
 
@@ -115,14 +115,14 @@ export function createQuestTurn(
       nextQuestState.pixelRejectedOrdinaryCommand = true;
       event = { type: "pixel-ordinary-rejected", progressed: true };
       reply =
-        "Pixel кліпає так, ніби звичайні команди проходять повз його персональний firewall.";
+        "Мяу. Звичайні команди дряпають мій firewall і падають на підлогу.";
       break;
 
     case "pixel-directed-purr":
       actor = "pixel";
       if (!previousQuestState.guardHintGiven) {
         reply =
-          "Pixel чує муркотіння, але ще не має причини ділитися секретами. Спершу розберися з дверима через охоронця.";
+          "Мрр, звук правильний, але секрет ще не має адреси. Спершу розберися з дверима через охоронця.";
         break;
       }
 
@@ -130,7 +130,7 @@ export function createQuestTurn(
       nextQuestState.codeRevealed = true;
       event = { type: "code-revealed", progressed: true };
       reply =
-        "Pixel мружиться. На бейджику біля лапи проявляється код: 404. Дуже продуктовий спосіб втекти.";
+        "Мрр-р. Код на моєму бейджику: 404. Не питай, я сам це не деплоїв.";
       break;
 
     case "oleg-directed-code":
@@ -151,8 +151,7 @@ export function createQuestTurn(
       nextQuestState.escaped = true;
       event = { type: "door-opened", progressed: true };
       actor = "door";
-      reply =
-        "Олег вводить 404. Двері визнають власну помилку, відчиняються, і MacPaw Space випускає тебе назовні.";
+      reply = "404 accepted. Door not found, but exit found.";
       break;
 
     case "generic-door-command":
@@ -164,16 +163,8 @@ export function createQuestTurn(
 
     case "purr-without-pixel":
       actor = "pixel";
-      if (previousQuestState.pixelAddressed) {
-        nextQuestState.codeRevealed = true;
-        event = { type: "code-revealed", progressed: true };
-        reply =
-          "Pixel впізнає муркотіння навіть без повторного тегу в задачі. Код: 404.";
-        break;
-      }
-
       reply =
-        "Десь під сходами чути хвіст. Спочатку звернись до Pixel, тоді муркотіння матиме адресата.";
+        "Мр? Це було в повітря. Назви мене Pixel, тоді муркотіння матиме адресата.";
       break;
 
     case "smalltalk":
@@ -249,7 +240,7 @@ export function getAllowedQuestTransitions(
       description:
         "The player directly addresses Pixel by name with an ordinary command, request, or question, including asking for the code without making a cat sound. Pixel acknowledges the address but refuses ordinary commands.",
       fallbackReply:
-        "Pixel кліпає так, ніби звичайні команди проходять повз його персональний firewall.",
+        "Мяу. Звичайні команди дряпають мій firewall і падають на підлогу.",
     });
   }
 
@@ -260,7 +251,7 @@ export function getAllowedQuestTransitions(
       description:
         "Use only when the player directly says Pixel's name or a clear Pixel alias and also performs a gentle cat sound in the same transcript, such as mur, mrr, meow, purr, pur, prr, nya/няв/мяу, or similar. Do not use for ordinary commands like asking Pixel for the code without a cat sound. This is the only transition that may reveal code 404.",
       fallbackReply:
-        "Pixel мружиться. На бейджику біля лапи проявляється код: 404. Дуже продуктовий спосіб втекти.",
+        "Мрр-р. Код на моєму бейджику: 404. Не питай, я сам це не деплоїв.",
     });
   }
 
@@ -269,9 +260,8 @@ export function getAllowedQuestTransitions(
       id: "door-opened",
       actor: "door",
       description:
-        "The player directly addresses Oleg and gives the already revealed code 404. This is the only transition that may open the door or mark escape.",
-      fallbackReply:
-        "Олег вводить 404. Двері визнають власну помилку, відчиняються, і MacPaw Space випускає тебе назовні.",
+        "The player directly addresses Oleg and gives the already revealed code 404. This is the only transition that may open the door or mark escape. The reply should use this exact final line: 404 accepted. Door not found, but exit found.",
+      fallbackReply: "404 accepted. Door not found, but exit found.",
     });
   }
 
@@ -308,7 +298,7 @@ function getSmalltalkFallbackReply(state: QuestState): string {
   }
 
   if (state.pixelAddressed) {
-    return "Pixel кліпає з виглядом кота, який бачив дорожчу презентацію.";
+    return "Мяу. Я бачила дорожчу презентацію, але ця хоча б має правильний запах.";
   }
 
   return state.olegNameKnown

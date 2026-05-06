@@ -65,6 +65,7 @@ npm start
 - `CLAUDE_API_KEY` and `CLAUDE_MODEL` configure server-side Claude text generation.
 - `GEMINI_API_KEY` and `GEMINI_MODEL` configure server-side Gemini text generation and image-generation readiness.
 - `ELEVENLABS_API_KEY`, `ELEVENLABS_TTS_MODEL`, and `ELEVENLABS_DEFAULT_VOICE_ID` configure server-side ElevenLabs direct API calls.
+- `ELEVENLABS_GUARD_VOICE_ID`, `ELEVENLABS_PIXEL_VOICE_ID`, and `ELEVENLABS_ROOM_VOICE_ID` optionally override the default voice for Oleg, Pixel, and room/door narration. Leave an actor-specific value empty to reuse `ELEVENLABS_DEFAULT_VOICE_ID`.
 - `ELEVENLABS_MCP_SERVER_URL` is used by the MCP registration helper.
 - `DEMO_API_TOKEN` can protect paid provider endpoints if a demo route is exposed through a public tunnel.
 

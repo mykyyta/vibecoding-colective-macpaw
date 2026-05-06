@@ -35,6 +35,7 @@ export function createElevenLabsTextToSpeechProvider(
     provider: "elevenlabs",
     model: config.ttsModel,
     defaultVoiceId: config.defaultVoiceId,
+    voiceIds: config.voiceIds,
     async synthesizeSpeech(
       request: TextToSpeechRequest,
     ): Promise<TextToSpeechResponse> {
@@ -62,6 +63,15 @@ export function createElevenLabsTextToSpeechProvider(
           body: JSON.stringify({
             text,
             model_id: config.ttsModel,
+            voice_settings: request.voiceSettings
+              ? {
+                  stability: request.voiceSettings.stability,
+                  similarity_boost: request.voiceSettings.similarityBoost,
+                  style: request.voiceSettings.style,
+                  speed: request.voiceSettings.speed,
+                  use_speaker_boost: request.voiceSettings.useSpeakerBoost,
+                }
+              : undefined,
           }),
         },
       );

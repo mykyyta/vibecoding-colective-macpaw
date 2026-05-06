@@ -41,6 +41,13 @@ export interface ImageGenerationReadinessProvider {
 export interface TextToSpeechRequest {
   text: string;
   voiceId?: string;
+  voiceSettings?: {
+    stability?: number;
+    similarityBoost?: number;
+    style?: number;
+    speed?: number;
+    useSpeakerBoost?: boolean;
+  };
 }
 
 export interface TextToSpeechResponse {
@@ -55,6 +62,11 @@ export interface TextToSpeechProvider {
   provider: "elevenlabs";
   model: string;
   defaultVoiceId: string;
+  voiceIds: {
+    guard: string;
+    pixel: string;
+    room: string;
+  };
   synthesizeSpeech(
     request: TextToSpeechRequest,
   ): Promise<TextToSpeechResponse>;

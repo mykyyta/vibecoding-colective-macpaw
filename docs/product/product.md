@@ -15,6 +15,8 @@ A user is locked inside a simplified MacPaw Space room after a demo. The exit is
 
 The demo promise is that voice is not decorative. Spoken input moves the room state forward, name-based address unlocks character responses, a performed vocal action unlocks the code, and spoken output closes the interaction loop.
 
+Spoken output should make the characters legible by ear: Oleg, Pixel, and the room/door use distinct voices when ElevenLabs TTS is configured. The room/door should use a calm female voice. Pixel is a male cat and should sound lazy, smug, and slightly catlike rather than like adult male narration or room narration describing a cat.
+
 The main interface must be one fullscreen quest-room scene, not a dashboard or control panel. The visual target is the original MacPaw Space reference: black presentation wall on the left, open light floor through the center, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise warm LED lines. UI chrome must stay minimal enough that the room remains the product.
 
 ## Demo Scenario

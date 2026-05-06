@@ -1404,12 +1404,29 @@ function speakWithBrowser(text: string, actor: QuestActor): void {
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "uk-UA";
-  utterance.rate = actor === "pixel" ? 0.95 : 1;
-  utterance.pitch = actor === "pixel" ? 1.35 : 1;
+  const settings = getBrowserSpeechSettings(actor);
+
+  utterance.rate = settings.rate;
+  utterance.pitch = settings.pitch;
 
   stopActiveAudio();
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
+}
+
+function getBrowserSpeechSettings(actor: QuestActor): {
+  rate: number;
+  pitch: number;
+} {
+  switch (actor) {
+    case "pixel":
+      return { rate: 0.82, pitch: 1.08 };
+    case "door":
+    case "system":
+      return { rate: 0.9, pitch: 0.72 };
+    case "guard":
+      return { rate: 0.98, pitch: 0.9 };
+  }
 }
 
 function stopActiveAudio(): void {
