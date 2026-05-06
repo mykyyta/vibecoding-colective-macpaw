@@ -1031,9 +1031,9 @@ function RestartButton({
       type="button"
       disabled={disabled}
       onClick={onRestart}
-      aria-label="Почати з початку"
+      aria-label="Нова спроба"
     >
-      Почати з початку
+      Нова спроба
     </button>
   );
 }
