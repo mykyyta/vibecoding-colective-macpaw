@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Strategist
 ---
 
@@ -11,7 +11,9 @@ Vibecoding Collective is a prepared workspace for rapidly building a small AI-as
 
 The current prototype is a short voice-operated quest room called **Exit MacPaw Space**, with the working scenario title **404 Door Not Found**.
 
-A user is locked inside a simplified MacPaw Space room after a demo. The exit is in `demo lockdown`, and the user must leave by speaking with two characters: a human guard named Oleg and Pixel the cat. Oleg does not respond to useful commands until the user learns and uses his name. Pixel knows the exit code, but only reveals it after the user addresses Pixel directly and gently purrs.
+A user is locked inside a simplified MacPaw Space room after a `вайбкодінг івент` about AI and штучний інтелект. The exit is locked after the event, and the user must leave by speaking with two characters: a human guard named Oleg and Pixel the cat. Oleg does not respond to useful commands until the user learns and uses his name. Pixel knows the exit code, but only reveals it after the user addresses Pixel directly and gently purrs.
+
+Character irony should fit that event context: jokes may reference AI, штучний інтелект, prompts, generated decisions, and the `вайбкодінг івент`, but should not overuse generic tech metaphors or make every line sound like the same punchline.
 
 The demo promise is that voice is not decorative. Spoken input moves the room state forward, name-based address unlocks character responses, a performed vocal action unlocks the code, and spoken output closes the interaction loop.
 
@@ -30,7 +32,7 @@ The happy path is intentionally small:
 3. The user asks the guard his name.
 4. The guard says his name is Oleg.
 5. The user addresses Oleg by name and asks to open the door.
-6. Oleg says the door is in `demo lockdown`, needs a code, and hints that Pixel was last near the keypad.
+6. Oleg says the exit is locked after the `вайбкодінг івент`, needs a code, and hints that Pixel was last near the exit panel.
 7. The user addresses Pixel directly, but Pixel does not reveal the code to ordinary commands.
 8. The user gently purrs to Pixel.
 9. Pixel reveals code `404`.

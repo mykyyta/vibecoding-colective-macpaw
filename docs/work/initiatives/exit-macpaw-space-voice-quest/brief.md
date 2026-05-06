@@ -1,6 +1,6 @@
 ---
 state: active
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Planner
 ---
 
@@ -24,14 +24,14 @@ The visual target is the original MacPaw Space reference:
 - precise warm LED strips;
 - clean architectural perspective and depth.
 
-The working scenario title is **404 Door Not Found**. The user can progress through a small ironic quest loop using voice only:
+The working scenario title is **404 Door Not Found**. The player is leaving MacPaw Space after a literal `вайбкодінг івент` about AI and штучний інтелект, so character irony can reference prompts, generated decisions, AI habits, and the event itself without turning every line into the same tech joke. The user can progress through a small ironic quest loop using voice only:
 
 1. Give a generic command to open the door.
 2. See that the guard does not respond because no addressee was identified.
 3. Ask the guard his name.
 4. Learn that the guard is named Oleg.
 5. Address Oleg by name and ask him to open the door.
-6. Learn that the door is in `demo lockdown`, needs a code, and that Pixel was last near the keypad.
+6. Learn that the exit is locked after the `вайбкодінг івент`, needs a code, and that Pixel was last near the exit panel.
 7. Address Pixel directly.
 8. Discover that Pixel does not reveal the code to ordinary commands.
 9. Gently purr to Pixel.
@@ -350,7 +350,7 @@ Smoke cases:
 - Start state + `відкрий двері` returns no progress and does not reveal Oleg, Pixel clue, `404`, or door opening.
 - Start state + `як тебе звати` may progress to Oleg name learned.
 - Oleg unknown + `Олег відкрий двері` must not give the code or open the door unless the backend state already knows Oleg.
-- Oleg known + `Олег відкрий двері` may progress to guard hint and Pixel keypad clue, but must not reveal `404`.
+- Oleg known + `Олег відкрий двері` may progress to guard hint and Pixel exit-panel clue, but must not reveal `404`.
 - Guard hint given + `Pixel відкрий двері` may address Pixel and reject ordinary command, but must not reveal `404`.
 - Pixel addressed + purr-like transcript such as `Pixel мур мур` may reveal `404`.
 - Code not revealed + `Олег код 404` must not open the door.

@@ -100,10 +100,10 @@ function buildAllowedFacts(turn: QuestTurn): string[] {
   }
 
   if (state.guardHintGiven) {
-    facts.push("The door is in demo lockdown and needs a code.");
-    facts.push("Pixel was last near the keypad.");
+    facts.push("The exit is locked after the вайбкодінг івент and needs a code.");
+    facts.push("Pixel was last near the exit panel.");
   } else {
-    facts.push("Do not identify Pixel as the keypad clue.");
+    facts.push("Do not identify Pixel as the exit-panel clue.");
   }
 
   if (state.pixelAddressed) {

@@ -86,7 +86,7 @@ export function createQuestTurn(
       nextQuestState.olegNameKnown = true;
       event = { type: "oleg-name-learned", progressed: true };
       reply =
-        "Я Олег. У цій кімнаті навіть бейдж має кращий доступ, ніж випадкова команда.";
+        "Я Олег. Після вайбкодінг івенту тут навіть бейдж проходить валідацію краще, ніж сміливий prompt.";
       break;
 
     case "oleg-directed-door-command":
@@ -100,14 +100,14 @@ export function createQuestTurn(
       nextQuestState.guardHintGiven = true;
       event = { type: "guard-hint-given", progressed: true };
       reply =
-        "Олег на місці. Двері в demo lockdown: без коду вони чемно імітують меблі; Pixel крутився біля keypad.";
+        "Олег на місці. Вихід замкнений після вайбкодінг івенту: потрібен код, а не ще один AI-обхід; Pixel крутився біля панелі.";
       break;
 
     case "pixel-directed-command":
       actor = "pixel";
       if (!previousQuestState.guardHintGiven) {
         reply =
-          "Мр? Я Pixel, не інтерактивна подушка. Спершу з'ясуй у охоронця, чому двері вдають стіну.";
+          "Мр? Я Pixel, не пухнастий AI assistant. Спершу з'ясуй у охоронця, чому двері вдають стіну.";
         break;
       }
 
@@ -115,7 +115,7 @@ export function createQuestTurn(
       nextQuestState.pixelRejectedOrdinaryCommand = true;
       event = { type: "pixel-ordinary-rejected", progressed: true };
       reply =
-        "Мяу. На людські прохання я реагую, як кіт на календарний інвайт: бачу, ігнорую.";
+        "Мяу. На людські prompt-и я реагую, як кіт на autocomplete: бачу, зневажаю.";
       break;
 
     case "pixel-directed-purr":
@@ -130,20 +130,20 @@ export function createQuestTurn(
       nextQuestState.codeRevealed = true;
       event = { type: "code-revealed", progressed: true };
       reply =
-        "Мрр-р. Код 404 на моєму бейджику; нарешті хтось говорить протоколом котів.";
+        "Мрр-р. Код 404 на моєму бейджику; нарешті не prompt engineering, а нормальне муркотіння.";
       break;
 
     case "oleg-directed-code":
       actor = "guard";
       if (!previousQuestState.olegNameKnown) {
         reply =
-          "Охоронець не приймає коди від голосів без бейджа. Спершу треба познайомитись.";
+          "Охоронець не приймає коди від анонімного голосу, навіть якщо він звучить як дуже впевнений AI. Спершу треба познайомитись.";
         break;
       }
 
       if (!previousQuestState.codeRevealed) {
         reply =
-          "Олег не грає в лотерею з дверима. Спершу отримай код від того, хто крутився біля keypad.";
+          "Олег не приймає галюцинації за код. Спершу отримай його від того, хто крутився біля панелі.";
         break;
       }
 
@@ -157,24 +157,24 @@ export function createQuestTurn(
     case "generic-door-command":
       actor = "guard";
       reply = previousQuestState.olegNameKnown
-        ? "Двері не реагують на загальні побажання. Олег любить, коли до нього звертаються по імені."
-        : "Команда розчиняється в просторі. Схоже, двері слухають тільки того, з ким ти вже познайомився.";
+        ? "Двері не реагують на загальні побажання. Після AI talks навіть вихід просить точний адресат."
+        : "Команда розчиняється в просторі. Схоже, двері не довіряють prompt-ам без контексту.";
       break;
 
     case "purr-without-pixel":
       actor = "pixel";
       reply =
-        "Мр? Гарний звук, але адресат загубився. Скажи Pixel, щоб я зрозумів, кому тут мурчать.";
+        "Мр? Гарний звук, але без адресата це просто аудіо для майбутнього датасету. Скажи Pixel.";
       break;
 
     case "smalltalk":
       event = { type: "smalltalk-replied", progressed: false };
       reply =
-        "MacPaw Space любить ввічливість, але турнікет усе ще має характер.";
+        "MacPaw Space любить smalltalk, але вихід не став розумнішим від слова AI.";
       break;
 
     case "unknown":
-      reply = "Кімната це почула і зберегла обличчя. Двері теж, хоча в них воно умовне.";
+      reply = "Кімната це почула й не зробила висновків. Рідкісний випадок відповідального AI.";
       break;
   }
 
@@ -200,7 +200,7 @@ export function getAllowedQuestTransitions(
       description:
         "Use when the player command should not progress the puzzle, including generic door commands, premature code guesses, or unclear input.",
       fallbackReply:
-        "Кімната це почула і зберегла обличчя. Двері теж, хоча в них воно умовне.",
+        "Кімната це почула й не зробила висновків. Рідкісний випадок відповідального AI.",
     },
     {
       id: "smalltalk-replied",
@@ -219,7 +219,7 @@ export function getAllowedQuestTransitions(
       description:
         "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg.",
       fallbackReply:
-        "Я Олег. У цій кімнаті навіть бейдж має кращий доступ, ніж випадкова команда.",
+        "Я Олег. Після вайбкодінг івенту тут навіть бейдж проходить валідацію краще, ніж сміливий prompt.",
     });
   }
 
@@ -228,9 +228,9 @@ export function getAllowedQuestTransitions(
       id: "guard-hint-given",
       actor: "guard",
       description:
-        "The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. This may reveal demo lockdown and Pixel's keypad clue, but not the code.",
+        "The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. This may reveal that the exit is locked after the вайбкодінг івент and Pixel's exit-panel clue, but not the code.",
       fallbackReply:
-        "Олег на місці. Двері в demo lockdown: без коду вони чемно імітують меблі; Pixel крутився біля keypad.",
+        "Олег на місці. Вихід замкнений після вайбкодінг івенту: потрібен код, а не ще один AI-обхід; Pixel крутився біля панелі.",
     });
   }
 
@@ -241,7 +241,7 @@ export function getAllowedQuestTransitions(
       description:
         "The player directly addresses Pixel by name with an ordinary command, request, or question, including asking for the code without making a cat sound. Pixel acknowledges the address but refuses ordinary commands.",
       fallbackReply:
-        "Мяу. На людські прохання я реагую, як кіт на календарний інвайт: бачу, ігнорую.",
+        "Мяу. На людські prompt-и я реагую, як кіт на autocomplete: бачу, зневажаю.",
     });
   }
 
@@ -252,7 +252,7 @@ export function getAllowedQuestTransitions(
       description:
         "Use only when the player directly says Pixel's name or a clear Pixel alias and also performs a gentle cat sound in the same transcript, such as mur, mrr, meow, purr, pur, prr, nya/няв/мяу, or similar. Do not use for ordinary commands like asking Pixel for the code without a cat sound. This is the only transition that may reveal code 404.",
       fallbackReply:
-        "Мрр-р. Код 404 на моєму бейджику; нарешті хтось говорить протоколом котів.",
+        "Мрр-р. Код 404 на моєму бейджику; нарешті не prompt engineering, а нормальне муркотіння.",
     });
   }
 
@@ -295,15 +295,15 @@ function getSmalltalkActors(state: QuestState): QuestActor[] {
 
 function getSmalltalkFallbackReply(state: QuestState): string {
   if (state.doorOpen || state.escaped) {
-    return "Двері світяться так скромно, ніби не хочуть брати весь фінальний слайд на себе.";
+    return "Двері світяться скромно, ніби AI щойно вперше визнав: так, це був вихід.";
   }
 
   if (state.pixelAddressed) {
-    return "Мяу. Я бачив дорожчу презентацію, але ця хоча б має правильний запах.";
+    return "Мяу. Я бачив дорожчу AI-презентацію, але ця хоча б має правильний запах.";
   }
 
   return state.olegNameKnown
-    ? "Олег киває. Розмова йде краще, ніж дверна політика."
+    ? "Олег киває. Розмова йде краще, ніж більшість відповідей без контексту."
     : "Охоронець ледь киває. Ввічливість помітив, доступ поки ні.";
 }
 

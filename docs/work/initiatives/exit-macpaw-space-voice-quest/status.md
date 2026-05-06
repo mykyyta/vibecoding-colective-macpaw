@@ -79,7 +79,7 @@ First packet handoff:
 
 - Start state + `відкрий двері` returns no progress and does not reveal Oleg, Pixel clue, `404`, or door opening.
 - Start state + `як тебе звати` may progress to Oleg name learned.
-- Oleg known + `Олег відкрий двері` may progress to guard hint and Pixel keypad clue, but must not reveal `404`.
+- Oleg known + `Олег відкрий двері` may progress to guard hint and Pixel exit-panel clue, but must not reveal `404`.
 - Guard hint given + `Pixel відкрий двері` may address Pixel and reject ordinary command, but must not reveal `404`.
 - Pixel addressed + `Pixel мур мур` may reveal `404`.
 - Code not revealed + `Олег код 404` must not open the door.
