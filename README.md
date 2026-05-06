@@ -1,90 +1,41 @@
 # Vibecoding Collective
 
-Стартовий простір для швидкого прототипування проєкту на івенті про вайб-кодинг.
+Vibecoding Collective is a live-demo workspace for quickly building a small AI-assisted prototype with voice, audio, and conversational interaction at the center of the experience.
 
-Проєкт підготовлений заздалегідь, щоб під час івенту можна було одразу перейти до реалізації ідеї, щойно стане зрозумілою задача, формат або очікуваний результат. Основний фокус - створити невеликий, живий і демонстрабельний продукт із використанням ресурсів та API ElevenLabs.
+The current prototype is **Exit MacPaw Space**, a short voice-operated quest room. The player is locked inside a simplified MacPaw Space room after a demo and must escape by speaking to the right characters in the right way. Voice is the main interaction: spoken commands move the room state forward, character names matter, and ElevenLabs-powered speech closes the loop when configured.
 
-Дефолтний формат показу - живе демо з локального запуску. Якщо ElevenLabs, MCP або webhooks потребують публічний URL, локальний порт відкривається через ngrok або Cloudflare Tunnel. Повноцінний cloud deploy лишається запасним шляхом, якщо демо має жити довше за сесію або потребує стабільного backend URL.
+## Demo Promise
 
-## Контекст
+- A fullscreen quest-room scene, not a dashboard.
+- Voice-first player input with minimal UI chrome.
+- Distinct spoken characters for the guard, Pixel the cat, and the room.
+- A small, explainable happy path that can be shown live in a few minutes.
+- Local-first delivery, with a public HTTPS tunnel only when external callbacks need it.
 
-- Івент присвячений вайб-кодингу: швидкому створенню продуктів через ітерації, експерименти та роботу з AI-інструментами.
-- ElevenLabs є одним з ініціаторів івенту, тому проєкт має бути готовий до інтеграції голосу, мовлення, аудіо або інших можливостей їхньої платформи.
-- Конкретна ідея ще не зафіксована. Репозиторій створено як чисту базу, яку можна швидко адаптувати під завдання на місці.
+## Tech Snapshot
 
-## Можливі напрями
+- TypeScript
+- Vite + React
+- Node.js + Express
+- ElevenLabs-ready server boundary for secrets, TTS, webhooks, and MCP integration
 
-- голосовий асистент або персонаж;
-- інтерактивний сторітелінг з озвученням;
-- генерація аудіо для навчального, ігрового або креативного сценарію;
-- інструмент для швидкого перетворення тексту на мовлення;
-- демо, яке поєднує AI-генерацію, інтерфейс і голосову взаємодію.
-
-## Початкова ціль
-
-Підготувати мінімальну основу, в якій можна швидко:
-
-1. визначити ідею;
-2. обрати стек;
-3. підключити ElevenLabs;
-4. зібрати перший робочий прототип;
-5. показати результат під час івенту.
-
-## Агентська підготовка
-
-У репозиторії є компактна агентська методологія, адаптована з великого проєкту Pult Hardwood:
-
-- `AGENTS.md` — основні інструкції для агентів;
-- `CLAUDE.md` — синхронна копія агентських інструкцій для Claude-середовищ;
-- `PRODUCT.md` і `DESIGN.md` — root-контекст для Impeccable v3;
-- `.agents/skills/` — локальні скіли ролей;
-- `docs/product/product.md` — продуктова точка правди;
-- `docs/build-system/operating-model/` — ролі, масштаб роботи та handoff;
-- `docs/build-system/frontend/design-direction.md` — дизайн-напрям live-demo інтерфейсу;
-- `docs/build-system/integrations/elevenlabs-mcp.md` — підготовка MCP-підключення до ElevenLabs;
-- `docs/build-system/integrations/deployment-options.md` — прості варіанти деплою для демо;
-- `docs/work/` — тимчасове місце для активних ініціатив і backlog-сигналів.
-
-Під час івенту це має допомогти швидко перейти від ідеї до плану, від плану до пакета роботи, а від пакета — до робочого демо.
-
-## Стек
-
-Базовий стек для live demo:
-
-- TypeScript;
-- Vite + React для UI;
-- Node.js + Express для server-side секретів, ElevenLabs API, webhooks і майбутнього MCP endpoint;
-- shared types у `src/shared/`.
-
-Локальний запуск:
+## Run Locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Після запуску:
+Default local URLs:
 
 - UI: `http://localhost:3000`
 - API: `http://localhost:8787`
 
-Перевірка через ngrok:
+For public demo access, expose the local UI with ngrok or Cloudflare Tunnel.
 
-```bash
-ngrok http 3000
-```
+## Project Docs
 
-Поточний live-demo flow уже перевірений: публічний ngrok URL відкриває UI, а `/api/status` проходить через Vite proxy до Express API. Конкретний ngrok URL є тимчасовим і може змінюватися між запусками.
-
-## ElevenLabs MCP
-
-Для підключення віддаленого MCP server до ElevenLabs Conversational AI підготовлено:
-
-- `.env.example` — шаблон локальних змінних;
-- `scripts/elevenlabs-mcp.mjs` — реєстрація MCP server через ElevenLabs API;
-- npm scripts:
-  - `npm run elevenlabs:mcp:create`
-  - `npm run elevenlabs:mcp:list`
-  - `npm run elevenlabs:mcp:tools -- <mcp_server_id>`
-
-Реальне підключення потребує `ELEVENLABS_API_KEY` і публічного `ELEVENLABS_MCP_SERVER_URL`.
+- `docs/product/product.md` is the product source of truth.
+- `docs/readme.md` indexes the documentation system.
+- `docs/build-system/integrations/elevenlabs-mcp.md` explains the ElevenLabs MCP setup.
+- `AGENTS.md` and `CLAUDE.md` define agent workflow rules.
