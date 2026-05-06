@@ -93,7 +93,12 @@ const initialQuestState: QuestState = {
   escaped: false,
 };
 
-let activeAudio: HTMLAudioElement | null = null;
+interface ActiveReplyPlayback {
+  stop(): void;
+}
+
+let activeReplyPlayback: ActiveReplyPlayback | null = null;
+let replyAudioContext: AudioContext | null = null;
 const ELEVENLABS_STT_SAMPLE_RATE = 16_000;
 const MIN_RECORDED_STT_DURATION_MS = 300;
 const MIN_RECORDED_STT_BYTES = 512;
@@ -908,6 +913,7 @@ function SceneMic({
     }
 
     event.preventDefault();
+    unlockReplyAudio();
     activePointerIdRef.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
     onStart();
@@ -953,6 +959,7 @@ function SceneMic({
     }
 
     event.preventDefault();
+    unlockReplyAudio();
     keyboardHoldActiveRef.current = true;
     onStart();
   }
@@ -1396,7 +1403,7 @@ async function playTurnReply(response: VoiceTurnResponse): Promise<void> {
   }
 }
 
-function playBase64Audio(base64: string, contentType: string): Promise<void> {
+async function playBase64Audio(base64: string, contentType: string): Promise<void> {
   const byteCharacters = window.atob(base64);
   const bytes = new Uint8Array(byteCharacters.length);
 
@@ -1404,11 +1411,29 @@ function playBase64Audio(base64: string, contentType: string): Promise<void> {
     bytes[index] = byteCharacters.charCodeAt(index);
   }
 
+  const audioContext = getReplyAudioContext();
+
+  if (audioContext) {
+    try {
+      await playDecodedAudio(bytes, audioContext);
+      return;
+    } catch (error) {
+      console.info("[audio] Web Audio reply playback failed; falling back.", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   const audioUrl = URL.createObjectURL(new Blob([bytes], { type: contentType }));
   const audio = new Audio(audioUrl);
 
   stopActiveAudio();
-  activeAudio = audio;
+  const playback: ActiveReplyPlayback = {
+    stop() {
+      audio.pause();
+    },
+  };
+  activeReplyPlayback = playback;
 
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -1426,8 +1451,8 @@ function playBase64Audio(base64: string, contentType: string): Promise<void> {
         playbackTimer = null;
       }
 
-      if (activeAudio === audio) {
-        activeAudio = null;
+      if (activeReplyPlayback === playback) {
+        activeReplyPlayback = null;
       }
 
       URL.revokeObjectURL(audioUrl);
@@ -1475,6 +1500,77 @@ function playBase64Audio(base64: string, contentType: string): Promise<void> {
         reject(error instanceof Error ? error : new Error("Audio playback failed.")),
       );
     });
+  });
+}
+
+async function playDecodedAudio(
+  bytes: Uint8Array,
+  audioContext: AudioContext,
+): Promise<void> {
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  const audioData = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(audioData).set(bytes);
+
+  const audioBuffer = await audioContext.decodeAudioData(audioData);
+
+  stopActiveAudio();
+
+  return new Promise((resolve, reject) => {
+    const source = audioContext.createBufferSource();
+    let settled = false;
+    let playbackTimer: number | null = null;
+
+    const playback: ActiveReplyPlayback = {
+      stop() {
+        try {
+          source.stop();
+        } catch {
+          // The source may already have ended or may not have started yet.
+        }
+      },
+    };
+
+    const settle = (complete: () => void) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+
+      if (playbackTimer !== null) {
+        window.clearTimeout(playbackTimer);
+        playbackTimer = null;
+      }
+
+      if (activeReplyPlayback === playback) {
+        activeReplyPlayback = null;
+      }
+
+      source.disconnect();
+      complete();
+    };
+
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    source.onended = () => {
+      settle(resolve);
+    };
+    activeReplyPlayback = playback;
+
+    playbackTimer = window.setTimeout(() => {
+      settle(resolve);
+    }, Math.min(audioBuffer.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
+
+    try {
+      source.start();
+    } catch (error) {
+      settle(() =>
+        reject(error instanceof Error ? error : new Error("Audio playback failed.")),
+      );
+    }
   });
 }
 
@@ -1593,13 +1689,57 @@ function getBrowserSpeechSettings(actor: QuestActor): {
   }
 }
 
-function stopActiveAudio(): void {
-  if (!activeAudio) {
+function unlockReplyAudio(): void {
+  const audioContext = getReplyAudioContext();
+
+  if (!audioContext) {
     return;
   }
 
-  activeAudio.pause();
-  activeAudio = null;
+  const source = audioContext.createBufferSource();
+  const gain = audioContext.createGain();
+
+  source.buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+  gain.gain.value = 0;
+  source.connect(gain);
+  gain.connect(audioContext.destination);
+  source.onended = () => {
+    source.disconnect();
+    gain.disconnect();
+  };
+  source.start();
+
+  void audioContext.resume().catch((error: unknown) => {
+    console.info("[audio] Could not unlock reply audio context.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  });
+}
+
+function getReplyAudioContext(): AudioContext | undefined {
+  const AudioContextConstructor =
+    window.AudioContext ??
+    (window as Window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
+
+  if (!AudioContextConstructor) {
+    return undefined;
+  }
+
+  if (!replyAudioContext || replyAudioContext.state === "closed") {
+    replyAudioContext = new AudioContextConstructor();
+  }
+
+  return replyAudioContext;
+}
+
+function stopActiveAudio(): void {
+  if (!activeReplyPlayback) {
+    return;
+  }
+
+  activeReplyPlayback.stop();
+  activeReplyPlayback = null;
 }
 
 function getSpeechRecognitionConstructor():

@@ -120,3 +120,10 @@ Packet 4 handoff:
   - `Exit MacPaw Space` remains fully visible and no longer sits behind the
     wood columns at `390x844` or `320x568`.
   - Desktop signage metrics remain unchanged.
+- Mobile reply audio fix validation:
+  - `npm run typecheck` passed.
+  - Reply playback now unlocks a Web Audio context during the mic user gesture,
+    then plays ElevenLabs reply audio through that context after async STT/API
+    work completes.
+  - Playwright mobile smoke with mocked ElevenLabs reply audio verified one
+    audio context, one resume, one decode, and successful reply playback.
