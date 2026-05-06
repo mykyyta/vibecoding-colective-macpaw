@@ -93,8 +93,17 @@ const initialQuestState: QuestState = {
   escaped: false,
 };
 
-let activeAudio: HTMLAudioElement | null = null;
+interface ActiveReplyPlayback {
+  stop(): void;
+}
+
+let activeReplyPlayback: ActiveReplyPlayback | null = null;
+let replyAudioContext: AudioContext | null = null;
 const ELEVENLABS_STT_SAMPLE_RATE = 16_000;
+const MIN_RECORDED_STT_DURATION_MS = 300;
+const MIN_RECORDED_STT_BYTES = 512;
+const ESCAPE_REWARD_DELAY_MS = 350;
+const MAX_REPLY_PLAYBACK_WAIT_MS = 10_000;
 const PURR_MARKER_PATTERN =
   /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/giu;
 
@@ -158,11 +167,17 @@ export function App() {
 
     setRoomState(nextState);
 
-    if (nextState === "doorOpening") {
-      escapeTimerRef.current = window.setTimeout(() => {
-        setRoomState("escaped");
-      }, 1350);
+  }
+
+  function scheduleEscapedState(delayMs = ESCAPE_REWARD_DELAY_MS) {
+    if (escapeTimerRef.current !== null) {
+      window.clearTimeout(escapeTimerRef.current);
     }
+
+    escapeTimerRef.current = window.setTimeout(() => {
+      setRoomState("escaped");
+      escapeTimerRef.current = null;
+    }, delayMs);
   }
 
   function startListening() {
@@ -248,6 +263,7 @@ export function App() {
     );
     let stopped = false;
     let stopResolver: (() => void) | null = null;
+    const recordingStartedAt = performance.now();
     const stoppedPromise = new Promise<void>((resolve) => {
       stopResolver = resolve;
     });
@@ -285,14 +301,40 @@ export function App() {
       mediaStream.getTracks().forEach((track) => track.stop());
       await stoppedPromise;
 
-      if (!shouldTranscribe || chunks.length === 0) {
+      if (!shouldTranscribe) {
         setVoiceBusy(false);
+        return;
+      }
+
+      if (chunks.length === 0) {
+        setVoiceBusy(false);
+        setRoomState(previousStateRef.current);
+        setBubble({
+          actor: "room",
+          name: "Мікрофон",
+          text: "Потримай кнопку трохи довше і скажи фразу ще раз.",
+        });
         return;
       }
 
       const audio = new Blob(chunks, {
         type: recorder.mimeType || "audio/webm",
       });
+      const recordedDurationMs = performance.now() - recordingStartedAt;
+
+      if (
+        recordedDurationMs < MIN_RECORDED_STT_DURATION_MS ||
+        audio.size < MIN_RECORDED_STT_BYTES
+      ) {
+        setVoiceBusy(false);
+        setRoomState(previousStateRef.current);
+        setBubble({
+          actor: "room",
+          name: "Мікрофон",
+          text: "Потримай кнопку трохи довше і скажи фразу ще раз.",
+        });
+        return;
+      }
 
       setInterimTranscript("");
       setVoiceBusy(true);
@@ -318,14 +360,22 @@ export function App() {
 
         observePurrMarkers("elevenlabs-recorded", "committed", transcription.text);
         await applyTranscript(transcription.text);
-      } catch {
+      } catch (error) {
+        console.info("[elevenlabs-stt] Recorded transcription failed.", {
+          error: error instanceof Error ? error.message : String(error),
+          bytes: audio.size,
+          contentType: audio.type,
+          durationMs: Math.round(recordedDurationMs),
+        });
         elevenLabsSttAvailableRef.current = false;
         setVoiceBusy(false);
         setRoomState(previousStateRef.current);
         setBubble({
           actor: "room",
           name: "Мікрофон",
-          text: "ElevenLabs STT не відповів. Спробуй ще раз або онови сторінку.",
+          text: getSpeechRecognitionConstructor()
+            ? "ElevenLabs не розшифрував. Спробуй ще раз: наступна спроба піде через браузер."
+            : "ElevenLabs не розшифрував. Перевір мікрофон і спробуй ще раз.",
         });
       }
     };
@@ -577,7 +627,8 @@ export function App() {
 
       questStateRef.current = response.nextQuestState;
       setQuestState(response.nextQuestState);
-      setRoomStateSafely(getRoomStateForVoiceTurn(response));
+      const nextRoomState = getRoomStateForVoiceTurn(response);
+      setRoomStateSafely(nextRoomState);
 
       const replyBubble = getBubbleForVoiceTurn(
         response.actor,
@@ -588,6 +639,10 @@ export function App() {
       setReadout(response.reply);
       setBubble(replyBubble);
       await playTurnReply(response);
+
+      if (turnId === turnIdRef.current && nextRoomState === "doorOpening") {
+        scheduleEscapedState();
+      }
     } catch {
       if (turnId !== turnIdRef.current) {
         return;
@@ -603,7 +658,7 @@ export function App() {
         name: "Кімната",
         text: message,
       });
-      speakWithBrowser(message, "system");
+      void speakWithBrowser(message, "system");
     } finally {
       if (turnId === turnIdRef.current) {
         setVoiceBusy(false);
@@ -837,6 +892,8 @@ function SceneMic({
   onStart: () => void;
   onStop: () => void;
 }) {
+  const activePointerIdRef = useRef<number | null>(null);
+  const keyboardHoldActiveRef = useRef(false);
   const prompt =
     isListening
       ? "Говори"
@@ -847,17 +904,28 @@ function SceneMic({
         : "Мікрофон заблоковано";
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0 || isListening || isBusy) {
+    if (
+      (event.pointerType === "mouse" && event.button !== 0) ||
+      isListening ||
+      isBusy
+    ) {
       return;
     }
 
     event.preventDefault();
+    unlockReplyAudio();
+    activePointerIdRef.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
     onStart();
   }
 
   function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
+    if (activePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
     event.preventDefault();
+    activePointerIdRef.current = null;
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -867,6 +935,12 @@ function SceneMic({
   }
 
   function handlePointerCancel(event: PointerEvent<HTMLButtonElement>) {
+    if (activePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
+    activePointerIdRef.current = null;
+
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -885,6 +959,8 @@ function SceneMic({
     }
 
     event.preventDefault();
+    unlockReplyAudio();
+    keyboardHoldActiveRef.current = true;
     onStart();
   }
 
@@ -894,7 +970,17 @@ function SceneMic({
     }
 
     event.preventDefault();
+    keyboardHoldActiveRef.current = false;
 
+    onStop();
+  }
+
+  function handleBlur() {
+    if (!keyboardHoldActiveRef.current) {
+      return;
+    }
+
+    keyboardHoldActiveRef.current = false;
     onStop();
   }
 
@@ -902,7 +988,7 @@ function SceneMic({
     <button
       className={`scene-mic ${isListening ? "scene-mic--active" : ""}`}
       type="button"
-      onBlur={onStop}
+      onBlur={handleBlur}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       onPointerCancel={handlePointerCancel}
@@ -988,10 +1074,30 @@ async function requestRecordedStt(audio: Blob): Promise<RecordedSttResponse> {
   });
 
   if (!response.ok) {
-    throw new Error(`Recorded STT failed with ${response.status}.`);
+    const errorText = await readResponseError(response);
+
+    throw new Error(
+      `Recorded STT failed with ${response.status}${errorText ? `: ${errorText}` : ""}.`,
+    );
   }
 
   return (await response.json()) as RecordedSttResponse;
+}
+
+async function readResponseError(response: Response): Promise<string> {
+  const body = await response.text();
+
+  if (!body) {
+    return "";
+  }
+
+  try {
+    const parsed = JSON.parse(body) as { error?: unknown };
+
+    return typeof parsed.error === "string" ? parsed.error : body;
+  } catch {
+    return body;
+  }
 }
 
 function getSupportedRecordingMimeType(): string {
@@ -1286,18 +1392,18 @@ function getAmbientHint(questState: QuestState, roomState: RoomState): string {
 
 async function playTurnReply(response: VoiceTurnResponse): Promise<void> {
   if (!response.audio) {
-    speakWithBrowser(response.reply, response.actor);
+    await speakWithBrowser(response.reply, response.actor);
     return;
   }
 
   try {
     await playBase64Audio(response.audio.base64, response.audio.contentType);
   } catch {
-    speakWithBrowser(response.reply, response.actor);
+    await speakWithBrowser(response.reply, response.actor);
   }
 }
 
-function playBase64Audio(base64: string, contentType: string): Promise<void> {
+async function playBase64Audio(base64: string, contentType: string): Promise<void> {
   const byteCharacters = window.atob(base64);
   const bytes = new Uint8Array(byteCharacters.length);
 
@@ -1305,46 +1411,166 @@ function playBase64Audio(base64: string, contentType: string): Promise<void> {
     bytes[index] = byteCharacters.charCodeAt(index);
   }
 
+  const audioContext = getReplyAudioContext();
+
+  if (audioContext) {
+    try {
+      await playDecodedAudio(bytes, audioContext);
+      return;
+    } catch (error) {
+      console.info("[audio] Web Audio reply playback failed; falling back.", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   const audioUrl = URL.createObjectURL(new Blob([bytes], { type: contentType }));
   const audio = new Audio(audioUrl);
 
   stopActiveAudio();
-  activeAudio = audio;
+  const playback: ActiveReplyPlayback = {
+    stop() {
+      audio.pause();
+    },
+  };
+  activeReplyPlayback = playback;
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    let playbackTimer: number | null = null;
+
+    const settle = (complete: () => void) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+
+      if (playbackTimer !== null) {
+        window.clearTimeout(playbackTimer);
+        playbackTimer = null;
+      }
+
+      if (activeReplyPlayback === playback) {
+        activeReplyPlayback = null;
+      }
+
+      URL.revokeObjectURL(audioUrl);
+      complete();
+    };
+
+    playbackTimer = window.setTimeout(() => {
+      settle(resolve);
+    }, MAX_REPLY_PLAYBACK_WAIT_MS);
+
+    audio.addEventListener(
+      "loadedmetadata",
+      () => {
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+          return;
+        }
+
+        if (playbackTimer !== null) {
+          window.clearTimeout(playbackTimer);
+        }
+
+        playbackTimer = window.setTimeout(() => {
+          settle(resolve);
+        }, Math.min(audio.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
+      },
+      { once: true },
+    );
     audio.addEventListener(
       "ended",
       () => {
-        if (activeAudio === audio) {
-          activeAudio = null;
-        }
-
-        URL.revokeObjectURL(audioUrl);
-        resolve();
+        settle(resolve);
       },
       { once: true },
     );
     audio.addEventListener(
       "error",
       () => {
-        if (activeAudio === audio) {
-          activeAudio = null;
-        }
-
-        URL.revokeObjectURL(audioUrl);
-        reject(new Error("Audio playback failed."));
+        settle(() => reject(new Error("Audio playback failed.")));
       },
       { once: true },
     );
 
     void audio.play().catch((error: unknown) => {
-      if (activeAudio === audio) {
-        activeAudio = null;
+      settle(() =>
+        reject(error instanceof Error ? error : new Error("Audio playback failed.")),
+      );
+    });
+  });
+}
+
+async function playDecodedAudio(
+  bytes: Uint8Array,
+  audioContext: AudioContext,
+): Promise<void> {
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  const audioData = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(audioData).set(bytes);
+
+  const audioBuffer = await audioContext.decodeAudioData(audioData);
+
+  stopActiveAudio();
+
+  return new Promise((resolve, reject) => {
+    const source = audioContext.createBufferSource();
+    let settled = false;
+    let playbackTimer: number | null = null;
+
+    const playback: ActiveReplyPlayback = {
+      stop() {
+        try {
+          source.stop();
+        } catch {
+          // The source may already have ended or may not have started yet.
+        }
+      },
+    };
+
+    const settle = (complete: () => void) => {
+      if (settled) {
+        return;
       }
 
-      URL.revokeObjectURL(audioUrl);
-      reject(error instanceof Error ? error : new Error("Audio playback failed."));
-    });
+      settled = true;
+
+      if (playbackTimer !== null) {
+        window.clearTimeout(playbackTimer);
+        playbackTimer = null;
+      }
+
+      if (activeReplyPlayback === playback) {
+        activeReplyPlayback = null;
+      }
+
+      source.disconnect();
+      complete();
+    };
+
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    source.onended = () => {
+      settle(resolve);
+    };
+    activeReplyPlayback = playback;
+
+    playbackTimer = window.setTimeout(() => {
+      settle(resolve);
+    }, Math.min(audioBuffer.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
+
+    try {
+      source.start();
+    } catch (error) {
+      settle(() =>
+        reject(error instanceof Error ? error : new Error("Audio playback failed.")),
+      );
+    }
   });
 }
 
@@ -1415,9 +1641,9 @@ function observePurrMarkers(
   }
 }
 
-function speakWithBrowser(text: string, actor: QuestActor): void {
+function speakWithBrowser(text: string, actor: QuestActor): Promise<void> {
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
-    return;
+    return Promise.resolve();
   }
 
   const utterance = new SpeechSynthesisUtterance(text);
@@ -1429,7 +1655,23 @@ function speakWithBrowser(text: string, actor: QuestActor): void {
 
   stopActiveAudio();
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+
+  return new Promise((resolve) => {
+    const speechTimer = window.setTimeout(resolve, MAX_REPLY_PLAYBACK_WAIT_MS);
+
+    const settle = () => {
+      window.clearTimeout(speechTimer);
+      resolve();
+    };
+
+    utterance.onend = () => {
+      settle();
+    };
+    utterance.onerror = () => {
+      settle();
+    };
+    window.speechSynthesis.speak(utterance);
+  });
 }
 
 function getBrowserSpeechSettings(actor: QuestActor): {
@@ -1447,13 +1689,57 @@ function getBrowserSpeechSettings(actor: QuestActor): {
   }
 }
 
-function stopActiveAudio(): void {
-  if (!activeAudio) {
+function unlockReplyAudio(): void {
+  const audioContext = getReplyAudioContext();
+
+  if (!audioContext) {
     return;
   }
 
-  activeAudio.pause();
-  activeAudio = null;
+  const source = audioContext.createBufferSource();
+  const gain = audioContext.createGain();
+
+  source.buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+  gain.gain.value = 0;
+  source.connect(gain);
+  gain.connect(audioContext.destination);
+  source.onended = () => {
+    source.disconnect();
+    gain.disconnect();
+  };
+  source.start();
+
+  void audioContext.resume().catch((error: unknown) => {
+    console.info("[audio] Could not unlock reply audio context.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  });
+}
+
+function getReplyAudioContext(): AudioContext | undefined {
+  const AudioContextConstructor =
+    window.AudioContext ??
+    (window as Window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
+
+  if (!AudioContextConstructor) {
+    return undefined;
+  }
+
+  if (!replyAudioContext || replyAudioContext.state === "closed") {
+    replyAudioContext = new AudioContextConstructor();
+  }
+
+  return replyAudioContext;
+}
+
+function stopActiveAudio(): void {
+  if (!activeReplyPlayback) {
+    return;
+  }
+
+  activeReplyPlayback.stop();
+  activeReplyPlayback = null;
 }
 
 function getSpeechRecognitionConstructor():

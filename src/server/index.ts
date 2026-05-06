@@ -134,6 +134,11 @@ app.post("/api/stt/elevenlabs/recorded", async (request, response) => {
 
     response.json(payload);
   } catch (error) {
+    console.info("[elevenlabs-stt] Recorded transcription request failed.", {
+      error: error instanceof Error ? error.message : String(error),
+      bytes: audio.byteLength,
+      contentType: request.headers["content-type"] ?? "unknown",
+    });
     response.status(502).json({
       error:
         error instanceof Error

@@ -109,7 +109,7 @@ Validation:
 - local browser or Playwright screenshot check;
 - `npm run typecheck` only if audit requires running the app build.
 
-Status: ready.
+Status: completed.
 
 ### Packet 2: Responsive Room Composition
 
@@ -143,7 +143,7 @@ Validation:
 - `npm run typecheck`;
 - mobile and desktop screenshot inspection.
 
-Status: pending Packet 1.
+Status: completed.
 
 ### Packet 3: Mobile Voice Control Ergonomics
 
@@ -176,7 +176,7 @@ Validation:
 - `npm run typecheck`;
 - local mobile-browser or emulated pointer smoke.
 
-Status: pending Packet 1.
+Status: completed.
 
 ### Packet 4: Mobile Visual QA And Integration Pass
 
