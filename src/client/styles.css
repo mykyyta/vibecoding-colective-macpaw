@@ -79,6 +79,26 @@ h1 {
   line-height: 1.45;
 }
 
+.demo-marker {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 28px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 250, 240, 0.32);
+  border-radius: 6px;
+  background: rgba(23, 32, 27, 0.46);
+  color: #fffaf0;
+  font-weight: 700;
+}
+
+.demo-marker span {
+  display: block;
+  margin-top: 4px;
+  color: #dceee1;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .status-panel {
   min-height: 520px;
   padding: 28px;
@@ -135,4 +155,3 @@ h1 {
     aspect-ratio: 1 / 1.08;
   }
 }
-

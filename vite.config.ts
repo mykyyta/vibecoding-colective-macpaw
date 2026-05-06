@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: Number(process.env.PORT || 3000),
+    allowedHosts: [".ngrok-free.dev", ".ngrok-free.app"],
     proxy: {
       "/api": `http://localhost:${serverPort}`,
       "/health": `http://localhost:${serverPort}`,
@@ -16,4 +17,3 @@ export default defineConfig({
     port: Number(process.env.PORT || 3000),
   },
 });
-

@@ -53,6 +53,10 @@ export function App() {
             prototype from a local machine, with a public tunnel when outside
             services need to call in.
           </p>
+          <div className="demo-marker">
+            Tunnel test placeholder
+            <span>Open this page through ngrok to confirm the live demo path.</span>
+          </div>
         </div>
         <StatusPanel loadState={loadState} />
       </section>
@@ -103,4 +107,3 @@ function StatusPanel({ loadState }: { loadState: LoadState }) {
     </aside>
   );
 }
-
