@@ -4,7 +4,13 @@
 
 set -euo pipefail
 
-AWS_PROFILE="${AWS_PROFILE:-thehrdwood}"
+if [[ "${CI:-}" == "true" ]]; then
+  AWS_PROFILE="${AWS_PROFILE:-}"
+else
+  AWS_PROFILE="${AWS_PROFILE:-thehrdwood}"
+fi
+AWS_S3_FRONTEND_BUCKET="${AWS_S3_FRONTEND_BUCKET:-}"
+CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-}"
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -15,7 +21,11 @@ require_cmd() {
 
 require_cmd aws
 require_cmd npm
-require_cmd terraform
+aws_args=()
+
+if [[ -n "$AWS_PROFILE" ]]; then
+  aws_args+=(--profile "$AWS_PROFILE")
+fi
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 
@@ -23,20 +33,23 @@ cd "$ROOT_DIR"
 
 npm run build
 
-BUCKET="$(terraform -chdir=infra output -raw frontend_bucket_name)"
-DISTRIBUTION_ID="$(terraform -chdir=infra output -raw cloudfront_distribution_id)"
+if [[ -z "$AWS_S3_FRONTEND_BUCKET" || -z "$CLOUDFRONT_DISTRIBUTION_ID" ]]; then
+  require_cmd terraform
+  AWS_S3_FRONTEND_BUCKET="${AWS_S3_FRONTEND_BUCKET:-$(terraform -chdir=infra output -raw frontend_bucket_name)}"
+  CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-$(terraform -chdir=infra output -raw cloudfront_distribution_id)}"
+fi
 
-aws --profile "$AWS_PROFILE" s3 sync dist "s3://${BUCKET}" \
+aws "${aws_args[@]}" s3 sync dist "s3://${AWS_S3_FRONTEND_BUCKET}" \
   --delete \
   --exclude "index.html" \
   --exclude "server/*" \
   --exclude "shared/*" \
   --cache-control "public,max-age=31536000,immutable"
 
-aws --profile "$AWS_PROFILE" s3 cp dist/index.html "s3://${BUCKET}/index.html" \
+aws "${aws_args[@]}" s3 cp dist/index.html "s3://${AWS_S3_FRONTEND_BUCKET}/index.html" \
   --cache-control "no-cache,no-store,must-revalidate" \
   --content-type "text/html"
 
-aws --profile "$AWS_PROFILE" cloudfront create-invalidation \
-  --distribution-id "$DISTRIBUTION_ID" \
+aws "${aws_args[@]}" cloudfront create-invalidation \
+  --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
   --paths "/*"

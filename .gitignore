@@ -8,3 +8,4 @@ dist/
 **/.terraform/
 .DS_Store
 .claude/
+.codex/

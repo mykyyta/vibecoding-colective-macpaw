@@ -105,6 +105,29 @@ AWS_PROFILE=thehrdwood npm run infra:apply
 AWS_PROFILE=thehrdwood npm run deploy:cloudfront
 ```
 
+## GitHub Actions
+
+Pushes to `main` run `.github/workflows/deploy-main.yml`.
+
+The workflow:
+
+1. installs dependencies;
+2. typechecks;
+3. deploys Railway service `vibecoding-colective-macpaw`;
+4. waits for the Railway deployment to reach `SUCCESS`;
+5. builds and uploads frontend assets to S3;
+6. creates a CloudFront invalidation;
+7. smoke-tests `/`, `/health`, and `/api/status` through CloudFront.
+
+Required GitHub repository secrets:
+
+- `RAILWAY_TOKEN`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+
+The workflow intentionally uses the existing single environment and does not
+create or mutate Terraform-managed infrastructure.
+
 ## Risks And Mitigations
 
 - **Paid resources:** Railway service, S3, and CloudFront can incur cost. Apply

@@ -1,0 +1,118 @@
+name: Deploy Main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "20"
+  RAILWAY_PROJECT_ID: 62e4c285-0732-4c86-89b9-ddf58d15a20d
+  RAILWAY_ENVIRONMENT: production
+  RAILWAY_SERVICE: vibecoding-colective-macpaw
+  AWS_REGION: eu-central-1
+  AWS_S3_FRONTEND_BUCKET: vibecoding-colective-macpaw-frontend
+  CLOUDFRONT_DISTRIBUTION_ID: E1LXAVVGHT4YKQ
+  CLOUDFRONT_URL: https://d1uswfdwd46dyc.cloudfront.net
+
+jobs:
+  deploy:
+    name: Deploy Backend And Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check deployment secrets
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          test -n "$RAILWAY_TOKEN" || { echo "Missing RAILWAY_TOKEN"; exit 1; }
+          test -n "$AWS_ACCESS_KEY_ID" || { echo "Missing AWS_ACCESS_KEY_ID"; exit 1; }
+          test -n "$AWS_SECRET_ACCESS_KEY" || { echo "Missing AWS_SECRET_ACCESS_KEY"; exit 1; }
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Link Railway project
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway link \
+            --project "$RAILWAY_PROJECT_ID" \
+            --environment "$RAILWAY_ENVIRONMENT" \
+            --service "$RAILWAY_SERVICE"
+
+      - name: Deploy backend to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: npm run deploy:railway
+
+      - name: Wait for Railway backend
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          for i in {1..60}; do
+            status_json="$(railway service status \
+              --environment "$RAILWAY_ENVIRONMENT" \
+              --service "$RAILWAY_SERVICE" \
+              --json)"
+            deploy_status="$(printf '%s' "$status_json" | jq -r '.status // "UNKNOWN"')"
+            deployment_id="$(printf '%s' "$status_json" | jq -r '.deploymentId // "-"')"
+            echo "attempt=$i status=$deploy_status deployment=$deployment_id"
+
+            if [ "$deploy_status" = "SUCCESS" ]; then
+              exit 0
+            fi
+
+            if [ "$deploy_status" = "FAILED" ] || [ "$deploy_status" = "CRASHED" ]; then
+              exit 1
+            fi
+
+            sleep 8
+          done
+
+          echo "Timed out waiting for Railway deployment"
+          exit 1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy frontend to CloudFront
+        run: npm run deploy:cloudfront
+
+      - name: Smoke test CloudFront
+        run: |
+          curl -fsS "$CLOUDFRONT_URL/health"
+          curl -fsS "$CLOUDFRONT_URL/api/status" | jq -e \
+            '.environment.claudeApiKeyConfigured == true and .environment.elevenLabsApiKeyConfigured == true'
+          curl -fsS -o /tmp/root.html "$CLOUDFRONT_URL/"
+          test -s /tmp/root.html
