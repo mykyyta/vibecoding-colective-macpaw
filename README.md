@@ -36,6 +36,7 @@
 
 - `AGENTS.md` — основні інструкції для агентів;
 - `CLAUDE.md` — синхронна копія агентських інструкцій для Claude-середовищ;
+- `PRODUCT.md` і `DESIGN.md` — root-контекст для Impeccable v3;
 - `.agents/skills/` — локальні скіли ролей;
 - `docs/product/product.md` — продуктова точка правди;
 - `docs/build-system/operating-model/` — ролі, масштаб роботи та handoff;

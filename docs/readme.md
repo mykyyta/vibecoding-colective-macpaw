@@ -6,6 +6,8 @@ Project documentation is intentionally small until the event task is known.
 
 - `../AGENTS.md` — agent instructions for Codex-style agents.
 - `../CLAUDE.md` — mirrored agent instructions for Claude-style agents.
+- `../PRODUCT.md` — root product context for Impeccable v3.
+- `../DESIGN.md` — root visual context for Impeccable v3.
 - `product/product.md` — product apex: what this project is trying to become.
 - `build-system/operating-model/readme.md` — role model and workflow entry point.
 - `build-system/architecture/stack.md` — baseline live-demo stack.
