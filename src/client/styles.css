@@ -1536,24 +1536,29 @@ button {
   }
 
   .speech-bubble {
-    width: 184px;
-    max-width: 38vw;
+    left: calc(13vw + 0.85rem);
+    right: auto;
+    bottom: 60%;
+    width: min(218px, calc(100vw - 1.7rem));
+    max-width: none;
     padding: 8px 9px;
   }
 
   .speech-bubble--guard {
-    right: 24%;
-    bottom: 47%;
+    left: calc(13vw + 0.85rem);
+    right: auto;
+    bottom: 60%;
   }
 
   .speech-bubble--pixel {
-    right: 8%;
-    bottom: 39%;
+    left: calc(13vw + 0.85rem);
+    right: auto;
+    bottom: 60%;
   }
 
   .speech-bubble--room {
-    left: 39%;
-    bottom: 19%;
+    left: calc(13vw + 0.85rem);
+    bottom: 43%;
   }
 
   .speech-bubble strong {
@@ -1563,7 +1568,8 @@ button {
   .scene-mic {
     left: 0.8rem;
     bottom: 0.8rem;
-    max-width: 42vw;
+    width: min(226px, calc(100vw - 1.6rem));
+    max-width: none;
     padding-right: 0.55rem;
   }
 
