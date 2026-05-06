@@ -52,7 +52,10 @@ export async function createQuestBrainTurn({
 }: QuestBrainRequest): Promise<QuestTurn> {
   const normalizedQuestState = normalizeQuestState(questState);
   const fallbackTurn = createQuestTurn(transcript, normalizedQuestState);
-  const allowedTransitions = getAllowedQuestTransitions(normalizedQuestState);
+  const allowedTransitions = applyTranscriptActorHints(
+    getAllowedQuestTransitions(normalizedQuestState),
+    fallbackTurn,
+  );
 
   try {
     const claude = getClaudeProvider();
@@ -155,10 +158,13 @@ function buildQuestBrainPrompt({
     "- The guard is named Oleg, but his name may only be revealed by transition oleg-name-learned.",
     "- Oleg can explain that the exit is locked after the вайбкодінг івент and Pixel was near the exit panel only on transition guard-hint-given.",
     "- Pixel ignores ordinary commands.",
+    "- Pixel may also be addressed indirectly as a cat, the cat, кіт, котик, пухнастий, хвостатий, муркотун, or similar cat-like descriptions.",
     "- Pixel may reveal code 404 only on transition code-revealed.",
     "- code-revealed requires both conditions in the same user transcript: the player names Pixel/Піксель/Пікс directly, and the player performs a clear cat sound such as мур, мрр, мяу, няв, пур, purr, prr, meow, or similar.",
     "- If the player addresses Pixel but only asks, commands, begs, or asks for the code without a cat sound, choose pixel-ordinary-rejected, not code-revealed.",
     "- If the player makes a cat sound without naming Pixel, do not choose code-revealed.",
+    "- If the player addresses Pixel directly or indirectly as the cat but no Pixel progression transition is legal yet, choose no-progress with actor pixel and let Pixel joke in his own style.",
+    "- Pixel may answer wrong or premature Pixel-directed turns, but he must not reveal the code, exit-panel clue, or advance quest state unless the selected transition allows it.",
     "- The door may open and the user may escape only on transition door-opened.",
     "- For transition door-opened, the reply must be exactly: 404 accepted. Door not found, but exit found.",
     "",
@@ -193,6 +199,43 @@ function buildQuestPromptTransitions(
     allowedActors: transition.allowedActors,
     stageContext: transition.description,
   }));
+}
+
+function applyTranscriptActorHints(
+  allowedTransitions: AllowedQuestTransition[],
+  fallbackTurn: QuestTurn,
+): AllowedQuestTransition[] {
+  return allowedTransitions.map((transition) => {
+    if (transition.id !== "no-progress") {
+      return transition;
+    }
+
+    const fallbackNoProgress = fallbackTurn.event.type === "no-progress";
+    const allowedActors = uniqueActors([
+      transition.actor,
+      ...(transition.allowedActors ?? []),
+      ...(fallbackNoProgress ? [fallbackTurn.actor] : []),
+      ...(fallbackNoProgress ? ["pixel" as const] : []),
+    ]);
+
+    return {
+      ...transition,
+      allowedActors,
+      description: [
+        transition.description,
+        "For no-progress turns, the actor may be the addressed or most relevant visible character instead of the room.",
+        fallbackNoProgress
+          ? "If Pixel or the cat is addressed too early, asked the wrong thing, or hears a cat-like phrase that should not progress, Pixel may answer with a lazy smug cat joke while revealing nothing."
+          : undefined,
+      ]
+        .filter(Boolean)
+        .join(" "),
+    };
+  });
+}
+
+function uniqueActors(actors: QuestActor[]): QuestActor[] {
+  return actors.filter((actor, index) => actors.indexOf(actor) === index);
 }
 
 function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {

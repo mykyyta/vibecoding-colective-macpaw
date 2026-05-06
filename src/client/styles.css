@@ -1175,6 +1175,24 @@ button {
   white-space: nowrap;
 }
 
+.scene-mic-text {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.scene-mic-hint {
+  display: none;
+  overflow: hidden;
+  color: color-mix(in oklch, var(--plaster-lit), transparent 28%);
+  font-size: 0.58rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .scene-mic--active .scene-mic-icon::before {
   animation: mic-pulse 1.2s var(--ease-out) infinite;
 }
@@ -1636,5 +1654,9 @@ button {
 
   .scene-mic-copy {
     font-size: 0.7rem;
+  }
+
+  .scene-mic-hint {
+    display: block;
   }
 }

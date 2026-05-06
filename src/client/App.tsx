@@ -1021,7 +1021,10 @@ function SceneMic({
       disabled={isBusy && !isListening}
     >
       <span className="scene-mic-icon" aria-hidden="true" />
-      <span className="scene-mic-copy">{prompt}</span>
+      <span className="scene-mic-text">
+        <span className="scene-mic-copy">{prompt}</span>
+        <span className="scene-mic-hint">звук не на вібро</span>
+      </span>
     </button>
   );
 }
