@@ -1483,8 +1483,9 @@ button {
   }
 
   .back-signage {
-    left: 44%;
+    left: 40%;
     top: 25%;
+    z-index: 10;
   }
 
   .ambient-hint {
@@ -1499,6 +1500,11 @@ button {
     top: 38%;
     width: 70%;
     font-size: 0.58rem;
+  }
+
+  .stage-label {
+    left: 30%;
+    font-size: 0.7rem;
   }
 
   .stepped-seating {

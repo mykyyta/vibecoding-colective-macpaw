@@ -115,3 +115,8 @@ Packet 4 handoff:
     to `escaped` after playback completes.
   - Playback now also has a metadata-based timeout fallback so the UI does not
     stay in `doorOpening` if a browser fails to emit the audio `ended` event.
+- Mobile signage visual QA:
+  - `MacPaw Space` is fully inside the viewport at `390x844` and `320x568`.
+  - `Exit MacPaw Space` remains fully visible and no longer sits behind the
+    wood columns at `390x844` or `320x568`.
+  - Desktop signage metrics remain unchanged.
