@@ -23,6 +23,13 @@ interface ClaudeQuestDecision {
   confidence?: number;
 }
 
+interface QuestPromptTransition {
+  id: QuestTransitionId;
+  actor: QuestActor;
+  allowedActors?: QuestActor[];
+  stageContext: string;
+}
+
 const CLAUDE_QUEST_TIMEOUT_MS = 7000;
 const MAX_REPLY_LENGTH = 320;
 
@@ -56,7 +63,7 @@ export async function createQuestBrainTurn({
         allowedTransitions,
       }),
       maxTokens: 220,
-      temperature: 0.25,
+      temperature: 0.68,
     });
     const decision = parseClaudeQuestDecision(generated.text);
     const allowedTransition = allowedTransitions.find(
@@ -124,12 +131,17 @@ function buildQuestBrainPrompt({
   return [
     "You are the quest brain for a local voice-only demo game.",
     "Return strict JSON only. No markdown, no code fence, no commentary.",
-    "Write vivid, varied Ukrainian replies: dry irony, playful MacPaw Space energy, compact theatrical timing.",
+    "Write one fresh Ukrainian spoken reply for this exact quest turn.",
+    "Use the current actor, stage, visible room context, and allowed facts.",
+    "Include one small ironic joke or character beat. Keep it grounded in this moment, not a reusable catchphrase.",
+    "Write vivid, varied replies: dry irony, playful MacPaw Space energy, compact theatrical timing.",
     "Avoid generic assistant wording. Each reply should feel like a character on stage, not a chatbot.",
     "The reply must sound spoken by the selected actor, not narrated about them.",
     "If actor is pixel, write as Pixel the cat: lazy young male cat, smug, drowsy, short, with occasional мрр/мяу, but still understandable.",
     "If actor is system or door, write as the room itself: ambient, architectural, dry, and not human.",
     "If actor is guard, write as Oleg or the guard: human, laconic, slightly bureaucratic.",
+    "Do not lean on the same tech joke families every time: middleware, firewall, deploy, keypad, generic access denied, or generic assistant phrasing.",
+    "If you use a tech joke, make it specific to this actor and stage, and avoid making it the whole personality.",
     "",
     "JSON schema:",
     '{"transitionId":"one allowed transition id","actor":"allowed actor for that transition","reply":"Ukrainian player-facing reply, max 2 short sentences","confidence":0.0}',
@@ -137,6 +149,7 @@ function buildQuestBrainPrompt({
     "Scenario:",
     "- Title: 404 Door Not Found.",
     "- The player is in a single MacPaw Space-inspired room and must exit by voice.",
+    "- Visible room context: black presentation wall, light open floor, warm wooden steps, LED rails, locked exit, guard near the door, Pixel nearby.",
     "- The guard's name must be learned before useful guard commands work.",
     "- The guard is named Oleg, but his name may only be revealed by transition oleg-name-learned.",
     "- Oleg can explain that the door is in demo lockdown and Pixel was near the keypad only on transition guard-hint-given.",
@@ -165,9 +178,20 @@ function buildQuestBrainPrompt({
     "",
     `Current quest state: ${JSON.stringify(questState)}`,
     `User transcript: ${JSON.stringify(transcript)}`,
-    "Allowed transitions:",
-    JSON.stringify(allowedTransitions, null, 2),
+    "Allowed transition cards, with no example wording to imitate:",
+    JSON.stringify(buildQuestPromptTransitions(allowedTransitions), null, 2),
   ].join("\n");
+}
+
+function buildQuestPromptTransitions(
+  allowedTransitions: AllowedQuestTransition[],
+): QuestPromptTransition[] {
+  return allowedTransitions.map((transition) => ({
+    id: transition.id,
+    actor: transition.actor,
+    allowedActors: transition.allowedActors,
+    stageContext: transition.description,
+  }));
 }
 
 function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {

@@ -86,7 +86,7 @@ export function createQuestTurn(
       nextQuestState.olegNameKnown = true;
       event = { type: "oleg-name-learned", progressed: true };
       reply =
-        "Я Олег. Не просто охоронець, а останній middleware між тобою і виходом.";
+        "Я Олег. У цій кімнаті навіть бейдж має кращий доступ, ніж випадкова команда.";
       break;
 
     case "oleg-directed-door-command":
@@ -100,14 +100,14 @@ export function createQuestTurn(
       nextQuestState.guardHintGiven = true;
       event = { type: "guard-hint-given", progressed: true };
       reply =
-        "Олег тут. Двері у demo lockdown: потрібен код. Pixel останнім крутився біля keypad, і це не комплімент.";
+        "Олег на місці. Двері в demo lockdown: без коду вони чемно імітують меблі; Pixel крутився біля keypad.";
       break;
 
     case "pixel-directed-command":
       actor = "pixel";
       if (!previousQuestState.guardHintGiven) {
         reply =
-          "Мр? Я Pixel, не декор на сходах. Спершу з'ясуй у охоронця, чому мої лапи взагалі важливі.";
+          "Мр? Я Pixel, не інтерактивна подушка. Спершу з'ясуй у охоронця, чому двері вдають стіну.";
         break;
       }
 
@@ -115,7 +115,7 @@ export function createQuestTurn(
       nextQuestState.pixelRejectedOrdinaryCommand = true;
       event = { type: "pixel-ordinary-rejected", progressed: true };
       reply =
-        "Мяу. Звичайні команди дряпають мій firewall і падають на підлогу.";
+        "Мяу. На людські прохання я реагую, як кіт на календарний інвайт: бачу, ігнорую.";
       break;
 
     case "pixel-directed-purr":
@@ -130,20 +130,20 @@ export function createQuestTurn(
       nextQuestState.codeRevealed = true;
       event = { type: "code-revealed", progressed: true };
       reply =
-        "Мрр-р. Код на моєму бейджику: 404. Не питай, я сам це не деплоїв.";
+        "Мрр-р. Код 404 на моєму бейджику; нарешті хтось говорить протоколом котів.";
       break;
 
     case "oleg-directed-code":
       actor = "guard";
       if (!previousQuestState.olegNameKnown) {
         reply =
-          "Охоронець не приймає код від незнайомого процесу. Спершу треба познайомитись.";
+          "Охоронець не приймає коди від голосів без бейджа. Спершу треба познайомитись.";
         break;
       }
 
       if (!previousQuestState.codeRevealed) {
         reply =
-          "Олег не відкриває двері на вгадування. Спершу отримай код від того, хто сидів біля keypad.";
+          "Олег не грає в лотерею з дверима. Спершу отримай код від того, хто крутився біля keypad.";
         break;
       }
 
@@ -164,17 +164,17 @@ export function createQuestTurn(
     case "purr-without-pixel":
       actor = "pixel";
       reply =
-        "Мр? Це було в повітря. Назви мене Pixel, тоді муркотіння матиме адресата.";
+        "Мр? Гарний звук, але адресат загубився. Скажи Pixel, щоб я зрозумів, кому тут мурчать.";
       break;
 
     case "smalltalk":
       event = { type: "smalltalk-replied", progressed: false };
       reply =
-        "MacPaw Space підтримує smalltalk. Двері чемно роблять вигляд, що це не до них.";
+        "MacPaw Space любить ввічливість, але турнікет усе ще має характер.";
       break;
 
     case "unknown":
-      reply = "Кімната почула звук, подумала секунду і нічого не зламала.";
+      reply = "Кімната це почула і зберегла обличчя. Двері теж, хоча в них воно умовне.";
       break;
   }
 
@@ -199,7 +199,8 @@ export function getAllowedQuestTransitions(
       actor: "system",
       description:
         "Use when the player command should not progress the puzzle, including generic door commands, premature code guesses, or unclear input.",
-      fallbackReply: "Кімната почула звук, подумала секунду і нічого не зламала.",
+      fallbackReply:
+        "Кімната це почула і зберегла обличчя. Двері теж, хоча в них воно умовне.",
     },
     {
       id: "smalltalk-replied",
@@ -218,7 +219,7 @@ export function getAllowedQuestTransitions(
       description:
         "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg.",
       fallbackReply:
-        "Я Олег. Не просто охоронець, а останній middleware між тобою і виходом.",
+        "Я Олег. У цій кімнаті навіть бейдж має кращий доступ, ніж випадкова команда.",
     });
   }
 
@@ -229,7 +230,7 @@ export function getAllowedQuestTransitions(
       description:
         "The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. This may reveal demo lockdown and Pixel's keypad clue, but not the code.",
       fallbackReply:
-        "Олег тут. Двері у demo lockdown: потрібен код. Pixel останнім крутився біля keypad, і це не комплімент.",
+        "Олег на місці. Двері в demo lockdown: без коду вони чемно імітують меблі; Pixel крутився біля keypad.",
     });
   }
 
@@ -240,7 +241,7 @@ export function getAllowedQuestTransitions(
       description:
         "The player directly addresses Pixel by name with an ordinary command, request, or question, including asking for the code without making a cat sound. Pixel acknowledges the address but refuses ordinary commands.",
       fallbackReply:
-        "Мяу. Звичайні команди дряпають мій firewall і падають на підлогу.",
+        "Мяу. На людські прохання я реагую, як кіт на календарний інвайт: бачу, ігнорую.",
     });
   }
 
@@ -251,7 +252,7 @@ export function getAllowedQuestTransitions(
       description:
         "Use only when the player directly says Pixel's name or a clear Pixel alias and also performs a gentle cat sound in the same transcript, such as mur, mrr, meow, purr, pur, prr, nya/няв/мяу, or similar. Do not use for ordinary commands like asking Pixel for the code without a cat sound. This is the only transition that may reveal code 404.",
       fallbackReply:
-        "Мрр-р. Код на моєму бейджику: 404. Не питай, я сам це не деплоїв.",
+        "Мрр-р. Код 404 на моєму бейджику; нарешті хтось говорить протоколом котів.",
     });
   }
 
@@ -294,16 +295,16 @@ function getSmalltalkActors(state: QuestState): QuestActor[] {
 
 function getSmalltalkFallbackReply(state: QuestState): string {
   if (state.doorOpen || state.escaped) {
-    return "Двері тихо сяють, ніби теж хочуть сказати: демо закрите красиво.";
+    return "Двері світяться так скромно, ніби не хочуть брати весь фінальний слайд на себе.";
   }
 
   if (state.pixelAddressed) {
-    return "Мяу. Я бачила дорожчу презентацію, але ця хоча б має правильний запах.";
+    return "Мяу. Я бачив дорожчу презентацію, але ця хоча б має правильний запах.";
   }
 
   return state.olegNameKnown
-    ? "Олег киває. Smalltalk прийнято, двері все ще в режимі принципової безпеки."
-    : "Охоронець ледь киває. Ввічливість прийнято, доступ ще ні.";
+    ? "Олег киває. Розмова йде краще, ніж дверна політика."
+    : "Охоронець ледь киває. Ввічливість помітив, доступ поки ні.";
 }
 
 export function createQuestTurnFromTransition({
