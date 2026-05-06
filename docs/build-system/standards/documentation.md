@@ -52,6 +52,6 @@ owner: Methodologist
 When changing role semantics, skill names, paths, or operating rules, update the relevant files together:
 
 - `AGENTS.md`
+- `CLAUDE.md`
 - `.agents/skills/**/SKILL.md`
 - `docs/build-system/operating-model/**`
-

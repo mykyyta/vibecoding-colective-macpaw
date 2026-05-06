@@ -4,7 +4,7 @@ This project is a lightweight workspace for rapid vibe-coding prototypes,
 especially prototypes that can use ElevenLabs voice, speech, audio, or
 Conversational AI capabilities.
 
-This file must stay in sync with `CLAUDE.md`. When one changes, update the
+This file must stay in sync with `AGENTS.md`. When one changes, update the
 other in the same edit.
 
 ## Principles

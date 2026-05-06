@@ -46,7 +46,7 @@ Watch for:
 ## Workflow
 
 1. Name the friction signal in one sentence.
-2. Locate the artifact that should prevent it: `roles.md`, `scale-model.md`, `handoff.md`, `documentation.md`, `AGENTS.md`, or a skill file.
+2. Locate the artifact that should prevent it: `roles.md`, `scale-model.md`, `handoff.md`, `documentation.md`, `AGENTS.md`, `CLAUDE.md`, or a skill file.
 3. Make the smallest useful change.
 4. Keep docs and skill files in sync when role semantics change.
 5. State the autonomy claim: under the new rule, why can the next cycle proceed with less manual relay?
@@ -60,4 +60,3 @@ Return:
 - rule before vs rule after;
 - remaining risk, if any;
 - autonomy claim.
-

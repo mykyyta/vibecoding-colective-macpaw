@@ -4,6 +4,8 @@ Project documentation is intentionally small until the event task is known.
 
 ## Index
 
+- `../AGENTS.md` — agent instructions for Codex-style agents.
+- `../CLAUDE.md` — mirrored agent instructions for Claude-style agents.
 - `product/product.md` — product apex: what this project is trying to become.
 - `build-system/operating-model/readme.md` — role model and workflow entry point.
 - `build-system/standards/documentation.md` — documentation structure and lifecycle.
