@@ -45,6 +45,27 @@
 
 Під час івенту це має допомогти швидко перейти від ідеї до плану, від плану до пакета роботи, а від пакета — до робочого демо.
 
+## Стек
+
+Базовий стек для live demo:
+
+- TypeScript;
+- Vite + React для UI;
+- Node.js + Express для server-side секретів, ElevenLabs API, webhooks і майбутнього MCP endpoint;
+- shared types у `src/shared/`.
+
+Локальний запуск:
+
+```bash
+npm install
+npm run dev
+```
+
+Після запуску:
+
+- UI: `http://localhost:3000`
+- API: `http://localhost:8787`
+
 ## ElevenLabs MCP
 
 Для підключення віддаленого MCP server до ElevenLabs Conversational AI підготовлено:

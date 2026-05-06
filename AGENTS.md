@@ -30,9 +30,9 @@ other in the same edit.
 
 ## Stack
 
-The stack is intentionally not fixed yet.
+The baseline stack is TypeScript, Vite + React, and Node.js + Express. Durable stack notes live in `docs/build-system/architecture/stack.md`.
 
-- Prefer the smallest stack that can produce a convincing demo.
+- Prefer the smallest addition to the baseline stack that can produce a convincing demo.
 - Browser-first prototypes are valid if they reduce setup time.
 - Server-side code is required for secrets, private API calls, webhooks, and
   any ElevenLabs operation that must not expose credentials.

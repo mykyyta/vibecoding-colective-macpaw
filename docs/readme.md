@@ -8,6 +8,7 @@ Project documentation is intentionally small until the event task is known.
 - `../CLAUDE.md` — mirrored agent instructions for Claude-style agents.
 - `product/product.md` — product apex: what this project is trying to become.
 - `build-system/operating-model/readme.md` — role model and workflow entry point.
+- `build-system/architecture/stack.md` — baseline live-demo stack.
 - `build-system/standards/documentation.md` — documentation structure and lifecycle.
 - `build-system/integrations/elevenlabs-mcp.md` — ElevenLabs MCP setup notes.
 - `build-system/integrations/deployment-options.md` — simple deployment paths for event demos.
