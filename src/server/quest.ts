@@ -1,10 +1,21 @@
 import type {
   QuestActor,
   QuestEvent,
+  QuestEventType,
   QuestState,
   QuestTrigger,
   VoiceAction,
 } from "../shared/voice.js";
+
+export type QuestTransitionId = QuestEventType;
+
+export interface AllowedQuestTransition {
+  id: QuestTransitionId;
+  actor: QuestActor;
+  allowedActors?: QuestActor[];
+  description: string;
+  fallbackReply: string;
+}
 
 export interface QuestTurn {
   action: VoiceAction;
@@ -14,6 +25,14 @@ export interface QuestTurn {
   trigger: QuestTrigger;
   previousQuestState: QuestState;
   nextQuestState: QuestState;
+}
+
+export interface QuestTransitionTurnInput {
+  transcript: string;
+  questState?: Partial<QuestState>;
+  transitionId: QuestTransitionId;
+  actor: QuestActor;
+  reply: string;
 }
 
 export const initialQuestState: QuestState = {
@@ -30,15 +49,23 @@ export function normalizeQuestState(
   state: Partial<QuestState> | null | undefined = {},
 ): QuestState {
   const source = state && typeof state === "object" ? state : {};
+  const olegNameKnown = source.olegNameKnown === true;
+  const guardHintGiven = source.guardHintGiven === true && olegNameKnown;
+  const pixelAddressed = source.pixelAddressed === true && guardHintGiven;
+  const pixelRejectedOrdinaryCommand =
+    source.pixelRejectedOrdinaryCommand === true && pixelAddressed;
+  const codeRevealed = source.codeRevealed === true && pixelAddressed;
+  const doorOpen =
+    source.doorOpen === true && olegNameKnown && codeRevealed;
 
   return {
-    olegNameKnown: source.olegNameKnown === true,
-    guardHintGiven: source.guardHintGiven === true,
-    pixelAddressed: source.pixelAddressed === true,
-    pixelRejectedOrdinaryCommand: source.pixelRejectedOrdinaryCommand === true,
-    codeRevealed: source.codeRevealed === true,
-    doorOpen: source.doorOpen === true,
-    escaped: source.escaped === true,
+    olegNameKnown,
+    guardHintGiven,
+    pixelAddressed,
+    pixelRejectedOrdinaryCommand,
+    codeRevealed,
+    doorOpen,
+    escaped: source.escaped === true && doorOpen,
   };
 }
 
@@ -78,6 +105,12 @@ export function createQuestTurn(
 
     case "pixel-directed-command":
       actor = "pixel";
+      if (!previousQuestState.guardHintGiven) {
+        reply =
+          "Pixel лишається частиною інтер'єру. Спершу треба зрозуміти, чому він взагалі важливий для дверей.";
+        break;
+      }
+
       nextQuestState.pixelAddressed = true;
       nextQuestState.pixelRejectedOrdinaryCommand = true;
       event = { type: "pixel-ordinary-rejected", progressed: true };
@@ -87,6 +120,12 @@ export function createQuestTurn(
 
     case "pixel-directed-purr":
       actor = "pixel";
+      if (!previousQuestState.guardHintGiven) {
+        reply =
+          "Pixel чує муркотіння, але ще не має причини ділитися секретами. Спершу розберися з дверима через охоронця.";
+        break;
+      }
+
       nextQuestState.pixelAddressed = true;
       nextQuestState.codeRevealed = true;
       event = { type: "code-revealed", progressed: true };
@@ -140,14 +179,11 @@ export function createQuestTurn(
     case "smalltalk":
       event = { type: "smalltalk-replied", progressed: false };
       reply =
-        "MacPaw Space підтримує smalltalk, але двері від цього не стають менш locked.";
+        "MacPaw Space підтримує smalltalk. Двері чемно роблять вигляд, що це не до них.";
       break;
 
     case "unknown":
-      reply =
-        previousQuestState.olegNameKnown
-          ? "Я почув репліку, але квест не зрушив. Спробуй звернутися по імені: Олег, відкрий двері."
-          : "Я почув репліку, але квест не зрушив. Почни з простого питання: як тебе звати?";
+      reply = "Кімната почула звук, подумала секунду і нічого не зламала.";
       break;
   }
 
@@ -160,6 +196,182 @@ export function createQuestTurn(
     previousQuestState,
     nextQuestState,
   };
+}
+
+export function getAllowedQuestTransitions(
+  questState: Partial<QuestState> = {},
+): AllowedQuestTransition[] {
+  const state = normalizeQuestState(questState);
+  const transitions: AllowedQuestTransition[] = [
+    {
+      id: "no-progress",
+      actor: "system",
+      description:
+        "Use when the player command should not progress the puzzle, including generic door commands, premature code guesses, or unclear input.",
+      fallbackReply: "Кімната почула звук, подумала секунду і нічого не зламала.",
+    },
+    {
+      id: "smalltalk-replied",
+      actor: getSmalltalkActor(state),
+      allowedActors: getSmalltalkActors(state),
+      description:
+        "Use for harmless greetings, thanks, jokes, or smalltalk that should not progress the puzzle. Let the most relevant visible character answer: guard before Pixel is engaged, Pixel after Pixel is engaged, door after escape.",
+      fallbackReply: getSmalltalkFallbackReply(state),
+    },
+  ];
+
+  if (!state.olegNameKnown) {
+    transitions.push({
+      id: "oleg-name-learned",
+      actor: "guard",
+      description:
+        "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg.",
+      fallbackReply:
+        "Я Олег. Не просто охоронець, а останній middleware між тобою і виходом.",
+    });
+  }
+
+  if (state.olegNameKnown && !state.guardHintGiven) {
+    transitions.push({
+      id: "guard-hint-given",
+      actor: "guard",
+      description:
+        "The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. This may reveal demo lockdown and Pixel's keypad clue, but not the code.",
+      fallbackReply:
+        "Олег тут. Двері у demo lockdown: потрібен код. Pixel останнім крутився біля keypad, і це не комплімент.",
+    });
+  }
+
+  if (state.guardHintGiven && !state.pixelRejectedOrdinaryCommand) {
+    transitions.push({
+      id: "pixel-ordinary-rejected",
+      actor: "pixel",
+      description:
+        "The player directly addresses Pixel by name with an ordinary command, request, or question, including asking for the code without making a cat sound. Pixel acknowledges the address but refuses ordinary commands.",
+      fallbackReply:
+        "Pixel кліпає так, ніби звичайні команди проходять повз його персональний firewall.",
+    });
+  }
+
+  if (state.guardHintGiven && !state.codeRevealed) {
+    transitions.push({
+      id: "code-revealed",
+      actor: "pixel",
+      description:
+        "Use only when the player directly says Pixel's name or a clear Pixel alias and also performs a gentle cat sound in the same transcript, such as mur, mrr, meow, purr, pur, prr, nya/няв/мяу, or similar. Do not use for ordinary commands like asking Pixel for the code without a cat sound. This is the only transition that may reveal code 404.",
+      fallbackReply:
+        "Pixel мружиться. На бейджику біля лапи проявляється код: 404. Дуже продуктовий спосіб втекти.",
+    });
+  }
+
+  if (state.olegNameKnown && state.codeRevealed && !state.doorOpen) {
+    transitions.push({
+      id: "door-opened",
+      actor: "door",
+      description:
+        "The player directly addresses Oleg and gives the already revealed code 404. This is the only transition that may open the door or mark escape.",
+      fallbackReply:
+        "Олег вводить 404. Двері визнають власну помилку, відчиняються, і MacPaw Space випускає тебе назовні.",
+    });
+  }
+
+  return transitions;
+}
+
+function getSmalltalkActor(state: QuestState): QuestActor {
+  if (state.doorOpen || state.escaped) {
+    return "door";
+  }
+
+  if (state.pixelAddressed) {
+    return "pixel";
+  }
+
+  return "guard";
+}
+
+function getSmalltalkActors(state: QuestState): QuestActor[] {
+  if (state.doorOpen || state.escaped) {
+    return ["door", "guard", "pixel"];
+  }
+
+  if (state.pixelAddressed) {
+    return ["pixel", "guard"];
+  }
+
+  return ["guard"];
+}
+
+function getSmalltalkFallbackReply(state: QuestState): string {
+  if (state.doorOpen || state.escaped) {
+    return "Двері тихо сяють, ніби теж хочуть сказати: демо закрите красиво.";
+  }
+
+  if (state.pixelAddressed) {
+    return "Pixel кліпає з виглядом кота, який бачив дорожчу презентацію.";
+  }
+
+  return state.olegNameKnown
+    ? "Олег киває. Smalltalk прийнято, двері все ще в режимі принципової безпеки."
+    : "Охоронець ледь киває. Ввічливість прийнято, доступ ще ні.";
+}
+
+export function createQuestTurnFromTransition({
+  transcript,
+  questState = {},
+  transitionId,
+  actor,
+  reply,
+}: QuestTransitionTurnInput): QuestTurn {
+  const previousQuestState = normalizeQuestState(questState);
+  const nextQuestState = applyQuestTransition(previousQuestState, transitionId);
+  const trigger = classifyQuestTranscript(transcript);
+  const progressed = !["no-progress", "smalltalk-replied"].includes(
+    transitionId,
+  );
+
+  return {
+    action: { type: "none" },
+    actor,
+    event: { type: transitionId, progressed },
+    reply,
+    trigger,
+    previousQuestState,
+    nextQuestState,
+  };
+}
+
+function applyQuestTransition(
+  previousQuestState: QuestState,
+  transitionId: QuestTransitionId,
+): QuestState {
+  const nextQuestState = { ...previousQuestState };
+
+  switch (transitionId) {
+    case "oleg-name-learned":
+      nextQuestState.olegNameKnown = true;
+      break;
+    case "guard-hint-given":
+      nextQuestState.guardHintGiven = true;
+      break;
+    case "pixel-ordinary-rejected":
+      nextQuestState.pixelAddressed = true;
+      nextQuestState.pixelRejectedOrdinaryCommand = true;
+      break;
+    case "code-revealed":
+      nextQuestState.pixelAddressed = true;
+      nextQuestState.codeRevealed = true;
+      break;
+    case "door-opened":
+      nextQuestState.doorOpen = true;
+      nextQuestState.escaped = true;
+      break;
+    case "no-progress":
+    case "smalltalk-replied":
+      break;
+  }
+
+  return nextQuestState;
 }
 
 export function classifyQuestTranscript(transcript: string): QuestTrigger {
@@ -219,6 +431,8 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
       "як тебе звати",
       "як вас звати",
       "як звати",
+      "як тебе звуть",
+      "як вас звуть",
       "як тебе зовуть",
       "як вас зовуть",
       "як звуть",
@@ -389,7 +603,7 @@ function includesAny(
 
 function findPurrMatches(text: string): string[] {
   const matches = text.matchAll(
-    /(?:^|\s)(мур+|мурк\w*|м(?:-?р)+|мяу+|няу+|purr+|pur+|mur+|m(?:-?r)+|prr+)(?=\s|$)/g,
+    /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/g,
   );
 
   return [...matches].map((match) => match[1]).filter(Boolean);

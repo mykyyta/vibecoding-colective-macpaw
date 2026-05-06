@@ -9,7 +9,7 @@ interface DialogueReplyRequest {
 }
 
 const MAX_REPLY_LENGTH = 320;
-const CLAUDE_DIALOGUE_TIMEOUT_MS = 2500;
+const CLAUDE_DIALOGUE_TIMEOUT_MS = 6500;
 
 export async function createDialogueReply({
   transcript,

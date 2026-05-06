@@ -16,8 +16,8 @@ import {
   ProviderConfigurationError,
 } from "./providers/config.js";
 import { createProviderRegistry } from "./providers/registry.js";
-import { createDialogueReply } from "./dialogue.js";
-import { createQuestTurn, normalizeQuestState } from "./quest.js";
+import { createQuestBrainTurn } from "./quest-brain.js";
+import { normalizeQuestState } from "./quest.js";
 import {
   createElevenLabsRealtimeSttSession,
   transcribeElevenLabsAudio,
@@ -150,12 +150,12 @@ app.post("/api/voice-turn", async (request, response) => {
     return;
   }
 
-  const turn = createQuestTurn(parsed.transcript, parsed.questState);
-  const reply = await createDialogueReply({
+  const turn = await createQuestBrainTurn({
     transcript: parsed.transcript,
-    turn,
+    questState: parsed.questState,
     getClaudeProvider: () => providerRegistry.getTextProvider("claude"),
   });
+  const reply = turn.reply;
   const payload: VoiceTurnResponse = {
     transcript: parsed.transcript,
     reply,

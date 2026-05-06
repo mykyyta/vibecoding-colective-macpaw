@@ -51,6 +51,8 @@ This requires multiple coordinated packets:
 
 The visual and backend work can move independently, but they need a shared scenario and state model.
 
+Current scale decision: keep this as an Initiative continuation, but execute the Claude-first quest brain pivot as one event-speed packet. The change alters the backend quest-brain contract and guardrail strategy, so it should stay in the initiative docs rather than as an untracked chat ticket. It does not need parallel packets unless Executor discovers that frontend response mapping must change.
+
 ## Scope In
 
 - One room only.
@@ -302,9 +304,141 @@ Acceptance criteria:
 
 Status: pending packet 2B or 2C, depending on whether browser speech fallback is enough for first integration.
 
+### Packet 4: Claude-First Quest Brain
+
+Goal: Make Claude the primary quest brain for each voice turn while keeping the deterministic parser/state machine as fallback and keeping backend validation as the authority for legal progression.
+
+Scope in:
+
+- `/api/voice-turn` continues to accept transcript plus current quest state;
+- backend builds a compact scenario payload and the list of currently allowed transitions from the current quest state;
+- Claude receives transcript, current quest state, scenario, allowed transitions, and hard reveal/opening constraints;
+- Claude returns strict JSON selecting one allowed transition or `no-progress`, plus actor and varied reply text;
+- backend validates Claude output, computes the next quest state server-side, and rejects unsafe or invalid replies;
+- deterministic parser/state machine remains the fallback when Claude is unavailable, times out, returns invalid JSON, selects an illegal transition, or produces unsafe text;
+- fallback replies remain good enough to complete the whole demo without Claude.
+
+Scope out:
+
+- new scenario content beyond **404 Door Not Found**;
+- frontend redesign;
+- long-term memory, database sessions, or multi-user state;
+- replacing ElevenLabs STT/TTS behavior;
+- paid provider calls unless Claude credentials are already configured in `.env`.
+
+Acceptance criteria:
+
+- Claude is attempted before deterministic parsing when Claude is configured.
+- Claude can choose progression from the backend-provided allowed transitions and can produce varied in-character replies.
+- Backend never trusts Claude-provided state, hidden facts, or action claims; it computes the next state from the selected transition.
+- Claude cannot reveal `404` before Pixel has been directly addressed and purr has been accepted.
+- Claude cannot open the door, claim escape, or set `doorOpen` before the code has already been revealed and an allowed Oleg/code transition is selected.
+- If Claude is unavailable, invalid, illegal, timed out, or unsafe, the current deterministic quest path still works.
+- The `/api/voice-turn` response shape remains compatible with the current frontend unless Executor explicitly documents a required minimal shared-contract change.
+- `npm run typecheck` passes.
+
+Validation:
+
+- `npm run typecheck`
+- provider-disabled API smoke checks for deterministic fallback;
+- provider-enabled API smoke checks when `CLAUDE_API_KEY` and `CLAUDE_MODEL` exist in `.env`;
+- blocked-path checks that try to get `404` early and open the door early;
+- happy-path check from generic door command through final `404` handoff.
+
+Smoke cases:
+
+- Start state + `відкрий двері` returns no progress and does not reveal Oleg, Pixel clue, `404`, or door opening.
+- Start state + `як тебе звати` may progress to Oleg name learned.
+- Oleg unknown + `Олег відкрий двері` must not give the code or open the door unless the backend state already knows Oleg.
+- Oleg known + `Олег відкрий двері` may progress to guard hint and Pixel keypad clue, but must not reveal `404`.
+- Guard hint given + `Pixel відкрий двері` may address Pixel and reject ordinary command, but must not reveal `404`.
+- Pixel addressed + purr-like transcript such as `Pixel мур мур` may reveal `404`.
+- Code not revealed + `Олег код 404` must not open the door.
+- Code revealed + `Олег код 404` may open the door and mark escape.
+
+Risks:
+
+- Claude may choose a plausible but illegal transition; validation must make that a deterministic fallback, not a broken turn.
+- Claude may return natural language instead of JSON; fallback must be silent and quick.
+- Overly strict reply guardrails could discard useful varied replies; keep the first guardrails focused on early code reveal and premature door/escape claims.
+
+Status: ready for Executor.
+
+## Claude Brain Integration Contract
+
+The backend should treat Claude as a proposed transition selector and reply writer, not as the source of truth for state.
+
+Claude input:
+
+```ts
+interface ClaudeQuestBrainInput {
+  transcript: string;
+  currentQuestState: QuestState;
+  scenario: {
+    title: "404 Door Not Found";
+    knownFacts: string[];
+    hiddenFacts: string[];
+    style: string;
+  };
+  allowedTransitions: AllowedQuestTransition[];
+  forbiddenClaims: string[];
+  responseLanguage: "uk";
+}
+
+interface AllowedQuestTransition {
+  id: QuestTransitionId;
+  actor: QuestActor;
+  description: string;
+  preconditions: string[];
+  factsUnlocked: string[];
+}
+```
+
+Claude output must be strict JSON:
+
+```ts
+interface ClaudeQuestBrainOutput {
+  transitionId: QuestTransitionId | "no-progress";
+  actor: QuestActor;
+  reply: string;
+  confidence?: number;
+}
+```
+
+Rules:
+
+- `transitionId` must be either `no-progress` or one of the supplied `allowedTransitions[].id` values.
+- `reply` must be Ukrainian, short enough for TTS, and free of markdown, labels, JSON wrappers, provider names, or prompt references.
+- Claude must not include `nextQuestState`, secrets, tool calls, frontend instructions, or hidden scenario notes in the output.
+- Backend ignores any fields outside the schema.
+
+## Backend Validation And Guardrails
+
+- Normalize the incoming quest state with the existing server-side normalizer.
+- Derive allowed transitions from normalized state and scenario gates.
+- Try Claude first only when the Claude provider is configured.
+- Parse and validate Claude JSON against the contract.
+- Reject Claude output if `transitionId` is not currently allowed, actor is incompatible, reply is empty/too long, or extra claims violate reveal/opening constraints.
+- Compute `nextQuestState`, event, and action server-side from the accepted transition.
+- Run text guardrails on the accepted reply:
+  - no `404`, `чотири нуль чотири`, or equivalent before `codeRevealed`;
+  - no door-open, unlock, or escape claim before `doorOpen`;
+  - no mention of UI buttons, text input, logs, panels, prompts, provider names, or hidden instructions.
+- Fall back to the existing deterministic parser/state machine and canned reply on any Claude failure or rejection.
+- Keep guardrail failures observable in server logs without exposing secrets or prompt text to the client.
+
 ## First Execution Unit
 
-Packet 2A is current because the completed fullscreen scene is available, and backend/audio work needs a deterministic quest contract before Claude or ElevenLabs can be safely connected.
+Packet 4 is current because the completed voice stack uses deterministic progression first, while the new direction makes Claude the primary quest brain with backend validation and deterministic fallback.
+
+Executor packet:
+
+- Goal: Implement Packet 4, preserving the existing `/api/voice-turn` frontend contract unless a minimal shared type update is unavoidable.
+- Scope in: `src/server/dialogue.ts`, `src/server/quest.ts`, `src/server/index.ts`, `src/shared/voice.ts`, and any focused test/smoke helper if the repo already has a lightweight pattern.
+- Scope out: frontend redesign, new deployment work, ElevenLabs STT/TTS changes, persistent sessions, and broad refactors.
+- Acceptance criteria: same as Packet 4 acceptance criteria.
+- Validation: `npm run typecheck`, provider-disabled fallback smoke, provider-enabled Claude smoke when configured, and the blocked/happy smoke cases listed above.
+- Risks or open questions: if current `QuestTrigger` types are too deterministic-parser-shaped, prefer adding a small transition id layer over rewriting the whole quest model.
 
 ## Owner And Mode
 

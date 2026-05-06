@@ -96,7 +96,7 @@ const initialQuestState: QuestState = {
 let activeAudio: HTMLAudioElement | null = null;
 const ELEVENLABS_STT_SAMPLE_RATE = 16_000;
 const PURR_MARKER_PATTERN =
-  /(?:^|\s)(мур+|м(?:-?р)+|purr+|pur+|mur+|m(?:-?r)+|prr+)(?=\s|$)/giu;
+  /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/giu;
 
 export function App() {
   const [roomState, setRoomState] = useState<RoomState>("idle");
@@ -105,6 +105,7 @@ export function App() {
   const [bubble, setBubble] = useState<SceneBubbleContent | null>(null);
   const [interimTranscript, setInterimTranscript] = useState("");
   const [speechAvailable, setSpeechAvailable] = useState(true);
+  const [voiceBusy, setVoiceBusy] = useState(false);
   const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const realtimeRecognitionRef = useRef<RealtimeSpeechRecognizer | null>(null);
   const recordedRecognitionRef = useRef<RecordedSpeechRecognizer | null>(null);
@@ -115,6 +116,7 @@ export function App() {
   const turnIdRef = useRef(0);
   const wantsListeningRef = useRef(false);
   const listenAttemptRef = useRef(0);
+  const pendingStopAfterStartRef = useRef(false);
 
   useEffect(() => {
     const browserSpeechAvailable = getSpeechRecognitionConstructor() !== undefined;
@@ -132,6 +134,7 @@ export function App() {
 
     return () => {
       wantsListeningRef.current = false;
+      pendingStopAfterStartRef.current = false;
       listenAttemptRef.current += 1;
       recordedRecognitionRef.current?.abort();
       realtimeRecognitionRef.current?.abort();
@@ -163,11 +166,12 @@ export function App() {
   }
 
   function startListening() {
-    if (wantsListeningRef.current) {
+    if (wantsListeningRef.current || voiceBusy) {
       return;
     }
 
     wantsListeningRef.current = true;
+    pendingStopAfterStartRef.current = false;
     const listenAttempt = listenAttemptRef.current + 1;
     listenAttemptRef.current = listenAttempt;
     recordedRecognitionRef.current?.abort();
@@ -185,15 +189,30 @@ export function App() {
     if (elevenLabsSttAvailableRef.current !== false) {
       void startRecordedElevenLabsListening()
         .then((recognizer) => {
-          if (!wantsListeningRef.current || listenAttempt !== listenAttemptRef.current) {
+          if (listenAttempt !== listenAttemptRef.current) {
             recognizer.abort();
+            return;
+          }
+
+          if (!wantsListeningRef.current || pendingStopAfterStartRef.current) {
+            pendingStopAfterStartRef.current = false;
+            recordedRecognitionRef.current = recognizer;
+            recognizer.stop();
+            recordedRecognitionRef.current = null;
             return;
           }
 
           recordedRecognitionRef.current = recognizer;
         })
         .catch((error: unknown) => {
-          if (!wantsListeningRef.current || listenAttempt !== listenAttemptRef.current) {
+          if (listenAttempt !== listenAttemptRef.current) {
+            return;
+          }
+
+          if (!wantsListeningRef.current) {
+            pendingStopAfterStartRef.current = false;
+            setVoiceBusy(false);
+            setRoomState(previousStateRef.current);
             return;
           }
 
@@ -267,6 +286,7 @@ export function App() {
       await stoppedPromise;
 
       if (!shouldTranscribe || chunks.length === 0) {
+        setVoiceBusy(false);
         return;
       }
 
@@ -275,6 +295,7 @@ export function App() {
       });
 
       setInterimTranscript("");
+      setVoiceBusy(true);
       setBubble({
         actor: "room",
         name: "Мікрофон",
@@ -285,6 +306,7 @@ export function App() {
         const transcription = await requestRecordedStt(audio);
 
         if (!transcription.text) {
+          setVoiceBusy(false);
           setRoomState(previousStateRef.current);
           setBubble({
             actor: "room",
@@ -298,6 +320,7 @@ export function App() {
         await applyTranscript(transcription.text);
       } catch {
         elevenLabsSttAvailableRef.current = false;
+        setVoiceBusy(false);
         setRoomState(previousStateRef.current);
         setBubble({
           actor: "room",
@@ -342,6 +365,7 @@ export function App() {
     recognition.lang = "uk-UA";
     recognition.continuous = false;
     recognition.interimResults = true;
+    let submittedFinalTranscript = false;
 
     recognition.onstart = () => {
       if (!wantsListeningRef.current) {
@@ -359,10 +383,6 @@ export function App() {
     };
 
     recognition.onresult = (event) => {
-      if (!wantsListeningRef.current) {
-        return;
-      }
-
       let interim = "";
       let finalTranscript = "";
 
@@ -380,6 +400,7 @@ export function App() {
       setInterimTranscript(finalTranscript || interim);
 
       if (finalTranscript) {
+        submittedFinalTranscript = true;
         observePurrMarkers("browser-speech", "committed", finalTranscript);
         void applyTranscript(finalTranscript);
       }
@@ -407,6 +428,9 @@ export function App() {
     recognition.onend = () => {
       recognitionRef.current = null;
       setInterimTranscript("");
+      if (!submittedFinalTranscript) {
+        setVoiceBusy(false);
+      }
       setRoomState((current) =>
         current === "listening" ? previousStateRef.current : current,
       );
@@ -471,8 +495,19 @@ export function App() {
   }
 
   function stopListening() {
+    const hasActiveRecognizer =
+      wantsListeningRef.current ||
+      recordedRecognitionRef.current !== null ||
+      realtimeRecognitionRef.current !== null ||
+      recognitionRef.current !== null;
+
+    if (!hasActiveRecognizer) {
+      return;
+    }
+
     wantsListeningRef.current = false;
-    listenAttemptRef.current += 1;
+    pendingStopAfterStartRef.current = recordedRecognitionRef.current === null;
+    setVoiceBusy(true);
     recordedRecognitionRef.current?.stop();
     recordedRecognitionRef.current = null;
     realtimeRecognitionRef.current?.stop();
@@ -482,6 +517,35 @@ export function App() {
     setRoomState((current) =>
       current === "listening" ? previousStateRef.current : current,
     );
+  }
+
+  function restartQuest() {
+    wantsListeningRef.current = false;
+    pendingStopAfterStartRef.current = false;
+    listenAttemptRef.current += 1;
+    recordedRecognitionRef.current?.abort();
+    recordedRecognitionRef.current = null;
+    realtimeRecognitionRef.current?.abort();
+    realtimeRecognitionRef.current = null;
+    recognitionRef.current?.abort();
+    recognitionRef.current = null;
+    stopActiveAudio();
+    window.speechSynthesis?.cancel();
+
+    if (escapeTimerRef.current !== null) {
+      window.clearTimeout(escapeTimerRef.current);
+      escapeTimerRef.current = null;
+    }
+
+    turnIdRef.current += 1;
+    questStateRef.current = initialQuestState;
+    previousStateRef.current = "idle";
+    setQuestState(initialQuestState);
+    setRoomState("idle");
+    setReadout("");
+    setInterimTranscript("");
+    setVoiceBusy(false);
+    setBubble(null);
   }
 
   async function applyTranscript(transcript: string) {
@@ -495,6 +559,7 @@ export function App() {
     const questStateBeforeTurn = questStateRef.current;
 
     turnIdRef.current = turnId;
+    setVoiceBusy(true);
     observePurrMarkers("voice-turn", "submitted", cleanedTranscript);
     setReadout(cleanedTranscript);
     setBubble({
@@ -539,6 +604,10 @@ export function App() {
         text: message,
       });
       speakWithBrowser(message, "system");
+    } finally {
+      if (turnId === turnIdRef.current) {
+        setVoiceBusy(false);
+      }
     }
   }
 
@@ -546,23 +615,26 @@ export function App() {
 
   return (
     <main className={`quest-app quest-app--${roomState}`}>
-      <RoomScene bubble={bubble} roomState={roomState} />
+      <RoomScene bubble={bubble} questState={questState} roomState={roomState} />
       <SceneMic
         isListening={isListening}
+        isBusy={voiceBusy}
         speechAvailable={speechAvailable}
-        transcript={interimTranscript || readout}
         onStart={startListening}
         onStop={stopListening}
       />
+      <RestartButton disabled={isListening || voiceBusy} onRestart={restartQuest} />
     </main>
   );
 }
 
 function RoomScene({
   bubble,
+  questState,
   roomState,
 }: {
   bubble: SceneBubbleContent | null;
+  questState: QuestState;
   roomState: RoomState;
 }) {
   const doorOpen = roomState === "doorOpening" || roomState === "escaped";
@@ -600,6 +672,10 @@ function RoomScene({
 
       <div className="presentation-wall">
         <div className="screen-sheen" aria-hidden="true" />
+        <AmbientHint questState={questState} roomState={roomState} />
+        <div className="stage-success" aria-hidden="true">
+          <span>EXIT 404 RESOLVED</span>
+        </div>
         <span className="stage-label">MacPaw Space</span>
       </div>
 
@@ -643,6 +719,22 @@ function RoomScene({
 
       <SceneBubble bubble={bubble} roomState={roomState} />
     </section>
+  );
+}
+
+function AmbientHint({
+  questState,
+  roomState,
+}: {
+  questState: QuestState;
+  roomState: RoomState;
+}) {
+  const hint = getAmbientHint(questState, roomState);
+
+  return (
+    <div className="ambient-hint" aria-live="polite">
+      <span>{hint}</span>
+    </div>
   );
 }
 
@@ -716,23 +808,28 @@ function SceneBubble({
 
 function SceneMic({
   isListening,
+  isBusy,
   speechAvailable,
-  transcript,
   onStart,
   onStop,
 }: {
   isListening: boolean;
+  isBusy: boolean;
   speechAvailable: boolean;
-  transcript: string;
   onStart: () => void;
   onStop: () => void;
 }) {
-  const prompt = isListening
-    ? transcript || "Говори. Відпусти кнопку, коли закінчиш."
-    : transcript || (speechAvailable ? "Утримуй і скажи: як тебе звати?" : "Мікрофон заблоковано");
+  const prompt =
+    isListening
+      ? "Говори"
+      : isBusy
+      ? "Чекай..."
+      : speechAvailable
+        ? "Натисни, щоб говорити"
+        : "Мікрофон заблоковано";
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0 || isListening) {
+    if (event.button !== 0 || isListening || isBusy) {
       return;
     }
 
@@ -760,7 +857,12 @@ function SceneMic({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
-    if (event.repeat || (event.key !== " " && event.key !== "Enter") || isListening) {
+    if (
+      event.repeat ||
+      (event.key !== " " && event.key !== "Enter") ||
+      isListening ||
+      isBusy
+    ) {
       return;
     }
 
@@ -788,10 +890,31 @@ function SceneMic({
       onPointerCancel={handlePointerCancel}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      aria-label={isListening ? "Release to stop listening" : "Hold to talk"}
+      aria-label={isListening || isBusy ? "Wait" : "Press to talk"}
+      disabled={isBusy && !isListening}
     >
       <span className="scene-mic-icon" aria-hidden="true" />
       <span className="scene-mic-copy">{prompt}</span>
+    </button>
+  );
+}
+
+function RestartButton({
+  disabled,
+  onRestart,
+}: {
+  disabled: boolean;
+  onRestart: () => void;
+}) {
+  return (
+    <button
+      className="restart-quest"
+      type="button"
+      disabled={disabled}
+      onClick={onRestart}
+      aria-label="Почати з початку"
+    >
+      Почати з початку
     </button>
   );
 }
@@ -1100,14 +1223,6 @@ function getBubbleForVoiceTurn(
 }
 
 function getListeningBubble(state: RoomState): SceneBubbleContent | null {
-  if (state === "idle") {
-    return {
-      actor: "room",
-      name: "Кімната",
-      text: "Натисни мікрофон і спитай: як тебе звати?",
-    };
-  }
-
   if (state === "listening") {
     return {
       actor: "room",
@@ -1117,6 +1232,38 @@ function getListeningBubble(state: RoomState): SceneBubbleContent | null {
   }
 
   return null;
+}
+
+function getAmbientHint(questState: QuestState, roomState: RoomState): string {
+  if (roomState === "listening") {
+    return "утримуй, говори, відпусти";
+  }
+
+  if (roomState === "doorOpening") {
+    return "EXIT 404 RESOLVED";
+  }
+
+  if (questState.escaped || questState.doorOpen) {
+    return "EXIT accepted";
+  }
+
+  if (questState.codeRevealed) {
+    return "Олег чекає код";
+  }
+
+  if (questState.pixelAddressed) {
+    return "Pixel любить лагідне мур-мур";
+  }
+
+  if (questState.guardHintGiven) {
+    return "Pixel сидів біля keypad";
+  }
+
+  if (questState.olegNameKnown) {
+    return "Олег реагує на своє ім'я";
+  }
+
+  return "спитай, як звуть охоронця";
 }
 
 async function playTurnReply(response: VoiceTurnResponse): Promise<void> {
