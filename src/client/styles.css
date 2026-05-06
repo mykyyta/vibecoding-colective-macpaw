@@ -21,7 +21,7 @@
   --amber-soft: oklch(86% 0.078 77);
   --green: oklch(64% 0.126 151);
   --blue: oklch(56% 0.07 230);
-  --cat: oklch(16% 0.015 70);
+  --cat: oklch(21% 0.018 70);
   --line: oklch(72% 0.035 78);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -909,24 +909,29 @@ button {
 
 .pixel {
   position: absolute;
-  right: 18%;
-  bottom: 25%;
+  right: 35%;
+  bottom: 22%;
   width: 74px;
   height: 64px;
   --pixel-scale: scale(1);
   z-index: 17;
+  transform: var(--pixel-scale);
   transition:
     transform 320ms var(--ease-out),
     filter 320ms var(--ease-out);
 }
 
+.pixel--idle {
+  animation: pixel-idle-prowl 3.2s var(--ease-out) infinite alternate;
+}
+
 .pixel--ignored {
-  transform: translateX(8px) rotate(3deg);
+  transform: var(--pixel-scale) translateX(8px) rotate(3deg);
   filter: saturate(0.75);
 }
 
 .pixel--helpful {
-  transform: translateY(-4px);
+  transform: var(--pixel-scale) translateY(-4px);
 }
 
 .pixel-shadow {
@@ -936,7 +941,7 @@ button {
   width: 66px;
   height: 13px;
   border-radius: 50%;
-  background: color-mix(in oklch, var(--ink), transparent 80%);
+  background: color-mix(in oklch, var(--ink), transparent 76%);
 }
 
 .pixel-body {
@@ -947,6 +952,10 @@ button {
   height: 29px;
   border-radius: 52% 48% 45% 45%;
   background: var(--cat);
+  box-shadow:
+    inset 0 3px 0 color-mix(in oklch, var(--plaster-lit), transparent 84%),
+    0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 78%);
+  animation: pixel-breathe 1.8s var(--ease-out) infinite alternate;
 }
 
 .pixel-head {
@@ -957,6 +966,10 @@ button {
   height: 31px;
   border-radius: 52% 48% 45% 45%;
   background: var(--cat);
+  box-shadow:
+    inset -3px 4px 0 color-mix(in oklch, var(--plaster-lit), transparent 86%),
+    0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 76%);
+  animation: pixel-head-look 2.4s var(--ease-out) infinite alternate;
 }
 
 .pixel-ear {
@@ -1007,7 +1020,7 @@ button {
   border-bottom: 0;
   border-radius: 0 999px 0 0;
   transform-origin: left bottom;
-  animation: tail-swish 2.6s var(--ease-out) infinite alternate;
+  animation: tail-swish 1.55s var(--ease-out) infinite alternate;
 }
 
 .pixel--ignored .pixel-tail {
@@ -1050,7 +1063,7 @@ button {
 }
 
 .speech-bubble--pixel {
-  right: 9%;
+  right: 28%;
   bottom: 39%;
 }
 
@@ -1237,11 +1250,42 @@ button {
 
 @keyframes tail-swish {
   from {
-    transform: rotate(-7deg);
+    transform: rotate(-12deg);
   }
 
   to {
-    transform: rotate(9deg);
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes pixel-idle-prowl {
+  0%,
+  100% {
+    transform: var(--pixel-scale) translateX(0) rotate(-1deg);
+  }
+
+  44% {
+    transform: var(--pixel-scale) translateX(-6px) translateY(-2px) rotate(1.5deg);
+  }
+}
+
+@keyframes pixel-breathe {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes pixel-head-look {
+  from {
+    transform: translateX(0) rotate(-2deg);
+  }
+
+  to {
+    transform: translateX(-3px) rotate(4deg);
   }
 }
 
@@ -1451,7 +1495,7 @@ button {
   }
 
   .pixel {
-    right: 15%;
+    right: 32%;
     --pixel-scale: scale(0.9);
     transform: var(--pixel-scale);
     transform-origin: bottom center;
@@ -1467,6 +1511,10 @@ button {
 
   .speech-bubble {
     max-width: 34vw;
+  }
+
+  .speech-bubble--pixel {
+    right: 24%;
   }
 }
 
@@ -1527,7 +1575,7 @@ button {
   }
 
   .pixel {
-    right: 17%;
+    right: 34%;
     bottom: 24%;
     --pixel-scale: scale(0.76);
     transform: var(--pixel-scale);
