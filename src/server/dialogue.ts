@@ -94,6 +94,8 @@ function buildDialoguePrompt(transcript: string, turn: QuestTurn): string {
 }
 
 function buildAllowedFacts(turn: QuestTurn): string[] {
+  const eventPhrase =
+    turn.replyLanguage === "en" ? "vibecoding event" : "вайбкодінг івент";
   const facts = [
     "The setting is one MacPaw Space-inspired room.",
     `The approved speaker is ${turn.actor}.`,
@@ -109,7 +111,7 @@ function buildAllowedFacts(turn: QuestTurn): string[] {
   }
 
   if (state.guardHintGiven) {
-    facts.push("The exit is locked after the вайбкодінг івент and needs a code.");
+    facts.push(`The exit is locked after the ${eventPhrase} and needs a code.`);
     facts.push("Pixel was last near the exit panel.");
     facts.push("Pixel may be named.");
   } else {

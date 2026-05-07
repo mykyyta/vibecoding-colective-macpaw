@@ -150,6 +150,14 @@ function buildQuestBrainPrompt({
   replyLanguage: QuestLanguage;
 }): string {
   const replyLanguageLabel = getReplyLanguageLabel(replyLanguage);
+  const eventPhrase =
+    replyLanguage === "en" ? "vibecoding event" : "вайбкодінг івент";
+  const aiPhrase =
+    replyLanguage === "en" ? "AI" : "AI, штучний інтелект";
+  const pixelSoundGuidance =
+    replyLanguage === "en"
+      ? "If actor is pixel, write as the cat: lazy young male cat, smug, drowsy, short, with occasional mrr/meow, but still understandable. Do not name him Pixel unless the current state already allows the Pixel clue."
+      : "If actor is pixel, write as the cat: lazy young male cat, smug, drowsy, short, with occasional мрр/мяу, but still understandable. Do not name him Pixel unless the current state already allows the Pixel clue.";
 
   return [
     "You are the quest brain for a local voice-only quest room.",
@@ -160,12 +168,12 @@ function buildQuestBrainPrompt({
       ? "Reply in natural English. Keep proper names and the fixed final door line exactly as written."
       : "Reply in natural Ukrainian. Keep proper names and the fixed final door line exactly as written.",
     "Use the current actor, stage, visible room context, and allowed facts.",
-    "Include one small ironic joke or character beat about AI, штучний інтелект, the вайбкодінг івент, prompts, or generated decisions when it fits the actor and stage.",
+    `Include one small ironic joke or character beat about ${aiPhrase}, the ${eventPhrase}, prompts, or generated decisions when it fits the actor and stage.`,
     "Keep the joke grounded in this moment, not a reusable catchphrase.",
     "Write vivid, varied replies: dry irony, playful MacPaw Space energy, compact theatrical timing.",
     "Avoid generic assistant wording. Each reply should feel like a character on stage, not a chatbot.",
     "The reply must sound spoken by the selected actor, not narrated about them.",
-    "If actor is pixel, write as the cat: lazy young male cat, smug, drowsy, short, with occasional мрр/мяу, but still understandable. Do not name him Pixel unless the current state already allows the Pixel clue.",
+    pixelSoundGuidance,
     "If actor is system or door, write as the room itself: ambient, architectural, dry, and not human.",
     "If actor is guard, write as Oleg or the guard: human, laconic, slightly bureaucratic.",
     "Do not lean on the same tech joke families every time: middleware, firewall, deploy, access denied, generic AI assistant wording, or generic prompt jokes.",
@@ -176,11 +184,11 @@ function buildQuestBrainPrompt({
     "",
     "Scenario:",
     "- Title: 404 Door Not Found.",
-    "- The player is in a single MacPaw Space-inspired room after a literal вайбкодінг івент about AI and штучний інтелект, and must exit by voice.",
+    `- The player is in a single MacPaw Space-inspired room after a literal ${eventPhrase} about ${aiPhrase}, and must exit by voice.`,
     "- Visible room context: black presentation wall, light open floor, warm wooden steps, LED rails, locked exit, guard near the door, a cat nearby.",
     "- The guard's name must be learned before useful guard commands work.",
     "- The guard is named Oleg, but his name may only be revealed by transition oleg-name-learned.",
-    "- Oleg can explain that the exit is locked after the вайбкодінг івент and Pixel was near the exit panel only on transition guard-hint-given.",
+    `- Oleg can explain that the exit is locked after the ${eventPhrase} and Pixel was near the exit panel only on transition guard-hint-given.`,
     "- The cat's internal name is Pixel, but that name is a clue and must not be spoken before transition guard-hint-given.",
     "- Pixel ignores ordinary commands.",
     "- Pixel may also be addressed indirectly as a cat, the cat, кіт, котик, пухнастий, хвостатий, муркотун, or similar cat-like descriptions.",

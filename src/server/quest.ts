@@ -413,11 +413,14 @@ export function getAllowedQuestTransitions(
   }
 
   if (state.olegNameKnown && !state.guardHintGiven) {
+    const eventPhrase =
+      replyLanguage === "en" ? "vibecoding event" : "вайбкодінг івент";
+
     transitions.push({
       id: "guard-hint-given",
       actor: "guard",
       description:
-        "The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. This may reveal that the exit is locked after the вайбкодінг івент and Pixel's exit-panel clue, but not the code.",
+        `The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. This may reveal that the exit is locked after the ${eventPhrase} and Pixel's exit-panel clue, but not the code.`,
       fallbackReply: getQuestReply("guard-hint", replyLanguage),
     });
   }
