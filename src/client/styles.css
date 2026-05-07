@@ -1981,20 +1981,11 @@ button {
   .stage-event-banner {
     left: 50%;
     top: 50%;
-    width: 100%;
+    width: 92%;
     height: auto;
     min-width: 0;
     min-height: 0;
     transform: translate(-50%, -50%);
-  }
-
-  .room-scene--leaderboard .back-signage {
-    left: 58%;
-    top: 10%;
-    font-size: 0.58rem;
-    opacity: 0.76;
-    transform: perspective(700px) rotateY(-12deg) scale(0.86);
-    transform-origin: left center;
   }
 
   .stage-success {
@@ -2113,12 +2104,6 @@ button {
     white-space: normal;
   }
 
-  .presentation-wall--leaderboard {
-    left: 12%;
-    width: 52%;
-    height: 55%;
-  }
-
   .screen-board-toggle {
     right: 10%;
     top: 13%;
@@ -2144,13 +2129,18 @@ button {
   }
 
   .screen-leaderboard {
-    inset: 18% 9% 13% 8%;
+    inset: calc(10% + 16px) calc(9% + 10px) calc(12% + 12px) calc(8% + 10px);
     gap: 0.38rem;
-    padding: 0.48rem;
+    border: 0;
+    border-radius: 0;
+    padding: 0.42rem 0.34rem;
+    background: transparent;
+    box-shadow: none;
   }
 
   .screen-leaderboard__head h2 {
-    font-size: 0.76rem;
+    font-size: 0.68rem;
+    line-height: 1.08;
   }
 
   .screen-leaderboard__head span,
