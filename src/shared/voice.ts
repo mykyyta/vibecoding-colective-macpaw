@@ -1,3 +1,5 @@
+import type { LeaderboardCompletionTokenResponse } from "./leaderboard.js";
+
 export type VoiceAction =
   | { type: "set-theme"; value: "stage" | "bright" | "focus" }
   | { type: "set-status-visible"; value: boolean }
@@ -51,6 +53,7 @@ export interface QuestEvent {
 export interface VoiceTurnRequest {
   transcript: string;
   questState?: Partial<QuestState>;
+  questSessionId?: string;
 }
 
 export interface VoiceTurnResponse {
@@ -62,6 +65,8 @@ export interface VoiceTurnResponse {
   event: QuestEvent;
   previousQuestState: QuestState;
   nextQuestState: QuestState;
+  questSessionId?: string;
+  leaderboardCompletion?: LeaderboardCompletionTokenResponse;
   audio?: {
     contentType: string;
     base64: string;

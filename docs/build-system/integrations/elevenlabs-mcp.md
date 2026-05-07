@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Architect
 ---
 
@@ -67,7 +67,9 @@ After the MCP server is created and tools are visible, attach it to the target E
 
 ## Deployment Note
 
-For the event, prefer exposing a local MCP server through a public HTTPS tunnel. Deploy the MCP server as a normal web service only if the URL must remain stable after the live demo or the local machine cannot stay online. See `deployment-options.md`.
+For temporary testing, expose a local MCP server through a public HTTPS tunnel.
+Deploy the MCP server as a normal web service when the URL must remain stable or
+the local machine cannot stay online. See `deployment-options.md`.
 
 ## References
 

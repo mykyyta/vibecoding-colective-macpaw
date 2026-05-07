@@ -1,6 +1,6 @@
 ---
 state: in-progress
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Methodologist
 ---
 
@@ -20,7 +20,9 @@ Use Ticket when:
 - no operating-model change is required;
 - no parallel workstreams are needed.
 
-A Ticket can live in a tracked issue, a short work note, or the current conversation when the task is small enough. For event-speed work, do not create process artifacts just to feel organized.
+A Ticket can live in a tracked issue, a short work note, or the current
+conversation when the task is small enough. For lightweight pet-project work, do
+not create process artifacts just to feel organized.
 
 ## Initiative
 
@@ -60,4 +62,3 @@ An Initiative brief should include:
 ## Default
 
 When in doubt, keep the work at Ticket scale. Promote later only when the structure demands it.
-

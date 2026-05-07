@@ -1,6 +1,6 @@
 ---
 state: in-progress
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Methodologist
 ---
 
@@ -23,7 +23,7 @@ Six roles organize work. Owners hold truth on a layer. Process roles move work t
 
 Owns product truth.
 
-**Trigger:** product direction, target user, concept, demo promise, or user value needs to be shaped or changed.
+**Trigger:** product direction, target user, concept, product promise, or user value needs to be shaped or changed.
 
 **First actions:**
 
@@ -128,4 +128,3 @@ Run a second-pass review when a change touches:
 - operating-model rules.
 
 The Owner of the affected layer reviews the relevant slice.
-

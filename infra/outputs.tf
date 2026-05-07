@@ -13,3 +13,7 @@ output "cloudfront_domain_name" {
 output "cloudfront_url" {
   value = "https://${aws_cloudfront_distribution.app.domain_name}"
 }
+
+output "leaderboard_table_name" {
+  value = aws_dynamodb_table.leaderboard.name
+}

@@ -1,26 +1,26 @@
 # Project Standards
 
-This project is a lightweight workspace for rapid vibe-coding prototypes,
-especially prototypes that can use ElevenLabs voice, speech, audio, or
-Conversational AI capabilities.
+This project is a lightweight pet-project workspace for evolving small
+AI-assisted products, especially products that can use ElevenLabs voice,
+speech, audio, or Conversational AI capabilities.
 
 This file must stay in sync with `CLAUDE.md`. When one changes, update the
 other in the same edit.
 
 ## Principles
 
-- **Demo first:** prefer one small, working, explainable slice over a broad
-  unfinished platform.
-- **Live demo default:** assume the prototype will run locally during the event
-  and use a public HTTPS tunnel when ElevenLabs or external callbacks need to
-  reach it.
-- **Event speed:** keep setup, architecture, and process light until the event
-  task is known.
+- **Product first:** prefer one small, working, explainable product slice over a
+  broad unfinished platform.
+- **Persistent by default:** assume meaningful user-facing data should survive
+  local restarts and be stored behind the server boundary when the feature needs
+  durability.
+- **Pet-project pace:** keep setup, architecture, and process light, but allow
+  durable cloud services when they directly support the product.
 - **ElevenLabs-ready:** treat voice, audio, narration, or conversational
   behavior as likely core capabilities, but do not overfit before the prompt is
   known.
-- **Product clarity:** the current bottleneck is likely understanding the
-  prompt, user, and demo promise, not writing more code.
+- **Product clarity:** the current bottleneck is likely understanding the user,
+  product promise, and next useful slice, not writing more code.
 - **Minimal changes:** do not refactor surrounding code, add abstractions, or
   introduce infrastructure until the second real need appears.
 - **Durable decisions:** record decisions in docs when they affect future work.
@@ -32,14 +32,17 @@ other in the same edit.
 
 The baseline stack is TypeScript, Vite + React, and Node.js + Express. Durable stack notes live in `docs/build-system/architecture/stack.md`.
 
-- Prefer the smallest addition to the baseline stack that can produce a convincing demo.
+- Prefer the smallest addition to the baseline stack that can produce a
+  convincing product slice.
 - Browser-first prototypes are valid if they reduce setup time.
 - Server-side code is required for secrets, private API calls, webhooks, and
   any ElevenLabs operation that must not expose credentials.
-- For event delivery, prefer a local live demo over cloud deployment unless a
-  stable public backend is required.
+- Prefer local development for iteration and cloud deployment when the product
+  needs a stable public backend, persistent storage, or external callbacks.
 - Do not add frameworks, databases, queues, auth, or deployment complexity until
   the prototype needs them.
+- For persistent product data such as leaderboard entries, prefer a server-side
+  storage boundary with a durable cloud implementation such as DynamoDB.
 
 ## ElevenLabs Integration
 
@@ -63,7 +66,7 @@ The baseline stack is TypeScript, Vite + React, and Node.js + Express. Durable s
   involved.
 - Validate external input at the boundary.
 - Handle errors explicitly and report actionable context.
-- If a technical choice changes the demo promise or user value, update Product
+- If a technical choice changes the product promise or user value, update Product
   first or route to Strategist.
 
 ## Code Style
@@ -88,9 +91,9 @@ The baseline stack is TypeScript, Vite + React, and Node.js + Express. Durable s
 - **Frontend checks:** after adding a runnable UI, start the dev server and
   provide the local URL. Verify layout across at least desktop and mobile when
   the change is user-facing.
-- **Live demo checks:** keep the app runnable with one command; if external
-  services need access, expose the local port through ngrok or Cloudflare
-  Tunnel and verify the public HTTPS URL.
+- **Runtime checks:** keep the app runnable locally with one command. If
+  external services need access, expose the local port through ngrok or
+  Cloudflare Tunnel or deploy the cloud runtime and verify the public HTTPS URL.
 - **MCP checks:** when ElevenLabs credentials and an MCP URL exist, use:
   - `npm run elevenlabs:mcp:create`
   - `npm run elevenlabs:mcp:list`

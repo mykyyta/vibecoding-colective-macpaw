@@ -5,23 +5,24 @@ owner: Strategist
 
 # Product Apex
 
-Vibecoding Collective is a prepared workspace for rapidly building a small AI-assisted prototype during a vibe-coding event.
+Vibecoding Collective is now a pet project for evolving a small voice-first AI
+quest product beyond the original vibe-coding event prototype.
 
 ## Current Product Claim
 
-The current prototype is a short voice-operated quest room called **Exit MacPaw Space**, with the working scenario title **404 Door Not Found**.
+The current product is a short voice-operated quest room called **Exit MacPaw Space**, with the working scenario title **404 Door Not Found**.
 
 A user is locked inside a simplified MacPaw Space room after a `вайбкодінг івент` about AI and штучний інтелект. The exit is locked after the event, and the user must leave by speaking with two characters: a human guard named Oleg and Pixel the cat. Oleg does not respond to useful commands until the user learns and uses his name. Pixel knows the exit code, but only reveals it after the user addresses Pixel directly and gently purrs.
 
 Character irony should fit that event context: jokes may reference AI, штучний інтелект, prompts, generated decisions, and the `вайбкодінг івент`, but should not overuse generic tech metaphors or make every line sound like the same punchline.
 
-The demo promise is that voice is not decorative. Spoken input moves the room state forward, name-based address unlocks character responses, a performed vocal action unlocks the code, and spoken output closes the interaction loop.
+The product promise is that voice is not decorative. Spoken input moves the room state forward, name-based address unlocks character responses, a performed vocal action unlocks the code, and spoken output closes the interaction loop.
 
 Spoken output should make the characters legible by ear: Oleg, Pixel, and the room/door use distinct voices when ElevenLabs TTS is configured. The room/door should use a calm female voice. Pixel is a male cat and should sound lazy, smug, and slightly catlike rather than like adult male narration or room narration describing a cat.
 
 The main interface must be one fullscreen quest-room scene, not a dashboard or control panel. The visual target is the original MacPaw Space reference: black presentation wall on the left, open light floor through the center, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise warm LED lines. UI chrome must stay minimal enough that the room remains the product.
 
-## Demo Scenario
+## Core Scenario
 
 The room shows a locked exit, a silent guard, and Pixel the cat near the door.
 
@@ -45,25 +46,30 @@ Core line:
 
 ## Direction
 
-- Build a small, demoable experience rather than a broad platform.
+- Build a small, playable product rather than a broad platform.
 - Prefer an interaction where voice, narration, audio generation, or conversational behavior is central enough that ElevenLabs is not just a decorative integration.
 - Treat voice as the only intended player input. Do not expose command buttons, typed command forms, progress panels, or dashboard controls in the main quest UI.
 - Make the first screen a fullscreen illustrated room. Any microphone affordance or transcript indicator must be minimal and integrated into the scene.
 - Prioritize visual fidelity to the MacPaw Space reference before adding visible gameplay UI.
-- Optimize for a live demo run from the developer machine and exposed through a public HTTPS tunnel when external callbacks or ElevenLabs MCP need to reach it.
-- Keep cloud deployment as a backup path, not the default, until the prototype needs a stable public backend.
+- A leaderboard affordance may exist as a small neutral control integrated into
+  the left presentation screen. It should switch that screen into recent
+  completions, and after quest completion it may open automatically into name
+  entry and the leaderboard result. It must not use the puzzle code as a label
+  and must not become a permanent sidebar or dashboard.
+- Optimize for local iteration and a stable cloud path when the product needs persistence, external callbacks, or shareable access.
+- Treat persistent user-facing features, such as leaderboard entries after quest completion, as durable product capabilities rather than throwaway demo state.
 - Preserve decisions in docs when they affect future implementation.
 
 ## Target User
 
-Assume a demo viewer at the event who needs to understand within the first few seconds that the prototype listens, reacts, talks back, and lets voice drive progress through a room.
+Assume a casual player or project reviewer who needs to understand within the first few seconds that the product listens, reacts, talks back, and lets voice drive progress through a room.
 
 ## Non-Goals
 
-- No heavy architecture before the task is known.
+- No heavy architecture before the product need is clear.
 - No permanent product claims hidden only in work plans.
-- No integration with external services without clear demo value.
+- No integration with external services without clear product value.
 - No chatbot-only experience where voice merely reads static text.
-- No complex inventory, map, scoring system, or long puzzle chain for the first demo.
+- No complex inventory, map, scoring system, or long puzzle chain until the core quest loop is strong.
 - No visible mock command buttons or manual text input in the main quest experience.
-- No side panels, logs, readiness boards, or progress dashboards on the primary game screen.
+- No persistent side panels, logs, readiness boards, or progress dashboards on the primary game screen.

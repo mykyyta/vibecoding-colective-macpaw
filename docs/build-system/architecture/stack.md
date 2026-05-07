@@ -1,11 +1,12 @@
 ---
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Architect
 ---
 
 # Baseline Stack
 
-The baseline stack is optimized for a live demo first and cloud deployment second.
+The baseline stack is optimized for local iteration first and durable pet-project
+deployment second.
 
 ## Decision
 
@@ -14,7 +15,9 @@ The baseline stack is optimized for a live demo first and cloud deployment secon
 - **Server:** Node.js + Express.
 - **Shared contracts:** TypeScript types in `src/shared/`.
 - **Local delivery:** one `npm run dev` command starts client and server.
-- **External access:** expose the local client or server with ngrok or Cloudflare Tunnel when ElevenLabs, MCP, or webhooks need a public HTTPS URL.
+- **External access:** expose the local client or server with ngrok or Cloudflare Tunnel for temporary callback testing; use the cloud runtime for stable public access.
+- **Persistent storage:** keep storage behind the Express server. Use DynamoDB
+  for durable product data such as leaderboard entries when persistence matters.
 
 ## Why This Stack
 
@@ -22,7 +25,9 @@ The baseline stack is optimized for a live demo first and cloud deployment secon
 - Familiar browser-first UI path.
 - Server boundary is available for secrets and ElevenLabs API calls.
 - Express can host webhooks, API routes, and future MCP endpoints without committing to a larger framework.
-- Vite keeps the frontend simple while the event idea is still unknown.
+- Vite keeps the frontend simple while the product shape continues to evolve.
+- DynamoDB is a small durable storage option for append/read product data without
+  introducing a full relational database or queue.
 
 ## Runtime Shape
 
@@ -34,7 +39,7 @@ Browser
               -> ElevenLabs / MCP / webhook integrations
 ```
 
-With ngrok live demo:
+With a temporary tunnel:
 
 ```text
 Public ngrok URL
@@ -60,7 +65,7 @@ npm start
 
 ## Environment
 
-- `PORT` controls the Vite client port for local demo.
+- `PORT` controls the Vite client port for local development.
 - `SERVER_PORT` controls the Express API port.
 - `CLAUDE_API_KEY` and `CLAUDE_MODEL` configure server-side Claude text generation.
 - `GEMINI_API_KEY` and `GEMINI_MODEL` configure server-side Gemini text generation and image-generation readiness.
@@ -68,6 +73,9 @@ npm start
 - `ELEVENLABS_GUARD_VOICE_ID`, `ELEVENLABS_PIXEL_VOICE_ID`, and `ELEVENLABS_ROOM_VOICE_ID` optionally override the default voice for Oleg, Pixel, and room/door narration. Leave an actor-specific value empty to reuse `ELEVENLABS_DEFAULT_VOICE_ID`.
 - `ELEVENLABS_MCP_SERVER_URL` is used by the MCP registration helper.
 - `DEMO_API_TOKEN` can protect paid provider endpoints if a demo route is exposed through a public tunnel.
+- DynamoDB configuration belongs in server-side environment variables when a
+  persistent storage adapter is introduced. Do not expose AWS credentials to the
+  browser.
 
 ## Provider Boundary
 
@@ -75,11 +83,91 @@ Direct provider API calls live under `src/server/providers/` and are called only
 
 The direct ElevenLabs connector is separate from the ElevenLabs MCP registration helper. Use the direct connector when this app calls ElevenLabs APIs. Use MCP registration when an ElevenLabs Conversational AI agent needs to call tools exposed by this project or another MCP server.
 
+## Storage Boundary
+
+Persistent product data lives behind Express API routes. The browser sends
+validated request data to the server; the server owns normalization, rate
+limits, persistence, and read shapes.
+
+For leaderboard entries, the expected path is:
+
+```text
+Browser
+  -> /api/leaderboard
+      -> Express route
+          -> leaderboard storage adapter
+              -> DynamoDB table
+```
+
+Store only the smallest needed fields, such as display name, completion time,
+attempt count, and completion timestamp. Do not store raw voice transcripts or
+PII unless the product explicitly needs it and the privacy posture is updated.
+
+### Leaderboard Contract
+
+The first leaderboard is `exit-macpaw-space:v1`. The browser may read recent
+entries at `GET /api/leaderboard`, but writes must go through
+`POST /api/leaderboard` with a server-issued completion token.
+
+The server owns completion metrics:
+
+- `startedAt`: first accepted voice turn in a quest session;
+- `completedAt`: server timestamp when the session reaches completion;
+- `durationMs`: `completedAt - startedAt`;
+- `attempts`: accepted final voice turns in the session.
+
+The create request accepts only:
+
+```json
+{
+  "displayName": "Player",
+  "completionToken": "opaque-server-token"
+}
+```
+
+The token carries signed session metrics and a nonce. The client must not submit
+`durationMs`, `attempts`, `completedAt`, `sessionId`, or DynamoDB keys directly.
+
+DynamoDB item shape:
+
+```ts
+{
+  leaderboardId: "exit-macpaw-space:v1";
+  createdKey: "completed#<reverseEpochMs:13>#<entryId>";
+  entryId: string;
+  sessionId: string;
+  displayName: string;
+  completedAt: string;
+  durationMs: number;
+  attempts: number;
+  submittedAt: string;
+  tokenNonce: string;
+}
+```
+
+`reverseEpochMs` is `9999999999999 - completedAtEpochMs`, zero-padded to 13
+digits. Querying one `leaderboardId` in ascending `createdKey` order returns
+newest completions first without scanning the table. Duplicate display names and
+multiple runs are allowed.
+
+Validation rules:
+
+- reject unknown write fields;
+- trim display names and require 1 to 32 characters;
+- reject missing, invalid, or reused completion tokens;
+- enable leaderboard storage when `LEADERBOARD_TABLE_NAME` and
+  `LEADERBOARD_COMPLETION_TOKEN_SECRET` are configured;
+- allow `LEADERBOARD_ENABLED=false` or `LEADERBOARD_WRITE_ENABLED=false` as
+  optional kill switches;
+- bound list reads to `LEADERBOARD_MAX_ENTRIES`, with a hard maximum of 50;
+- return predictable 4xx errors for validation and disabled states, and 5xx only
+  for server or storage failures.
+
 ## Rules
 
 - Keep secrets server-side.
 - Keep shared request/response shapes in `src/shared/`.
 - Add backend routes only when the client, direct provider APIs, MCP, or webhook flow needs them.
 - Protect paid provider routes before exposing them through a public tunnel.
-- Keep the first demo route small enough to explain in under a minute.
-- Keep Vite `allowedHosts` compatible with ngrok tunnel domains used for live demo testing.
+- Keep the first version of a feature small enough to explain in under a minute.
+- Keep Vite `allowedHosts` compatible with ngrok tunnel domains used for temporary callback testing.

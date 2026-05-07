@@ -6,21 +6,29 @@ product
 
 ## Users
 
-Primary users are event participants, collaborators, mentors, and demo viewers at a vibe-coding event. They see the product in a live setting where attention is fragmented, time is short, and the first impression must communicate that the prototype is alive, voice-capable, and ready to be extended.
+Primary users are casual players, collaborators, and project reviewers. They
+should understand quickly that the product is alive, voice-capable, and driven
+by spoken interaction rather than dashboard controls.
 
 ## Product Purpose
 
-Vibecoding Collective is currently shaped around **Exit MacPaw Space**, a small ElevenLabs-oriented voice quest-room prototype.
+Vibecoding Collective is currently shaped around **Exit MacPaw Space**, a small
+ElevenLabs-oriented voice quest-room pet project.
 
-Success means a demo viewer can watch the user speak to a room, learn that useful commands require addressing characters by name, gently purr to Pixel the cat to receive the exit code, and leave MacPaw Space through a few simple voice-driven steps.
+Success means a player can speak to a room, learn that useful commands require
+addressing characters by name, gently purr to Pixel the cat to receive the exit
+code, leave MacPaw Space through a few simple voice-driven steps, and optionally
+record a completion result in a persistent leaderboard.
 
-The main interface is one fullscreen quest-room scene. It should closely evoke the MacPaw Space reference: black presentation wall on the left, open light floor, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise LED accents. The user should interact through voice only; visible command buttons, manual text input, side panels, logs, and dashboard-like controls are outside the primary experience.
+The main interface is one fullscreen quest-room scene. It should closely evoke the MacPaw Space reference: black presentation wall on the left, open light floor, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise LED accents. The user should interact through voice only; visible command buttons, manual text input, persistent side panels, logs, and dashboard-like controls are outside the primary experience. A small neutral screen control may switch the left presentation screen into a leaderboard view for recent completions. After quest completion, that same screen may open automatically into name entry and the leaderboard result.
 
 ## Brand Personality
 
-Three-word personality: **stage-ready, tactile, improvisational**.
+Three-word personality: **playable, tactile, mischievous**.
 
-The product should feel like a live instrument or compact production desk: confident, warm, slightly performative, and ready for audio interaction.
+The product should feel like a voice-driven room: confident, warm, slightly
+performative, and ready for audio interaction without exposing development
+scaffolding in the primary player view.
 
 ## Anti-references
 
@@ -34,11 +42,11 @@ The product should feel like a live instrument or compact production desk: confi
 
 ## Strategic Design Principles
 
-1. Make demo readiness visible.
+1. Make the room immediately playable.
 2. Keep the screen performative, not promotional.
 3. Use warmth with control.
-4. Design for interruption and quick comprehension.
-5. Preserve event speed; polish must not introduce fragile setup.
+4. Design for quick comprehension.
+5. Preserve lightweight iteration; polish must not introduce fragile setup.
 6. Let the room carry the interface; keep controls minimal and voice-first.
 
 ## Canonical Docs

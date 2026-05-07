@@ -23,6 +23,7 @@ provider "aws" {
 
 locals {
   bucket_name           = "${var.project_slug}-frontend"
+  leaderboard_table     = "${var.project_slug}-leaderboard"
   s3_origin_id          = "s3-frontend"
   railway_api_origin_id = "railway-api"
 }
@@ -46,6 +47,23 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
+  }
+}
+
+resource "aws_dynamodb_table" "leaderboard" {
+  name         = local.leaderboard_table
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "leaderboardId"
+  range_key    = "createdKey"
+
+  attribute {
+    name = "leaderboardId"
+    type = "S"
+  }
+
+  attribute {
+    name = "createdKey"
+    type = "S"
   }
 }
 
@@ -117,7 +135,7 @@ resource "aws_cloudfront_distribution" "app" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
-    minimum_protocol_version       = "TLSv1.2_2021"
+    minimum_protocol_version       = "TLSv1"
   }
 }
 

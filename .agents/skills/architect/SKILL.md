@@ -11,9 +11,12 @@ Read `docs/product/product.md` first, then the relevant Build System docs.
 
 ## Mission
 
-Choose the smallest technical shape that can support the demo without creating avoidable maintenance drag.
+Choose the smallest technical shape that can support the product without creating avoidable maintenance drag.
 
-For this project, Architect is especially relevant when deciding how ElevenLabs is integrated: server-side API calls, client-side playback, generated assets, conversational flow, credentials, latency, and deployment boundaries.
+For this project, Architect is especially relevant when deciding how ElevenLabs
+and durable product infrastructure are integrated: server-side API calls,
+client-side playback, generated assets, conversational flow, credentials,
+latency, persistence, and deployment boundaries.
 
 ## Owns
 
@@ -47,4 +50,3 @@ Return:
 - integration boundary;
 - risks and mitigations;
 - docs or packets that must be updated.
-

@@ -24,7 +24,7 @@ Watch for:
 - repeated user nudges between stages;
 - decisions that exist only in chat;
 - packets that keep failing for the same reason;
-- too much process for a small event-speed prototype;
+- too much process for a small pet-project change;
 - missing or stale skill instructions.
 
 ## Owns

@@ -1,15 +1,21 @@
 ---
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Architect
 ---
 
 # Deployment Options
 
-This project does not have a fixed app stack yet. The default event posture is a live demo: run the prototype locally and expose it through a public HTTPS tunnel only when external services need to call back into it.
+This project has moved from a one-off event posture to a durable pet-project
+posture. Local execution remains the default for development, but product
+features that need persistence, stable public access, or external callbacks can
+use the cloud path.
 
 ## Decision Rule
 
-Default to **local live demo + tunnel**. Move to cloud deployment only when the demo needs a stable public backend, a long-lived MCP server, collaboration after the event, or the laptop cannot stay online.
+Default to **local development** for iteration. Use **local tunnel** for
+temporary external callback testing. Use **cloud deployment** when the product
+needs a stable public backend, persistent storage, a long-lived MCP server, or
+shareable access while the laptop is offline.
 
 For the CloudFront + Railway path requested on 2026-05-06, use
 `docs/build-system/integrations/cloud-deployment.md` as the deployment contract.
@@ -18,21 +24,23 @@ single Express runtime.
 
 | Need | Default choice | Why |
 | --- | --- | --- |
-| Live event demo | Local app + ngrok or Cloudflare Tunnel | Fastest path; avoids cloud setup while the idea is still changing. |
+| Local development | Local app | Fastest path while the feature is changing. |
 | Temporary webhook or MCP URL | Local app + ngrok or Cloudflare Tunnel | Gives ElevenLabs a public HTTPS URL with minimal ceremony. |
-| Frontend-only demo that must stay online after the laptop closes | Vercel | Fast Git or CLI deployment, preview URLs, environment variables. |
+| Frontend-only product slice that must stay online | Vercel | Fast Git or CLI deployment, preview URLs, environment variables. |
 | Public backend, API, or MCP server that should stay reachable | Railway | Simple GitHub or CLI deploy, public domain generation, normal web service model. |
+| Durable product data such as leaderboard entries | Express API + DynamoDB | Keeps writes server-side and survives local restarts. |
 | Public backend backup option | Render | Simple persistent web service hosting with public URL and env vars. |
 
 ## Option A: Local Tunnel
 
-This is the default path for the event. Use it when the prototype can run on the developer machine and only needs a public HTTPS URL for the room, webhooks, or ElevenLabs MCP.
+Use this when the prototype can run on the developer machine and only needs a
+temporary public HTTPS URL for the room, webhooks, or ElevenLabs MCP.
 
 Good for:
 
 - ElevenLabs MCP server testing;
 - webhooks;
-- local demos;
+- local development demos;
 - avoiding cloud setup during early ideation.
 
 Trade-offs:
@@ -50,13 +58,13 @@ ngrok http 3000
 
 or a Cloudflare Tunnel equivalent if Cloudflare is already available.
 
-Live demo requirements:
+Tunnel requirements:
 
 - The local app starts with one command.
 - The app reads `PORT` or documents the fixed local port.
 - The tunnel URL is copied into any external tool that calls the app.
-- The presenter keeps the laptop awake and connected.
-- A fallback screenshot or recorded clip is useful if venue networking fails.
+- The developer keeps the laptop awake and connected.
+- A cloud deployment is preferred once the URL must be stable.
 
 ### Verified ngrok Flow
 
@@ -99,11 +107,11 @@ curl http://127.0.0.1:4040/api/tunnels
 
 ## Option B: Vercel
 
-Use this when the project is primarily a web UI or a Next.js-style app with light serverless routes and needs to remain available after the local demo.
+Use this when the project is primarily a web UI or a Next.js-style app with light serverless routes and needs to remain available without the local machine.
 
 Good for:
 
-- frontend demo;
+- frontend product slices;
 - landing-free product UI;
 - simple API endpoints that do not need long-lived connections;
 - preview deployments from GitHub.
@@ -122,7 +130,7 @@ npx vercel --prod
 
 ## Option C: Railway
 
-Use this as the default cloud path when the prototype needs a public backend or MCP server that should stay reachable after the live demo.
+Use this as the default cloud path when the product needs a public backend or MCP server that should stay reachable without the local machine.
 
 Good for:
 
@@ -161,9 +169,9 @@ Implementation requirements:
 - Server must read the platform port from the environment.
 - Secrets must be configured in Render, not committed.
 
-## Event Checklist
+## Runtime Checklist
 
-Before the event:
+Before exposing the app:
 
 - GitHub repo is pushed and accessible.
 - `.env.example` documents required secrets.
@@ -172,14 +180,14 @@ Before the event:
 - The app can run locally with one command.
 - If MCP is needed, the server exposes an SSE or streamable HTTP endpoint.
 
-At the event:
+For temporary tunnel testing:
 
 1. Start the local app.
 2. Expose it with ngrok or Cloudflare Tunnel if a public URL is needed.
 3. Copy the tunnel URL into ElevenLabs MCP setup if needed.
 4. Run `npm run elevenlabs:mcp:create`.
 5. Run `npm run elevenlabs:mcp:tools -- <mcp_server_id>` to confirm tool visibility.
-6. Deploy to Vercel, Railway, or Render only if local live demo constraints fail.
+6. Deploy to Vercel, Railway, or Render when the URL or runtime must be stable.
 
 ## References
 

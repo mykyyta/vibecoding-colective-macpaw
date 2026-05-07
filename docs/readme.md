@@ -1,6 +1,7 @@
 # Docs
 
-Project documentation is intentionally small until the event task is known.
+Project documentation is intentionally small, but now tracks a durable
+pet-project direction rather than a one-off event prototype.
 
 ## Index
 
@@ -10,11 +11,11 @@ Project documentation is intentionally small until the event task is known.
 - `../DESIGN.md` — root visual context for Impeccable v3.
 - `product/product.md` — product apex: what this project is trying to become.
 - `build-system/operating-model/readme.md` — role model and workflow entry point.
-- `build-system/architecture/stack.md` — baseline live-demo stack.
+- `build-system/architecture/stack.md` — baseline local and durable cloud stack.
 - `build-system/frontend/design-direction.md` — frontend design context and first-screen direction.
 - `build-system/standards/documentation.md` — documentation structure and lifecycle.
 - `build-system/integrations/elevenlabs-mcp.md` — ElevenLabs MCP setup notes.
-- `build-system/integrations/deployment-options.md` — simple deployment paths for event demos.
+- `build-system/integrations/deployment-options.md` — local tunnel and durable deployment paths.
 - `build-system/integrations/cloud-deployment.md` — CloudFront + Railway deployment contract.
 - `work/readme.md` — temporary execution control plane.
 

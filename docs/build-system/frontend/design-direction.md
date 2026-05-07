@@ -1,33 +1,37 @@
 ---
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 owner: Architect
 ---
 
 # Frontend Design Direction
 
-The initial frontend direction is an editorial live-demo console for an ElevenLabs-oriented event prototype.
+The frontend direction is a fullscreen voice quest product, not an event console.
 
 ## Audience
 
-The first users are event participants, collaborators, mentors, and demo viewers. They need to understand quickly:
+The first users are casual players, collaborators, and project reviewers. They need to understand quickly:
 
-- what is running;
-- whether ElevenLabs setup is ready;
-- whether the local live-demo path is healthy;
-- where the prototype can grow next.
+- that the room listens;
+- who they can speak to;
+- how voice changes the room state;
+- what happened after they complete the quest.
 
 ## Personality
 
-Three-word personality: **stage-ready, tactile, improvisational**.
+Three-word personality: **playable, tactile, mischievous**.
 
-The UI should feel like a compact production desk for a voice/audio prototype. It should be confident and visually memorable, but still practical under event pressure.
+The UI should feel like a compact voice-driven room experience. It should be
+confident and visually memorable without exposing development scaffolding in the
+primary screen.
 
 ## Visual System
 
-- **Theme:** light-first, because the UI is likely viewed in a bright event room and shared on laptop screens.
+- **Theme:** room-first, because the product should open directly into the quest
+  scene.
 - **Palette:** warm paper, deep ink, signal green, amber accent, quiet clay surfaces.
 - **Typography:** distinctive display face plus readable body face. Avoid default system-only typography and overused monoculture fonts.
-- **Layout:** asymmetric first screen with a large stage panel and a compact readiness panel.
+- **Layout:** fullscreen room scene with minimal integrated microphone and
+  transcript affordances.
 - **Shape:** small radii, stable panels, no nested cards.
 - **Motion:** restrained reveal and hover states only; respect reduced motion.
 
@@ -39,14 +43,19 @@ The UI should feel like a compact production desk for a voice/audio prototype. I
 - Decorative terminal cosplay.
 - Glassmorphism.
 - Repeated icon cards.
-- Marketing hero without working status.
+- Marketing hero before the playable room.
 
 ## First-Screen Requirements
 
-- Show the project name.
-- Show that this is a live demo workspace.
-- Show local server readiness.
-- Show ElevenLabs key and MCP URL readiness.
-- Make the tunnel-test placeholder visible while the project is still being prepared.
+- Show the room immediately.
+- Keep microphone and transcript feedback minimal and integrated into the scene.
+- Do not show setup readiness, tunnel status, provider keys, or dev panels in
+  the primary player view.
+- After quest completion, allow a polished name-entry and leaderboard flow if
+  that feature is active.
+- A small neutral leaderboard control may live on the left presentation screen.
+  It should switch that in-room screen into recent completions, and after quest
+  completion it may open automatically into name entry and the leaderboard
+  result. It must not use the puzzle code as a label or become a dashboard,
+  progress panel, or permanent sidebar.
 - Keep all text readable on mobile.
-

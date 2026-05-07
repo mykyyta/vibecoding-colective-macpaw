@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent } from "react";
 import type {
+  CreateLeaderboardEntryResponse,
+  LeaderboardCompletionMetrics,
+  LeaderboardEntry,
+  LeaderboardListResponse,
+} from "../shared/leaderboard";
+import type {
   QuestActor,
   QuestState,
   RealtimeSttCapabilityResponse,
@@ -127,6 +133,19 @@ export function App() {
   const [interimTranscript, setInterimTranscript] = useState("");
   const [speechAvailable, setSpeechAvailable] = useState(true);
   const [voiceBusy, setVoiceBusy] = useState(false);
+  const [questSessionId, setQuestSessionId] = useState<string | null>(null);
+  const [leaderboardCompletionToken, setLeaderboardCompletionToken] =
+    useState<string | null>(null);
+  const [leaderboardCompletionMetrics, setLeaderboardCompletionMetrics] =
+    useState<LeaderboardCompletionMetrics | null>(null);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [leaderboardMessage, setLeaderboardMessage] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [leaderboardSubmitting, setLeaderboardSubmitting] = useState(false);
+  const [submittedLeaderboardEntryId, setSubmittedLeaderboardEntryId] =
+    useState<string | null>(null);
   const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const realtimeRecognitionRef = useRef<RealtimeSpeechRecognizer | null>(null);
   const recordedRecognitionRef = useRef<RecordedSpeechRecognizer | null>(null);
@@ -134,6 +153,7 @@ export function App() {
   const previousStateRef = useRef<RoomState>("idle");
   const escapeTimerRef = useRef<number | null>(null);
   const questStateRef = useRef<QuestState>(initialQuestState);
+  const questSessionIdRef = useRef<string | null>(null);
   const turnIdRef = useRef(0);
   const wantsListeningRef = useRef(false);
   const listenAttemptRef = useRef(0);
@@ -170,6 +190,10 @@ export function App() {
   useEffect(() => {
     questStateRef.current = questState;
   }, [questState]);
+
+  useEffect(() => {
+    questSessionIdRef.current = questSessionId;
+  }, [questSessionId]);
 
   function setRoomStateSafely(nextState: RoomState) {
     if (escapeTimerRef.current !== null) {
@@ -611,6 +635,16 @@ export function App() {
     setInterimTranscript("");
     setVoiceBusy(false);
     setBubble(null);
+    setQuestSessionId(null);
+    setLeaderboardCompletionToken(null);
+    setLeaderboardCompletionMetrics(null);
+    setLeaderboardOpen(false);
+    setLeaderboardEntries([]);
+    setLeaderboardLoading(false);
+    setLeaderboardMessage("");
+    setDisplayName("");
+    setLeaderboardSubmitting(false);
+    setSubmittedLeaderboardEntryId(null);
   }
 
   async function applyTranscript(transcript: string) {
@@ -634,10 +668,26 @@ export function App() {
     });
 
     try {
-      const response = await requestVoiceTurn(cleanedTranscript, questStateBeforeTurn);
+      const response = await requestVoiceTurn(
+        cleanedTranscript,
+        questStateBeforeTurn,
+        questSessionIdRef.current,
+      );
 
       if (turnId !== turnIdRef.current) {
         return;
+      }
+
+      if (response.questSessionId) {
+        questSessionIdRef.current = response.questSessionId;
+        setQuestSessionId(response.questSessionId);
+      }
+
+      if (response.leaderboardCompletion) {
+        setLeaderboardCompletionToken(response.leaderboardCompletion.token);
+        setLeaderboardCompletionMetrics(response.leaderboardCompletion.metrics);
+        setLeaderboardOpen(true);
+        void loadLeaderboard();
       }
 
       questStateRef.current = response.nextQuestState;
@@ -689,10 +739,77 @@ export function App() {
   }
 
   const isListening = roomState === "listening";
+  const questCompleted = roomState === "doorOpening" || roomState === "escaped";
+
+  async function loadLeaderboard() {
+    setLeaderboardLoading(true);
+    setLeaderboardMessage("");
+
+    try {
+      const leaderboard = await requestLeaderboard();
+
+      setLeaderboardEntries(leaderboard.entries);
+      setLeaderboardMessage("");
+    } catch (error) {
+      setLeaderboardEntries([]);
+      setLeaderboardMessage(getFriendlyLeaderboardError(error));
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  }
+
+  async function submitLeaderboardEntry() {
+    if (!leaderboardCompletionToken || leaderboardSubmitting) {
+      return;
+    }
+
+    setLeaderboardSubmitting(true);
+    setLeaderboardMessage("");
+
+    try {
+      const result = await requestCreateLeaderboardEntry({
+        displayName,
+        completionToken: leaderboardCompletionToken,
+      });
+
+      setSubmittedLeaderboardEntryId(result.entry.entryId);
+      setLeaderboardEntries(result.leaderboard.entries);
+      setLeaderboardMessage("Записано. Ти вийшов з кімнати офіційно.");
+    } catch (error) {
+      setLeaderboardMessage(getFriendlyLeaderboardError(error));
+    } finally {
+      setLeaderboardSubmitting(false);
+    }
+  }
+
+  function openLeaderboardScreen() {
+    setLeaderboardOpen(true);
+    void loadLeaderboard();
+  }
 
   return (
     <main className={`quest-app quest-app--${roomState}`}>
-      <RoomScene bubble={bubble} questState={questState} roomState={roomState} />
+      <RoomScene
+        bubble={bubble}
+        leaderboard={{
+          completed: questCompleted,
+          completionMetrics: leaderboardCompletionMetrics,
+          displayName,
+          entries: leaderboardEntries,
+          isLoading: leaderboardLoading,
+          isOpen: leaderboardOpen,
+          isSubmitting: leaderboardSubmitting,
+          message: leaderboardMessage,
+          onChangeDisplayName: setDisplayName,
+          onClose: () => setLeaderboardOpen(false),
+          onOpen: openLeaderboardScreen,
+          onSubmit: () => void submitLeaderboardEntry(),
+          submittedEntryId: submittedLeaderboardEntryId,
+          tokenAvailable: leaderboardCompletionToken !== null,
+        }}
+        questState={questState}
+        roomState={roomState}
+      />
       <SceneMic
         isListening={isListening}
         isBusy={voiceBusy}
@@ -707,10 +824,12 @@ export function App() {
 
 function RoomScene({
   bubble,
+  leaderboard,
   questState,
   roomState,
 }: {
   bubble: SceneBubbleContent | null;
+  leaderboard: LeaderboardScreenProps;
   questState: QuestState;
   roomState: RoomState;
 }) {
@@ -725,7 +844,10 @@ function RoomScene({
         : "idle";
 
   return (
-    <section className="room-scene" aria-label="Voice-operated MacPaw Space quest room">
+    <section
+      className={`room-scene ${leaderboard.isOpen ? "room-scene--leaderboard" : ""}`}
+      aria-label="Voice-operated MacPaw Space quest room"
+    >
       <div className="room-shell" aria-hidden="true">
         <div className="back-wall" />
         <div className="left-presentation-wall" />
@@ -747,12 +869,17 @@ function RoomScene({
         <span />
       </div>
 
-      <div className="presentation-wall">
+      <div
+        className={`presentation-wall ${
+          leaderboard.isOpen ? "presentation-wall--leaderboard" : ""
+        }`}
+      >
         <div className="screen-sheen" aria-hidden="true" />
         <div className="stage-success" aria-hidden="true">
-          <span>EXIT 404 RESOLVED</span>
+          <span>EXIT RESOLVED</span>
         </div>
         <span className="stage-label">MacPaw Space</span>
+        <LeaderboardScreen {...leaderboard} />
       </div>
       <AmbientHint questState={questState} roomState={roomState} />
 
@@ -1052,13 +1179,18 @@ function RestartButton({
 async function requestVoiceTurn(
   transcript: string,
   questState: QuestState,
+  questSessionId: string | null,
 ): Promise<VoiceTurnResponse> {
   const response = await fetch("/api/voice-turn", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ transcript, questState }),
+    body: JSON.stringify({
+      transcript,
+      questState,
+      questSessionId: questSessionId ?? undefined,
+    }),
   });
 
   if (!response.ok) {
@@ -1066,6 +1198,165 @@ async function requestVoiceTurn(
   }
 
   return (await response.json()) as VoiceTurnResponse;
+}
+
+interface LeaderboardScreenProps {
+  completed: boolean;
+  completionMetrics: LeaderboardCompletionMetrics | null;
+  displayName: string;
+  entries: LeaderboardEntry[];
+  isLoading: boolean;
+  isOpen: boolean;
+  isSubmitting: boolean;
+  message: string;
+  onChangeDisplayName: (value: string) => void;
+  onClose: () => void;
+  onOpen: () => void;
+  onSubmit: () => void;
+  submittedEntryId: string | null;
+  tokenAvailable: boolean;
+}
+
+function LeaderboardScreen({
+  completed,
+  completionMetrics,
+  displayName,
+  entries,
+  isLoading,
+  isOpen,
+  isSubmitting,
+  message,
+  onChangeDisplayName,
+  onClose,
+  onOpen,
+  onSubmit,
+  submittedEntryId,
+  tokenAvailable,
+}: LeaderboardScreenProps) {
+  const canSubmit =
+    completed &&
+    tokenAvailable &&
+    submittedEntryId === null &&
+    displayName.trim().length > 0 &&
+    !isSubmitting;
+  const heading = "Recent exits";
+
+  return (
+    <>
+      <button
+        className="screen-board-toggle"
+        type="button"
+        onClick={isOpen ? onClose : onOpen}
+        aria-expanded={isOpen}
+        aria-controls="leaderboard-screen"
+      >
+        <span aria-hidden="true">{isOpen ? "SCN" : "TOP"}</span>
+        <strong>{isOpen ? "Сцена" : "Дошка"}</strong>
+      </button>
+
+      {isOpen ? (
+        <section
+          className="screen-leaderboard"
+          id="leaderboard-screen"
+          aria-label="Останні проходження"
+        >
+          <div className="screen-leaderboard__head">
+            <h2>{heading}</h2>
+          </div>
+
+          {completed && submittedEntryId === null ? (
+            <form
+              className="leaderboard-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                onSubmit();
+              }}
+            >
+              <label htmlFor="leaderboard-name">Name</label>
+              <div className="leaderboard-form__row">
+                <input
+                  id="leaderboard-name"
+                  type="text"
+                  value={displayName}
+                  maxLength={32}
+                  onChange={(event) => onChangeDisplayName(event.target.value)}
+                  placeholder="Myk"
+                  disabled={isSubmitting || !tokenAvailable}
+                />
+                <button type="submit" disabled={!canSubmit}>
+                  {isSubmitting ? "Saving" : "Save"}
+                </button>
+              </div>
+              {completionMetrics ? (
+                <p>
+                  {formatDuration(completionMetrics.durationMs)} ·{" "}
+                  {completionMetrics.attempts} tries
+                </p>
+              ) : null}
+            </form>
+          ) : null}
+
+          {message ? <p className="leaderboard-message">{message}</p> : null}
+
+          <ol className="leaderboard-list" aria-busy={isLoading}>
+            {isLoading ? (
+              <li>Loading</li>
+            ) : entries.length > 0 ? (
+              entries.map((entry) => (
+                <li
+                  key={entry.entryId}
+                  className={
+                    entry.entryId === submittedEntryId
+                      ? "leaderboard-list__item--current"
+                      : ""
+                  }
+                >
+                  <span>{entry.displayName}</span>
+                  <time dateTime={entry.completedAt}>
+                    {formatRelativeTime(entry.completedAt)}
+                  </time>
+                  <strong>{formatDuration(entry.durationMs)}</strong>
+                </li>
+              ))
+            ) : (
+              <li>No exits yet</li>
+            )}
+          </ol>
+        </section>
+      ) : null}
+    </>
+  );
+}
+
+async function requestLeaderboard(): Promise<LeaderboardListResponse> {
+  const response = await fetch("/api/leaderboard?limit=10");
+
+  if (!response.ok) {
+    throw new Error(await readApiError(response));
+  }
+
+  return (await response.json()) as LeaderboardListResponse;
+}
+
+async function requestCreateLeaderboardEntry(
+  body: {
+    displayName: string;
+    completionToken: string;
+  },
+): Promise<CreateLeaderboardEntryResponse> {
+  const response = await fetch("/api/leaderboard", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readApiError(response));
+  }
+
+  return (await response.json()) as CreateLeaderboardEntryResponse;
 }
 
 async function requestRealtimeSttCapability(): Promise<RealtimeSttCapabilityResponse> {
@@ -1110,6 +1401,32 @@ async function requestRecordedStt(audio: Blob): Promise<RecordedSttResponse> {
   return (await response.json()) as RecordedSttResponse;
 }
 
+async function readApiError(response: Response): Promise<string> {
+  const body = await response.text();
+
+  if (!body) {
+    return `Request failed with ${response.status}.`;
+  }
+
+  try {
+    const parsed = JSON.parse(body) as {
+      error?: string | { message?: unknown };
+    };
+
+    if (typeof parsed.error === "string") {
+      return parsed.error;
+    }
+
+    if (typeof parsed.error?.message === "string") {
+      return parsed.error.message;
+    }
+
+    return body;
+  } catch {
+    return body;
+  }
+}
+
 async function readResponseError(response: Response): Promise<string> {
   const body = await response.text();
 
@@ -1124,6 +1441,64 @@ async function readResponseError(response: Response): Promise<string> {
   } catch {
     return body;
   }
+}
+
+function getFriendlyLeaderboardError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (message.includes("disabled")) {
+    return "Offline";
+  }
+
+  if (message.includes("token")) {
+    return "Finish again";
+  }
+
+  if (message.includes("Display name")) {
+    return "Name: 1-32 chars";
+  }
+
+  if (message.includes("configured")) {
+    return "Not configured";
+  }
+
+  return "Unavailable";
+}
+
+function formatDuration(durationMs: number): string {
+  const totalSeconds = Math.max(0, Math.round(durationMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatRelativeTime(isoDate: string): string {
+  const elapsedSeconds = Math.max(
+    0,
+    Math.round((Date.now() - Date.parse(isoDate)) / 1000),
+  );
+
+  if (elapsedSeconds < 45) {
+    return "щойно";
+  }
+
+  const elapsedMinutes = Math.round(elapsedSeconds / 60);
+
+  if (elapsedMinutes < 60) {
+    return `${elapsedMinutes} хв тому`;
+  }
+
+  const elapsedHours = Math.round(elapsedMinutes / 60);
+
+  if (elapsedHours < 24) {
+    return `${elapsedHours} год тому`;
+  }
+
+  return new Intl.DateTimeFormat("uk-UA", {
+    day: "2-digit",
+    month: "short",
+  }).format(new Date(isoDate));
 }
 
 function getSupportedRecordingMimeType(): string {
@@ -1390,7 +1765,7 @@ function getAmbientHint(questState: QuestState, roomState: RoomState): string {
   }
 
   if (roomState === "doorOpening") {
-    return "EXIT 404 RESOLVED";
+    return "EXIT resolved";
   }
 
   if (questState.escaped || questState.doorOpen) {

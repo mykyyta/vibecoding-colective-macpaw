@@ -21,6 +21,7 @@
   --amber-soft: oklch(86% 0.078 77);
   --green: oklch(64% 0.126 151);
   --blue: oklch(56% 0.07 230);
+  --clay: oklch(67% 0.045 62);
   --cat: oklch(21% 0.018 70);
   --line: oklch(72% 0.035 78);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -209,6 +210,21 @@ button {
   inset: 10% 9% 12% 8%;
   background: linear-gradient(118deg, transparent 0 44%, color-mix(in oklch, var(--plaster-lit), transparent 94%) 44% 47%, transparent 47%);
   z-index: 1;
+  pointer-events: none;
+}
+
+.presentation-wall--leaderboard::before {
+  border-color: color-mix(in oklch, var(--green), transparent 70%);
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--green), transparent 88%) 1px, transparent 1px),
+    linear-gradient(color-mix(in oklch, var(--green), transparent 90%) 1px, transparent 1px),
+    oklch(13% 0.016 84);
+  background-size: 28px 28px;
+}
+
+.presentation-wall--leaderboard .stage-success,
+.presentation-wall--leaderboard .stage-label {
+  opacity: 0;
 }
 
 .stage-success {
@@ -289,6 +305,12 @@ button {
   letter-spacing: 0;
   text-transform: uppercase;
   z-index: 6;
+}
+
+.room-scene--leaderboard .ambient-hint,
+.room-scene--leaderboard .back-signage {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .ambient-hint {
@@ -388,6 +410,7 @@ button {
   transform: perspective(840px) rotateY(-11deg);
   transform-origin: right center;
   z-index: 7;
+  pointer-events: none;
 }
 
 .wood-columns span {
@@ -428,6 +451,7 @@ button {
   height: 15%;
   transform: perspective(800px) rotateX(30deg);
   z-index: 9;
+  pointer-events: none;
 }
 
 .ceiling-fixtures span {
@@ -518,6 +542,7 @@ button {
   transform: perspective(980px) rotateY(-13deg) skewY(-5deg);
   transform-origin: right bottom;
   z-index: 11;
+  pointer-events: none;
 }
 
 .seat-row,
@@ -1100,25 +1125,26 @@ button {
 
 .scene-mic {
   position: absolute;
-  left: 2.2rem;
-  bottom: 2rem;
+  left: 50%;
+  bottom: 1.45rem;
   z-index: 30;
   display: inline-grid;
-  grid-template-columns: 28px minmax(0, auto);
-  gap: 0.55rem;
+  grid-template-columns: 42px minmax(0, auto);
+  gap: 0.72rem;
   align-items: center;
-  max-width: min(250px, calc(100vw - 4.4rem));
-  min-height: 38px;
+  width: min(360px, calc(100vw - 2.4rem));
+  min-height: 58px;
   border: 1px solid color-mix(in oklch, var(--ink), transparent 76%);
   border-radius: 999px;
-  padding: 4px 0.7rem 4px 5px;
+  padding: 7px 1.05rem 7px 8px;
   background: color-mix(in oklch, var(--stage), transparent 7%);
   color: oklch(89% 0.028 86);
   box-shadow:
-    0 10px 28px color-mix(in oklch, var(--ink), transparent 75%),
+    0 18px 42px color-mix(in oklch, var(--ink), transparent 70%),
     inset 0 1px 0 color-mix(in oklch, var(--plaster-lit), transparent 86%);
   cursor: pointer;
   touch-action: none;
+  transform: translateX(-50%);
   user-select: none;
 }
 
@@ -1133,8 +1159,8 @@ button {
 
 .scene-mic-icon {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
   background:
     radial-gradient(circle at 50% 38%, color-mix(in oklch, var(--green), var(--plaster-lit) 18%), var(--green)),
@@ -1145,9 +1171,9 @@ button {
   content: "";
   position: absolute;
   left: 50%;
-  top: 7px;
-  width: 7px;
-  height: 11px;
+  top: 10px;
+  width: 10px;
+  height: 16px;
   border-radius: 999px;
   transform: translateX(-50%);
   background: oklch(92% 0.02 100);
@@ -1157,9 +1183,9 @@ button {
   content: "";
   position: absolute;
   left: 50%;
-  top: 19px;
-  width: 13px;
-  height: 3px;
+  top: 29px;
+  width: 19px;
+  height: 4px;
   border-radius: 999px;
   transform: translateX(-50%);
   background: oklch(92% 0.02 100);
@@ -1168,8 +1194,8 @@ button {
 .scene-mic-copy {
   min-width: 0;
   overflow: hidden;
-  font-size: 0.76rem;
-  font-weight: 750;
+  font-size: 0.95rem;
+  font-weight: 820;
   letter-spacing: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1185,7 +1211,7 @@ button {
   display: none;
   overflow: hidden;
   color: color-mix(in oklch, var(--plaster-lit), transparent 28%);
-  font-size: 0.58rem;
+  font-size: 0.68rem;
   font-weight: 650;
   letter-spacing: 0;
   line-height: 1;
@@ -1202,7 +1228,7 @@ button {
   box-shadow:
     0 0 34px color-mix(in oklch, var(--green), transparent 58%),
     0 10px 28px color-mix(in oklch, var(--ink), transparent 75%);
-  transform: translateY(1px) scale(0.99);
+  transform: translateX(-50%) translateY(1px) scale(0.99);
 }
 
 .restart-quest {
@@ -1231,6 +1257,228 @@ button {
 .restart-quest:disabled {
   cursor: wait;
   opacity: 0.5;
+}
+
+.screen-board-toggle,
+.screen-leaderboard button {
+  font: inherit;
+}
+
+.screen-board-toggle {
+  position: absolute;
+  right: 10%;
+  top: 12%;
+  z-index: 7;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, auto);
+  gap: 0.36rem;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid color-mix(in oklch, var(--green), transparent 48%);
+  border-radius: 4px;
+  padding: 0.16rem 0.46rem 0.16rem 0.18rem;
+  background: oklch(16% 0.018 86);
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 18%);
+  box-shadow:
+    0 0 18px color-mix(in oklch, var(--green), transparent 78%),
+    0 10px 24px color-mix(in oklch, var(--stage), transparent 52%);
+  cursor: pointer;
+}
+
+.screen-board-toggle:focus-visible {
+  outline: 3px solid color-mix(in oklch, var(--amber), transparent 24%);
+  outline-offset: 3px;
+}
+
+.screen-board-toggle span {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.5rem;
+  border-radius: 3px;
+  background: color-mix(in oklch, var(--green), transparent 80%);
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 26%);
+  font-size: 0.54rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.screen-board-toggle strong {
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.presentation-wall--leaderboard .screen-board-toggle {
+  border-color: color-mix(in oklch, var(--amber), transparent 36%);
+  color: color-mix(in oklch, var(--amber), var(--plaster-lit) 8%);
+}
+
+.presentation-wall--leaderboard .screen-board-toggle span {
+  background: color-mix(in oklch, var(--amber), transparent 80%);
+  color: color-mix(in oklch, var(--amber), var(--plaster-lit) 14%);
+}
+
+.screen-leaderboard {
+  position: absolute;
+  inset: 18% 10% 14% 9%;
+  z-index: 6;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--green), transparent 62%);
+  border-radius: 5px;
+  padding: 0.72rem;
+  background: oklch(12% 0.018 86);
+  color: oklch(88% 0.032 92);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 92%),
+    inset 0 -18px 42px color-mix(in oklch, var(--green), transparent 92%);
+}
+
+.screen-leaderboard__head {
+  display: flex;
+  gap: 0.7rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.screen-leaderboard__head span,
+.leaderboard-form label {
+  display: block;
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 28%);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.screen-leaderboard__head h2 {
+  margin: 0.16rem 0 0;
+  color: oklch(91% 0.035 96);
+  font-size: 1.05rem;
+  line-height: 1.05;
+}
+
+.leaderboard-form {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.leaderboard-form__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+}
+
+.leaderboard-form input {
+  min-width: 0;
+  min-height: 36px;
+  border: 1px solid color-mix(in oklch, var(--green), transparent 62%);
+  border-radius: 4px;
+  padding: 0 0.58rem;
+  background: oklch(18% 0.018 86);
+  color: oklch(91% 0.03 92);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.leaderboard-form input:focus {
+  outline: 3px solid color-mix(in oklch, var(--amber), transparent 34%);
+  outline-offset: 1px;
+}
+
+.leaderboard-form__row button {
+  min-height: 36px;
+  border: 1px solid color-mix(in oklch, var(--green), transparent 28%);
+  border-radius: 4px;
+  padding: 0 0.68rem;
+  background: color-mix(in oklch, var(--green), var(--plaster-lit) 12%);
+  color: oklch(18% 0.028 153);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 820;
+}
+
+.leaderboard-form__row button:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.72);
+  opacity: 0.58;
+}
+
+.leaderboard-form p,
+.leaderboard-message {
+  margin: 0;
+  color: color-mix(in oklch, var(--amber), var(--plaster-lit) 14%);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.leaderboard-message {
+  margin-bottom: 0.62rem;
+}
+
+.leaderboard-list {
+  display: grid;
+  gap: 0.38rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.leaderboard-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(max-content, 4.2rem) minmax(max-content, 2.6rem);
+  gap: 0.42rem;
+  align-items: center;
+  min-height: 30px;
+  border: 1px solid color-mix(in oklch, var(--plaster-lit), transparent 88%);
+  border-radius: 4px;
+  padding: 0.3rem 0.42rem;
+  background: oklch(16% 0.018 86);
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.leaderboard-list li:only-child {
+  grid-template-columns: minmax(0, 1fr);
+  color: color-mix(in oklch, var(--plaster-lit), transparent 22%);
+}
+
+.leaderboard-list__item--current {
+  border-color: color-mix(in oklch, var(--green), transparent 42%) !important;
+  background: color-mix(in oklch, var(--green), var(--stage) 78%) !important;
+}
+
+.leaderboard-list span {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 820;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-list time {
+  color: color-mix(in oklch, var(--amber), var(--plaster-lit) 16%);
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-list strong {
+  overflow: hidden;
+  font-size: 0.62rem;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @keyframes led-breathe {
@@ -1638,11 +1886,12 @@ button {
   }
 
   .scene-mic {
-    left: 0.8rem;
-    bottom: 0.8rem;
-    width: min(226px, calc(100vw - 1.6rem));
-    max-width: none;
-    padding-right: 0.55rem;
+    left: 50%;
+    bottom: 0.85rem;
+    grid-template-columns: 40px minmax(0, auto);
+    width: min(292px, calc(100vw - 1.5rem));
+    min-height: 56px;
+    padding: 7px 0.82rem 7px 8px;
   }
 
   .restart-quest {
@@ -1652,11 +1901,84 @@ button {
     font-size: 0.62rem;
   }
 
+  .presentation-wall--leaderboard {
+    left: 12%;
+    width: 52%;
+    height: 55%;
+  }
+
+  .screen-board-toggle {
+    right: 10%;
+    top: 13%;
+    grid-template-columns: 1.7rem;
+    gap: 0;
+    min-height: 1.85rem;
+    padding: 0.18rem;
+  }
+
+  .screen-board-toggle span {
+    width: 1.45rem;
+    height: 1.34rem;
+    font-size: 0.48rem;
+  }
+
+  .screen-board-toggle strong {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .screen-leaderboard {
+    inset: 18% 9% 13% 8%;
+    gap: 0.38rem;
+    padding: 0.48rem;
+  }
+
+  .screen-leaderboard__head h2 {
+    font-size: 0.76rem;
+  }
+
+  .screen-leaderboard__head span,
+  .leaderboard-form label {
+    font-size: 0.5rem;
+  }
+
+  .leaderboard-form {
+    gap: 0.34rem;
+  }
+
+  .leaderboard-form__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.32rem;
+  }
+
+  .leaderboard-form input,
+  .leaderboard-form__row button {
+    min-height: 30px;
+    font-size: 0.65rem;
+  }
+
+  .leaderboard-list li {
+    grid-template-columns: minmax(0, 1fr) minmax(max-content, 3.15rem) minmax(max-content, 2.1rem);
+    min-height: 24px;
+    gap: 0.22rem;
+    padding: 0.22rem 0.28rem;
+    font-size: 0.52rem;
+  }
+
+  .leaderboard-list strong {
+    font-size: 0.5rem;
+  }
+
   .scene-mic-copy {
-    font-size: 0.7rem;
+    font-size: 0.82rem;
   }
 
   .scene-mic-hint {
     display: block;
+    font-size: 0.58rem;
   }
 }

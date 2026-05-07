@@ -17,7 +17,9 @@ Read:
 
 Make the next execution step obvious.
 
-For event-speed work, avoid ceremony unless it protects coordination. Use Ticket scale by default. Promote to Initiative only when the structure demands it.
+For lightweight pet-project work, avoid ceremony unless it protects
+coordination. Use Ticket scale by default. Promote to Initiative only when the
+structure demands it.
 
 ## Owns
 
@@ -66,4 +68,3 @@ Return:
 - dependencies;
 - first packet ready for Executor;
 - unresolved risks.
-

@@ -23,14 +23,26 @@ import {
   createElevenLabsRealtimeSttSession,
   transcribeElevenLabsAudio,
 } from "./providers/elevenlabs.js";
+import {
+  getLeaderboardConfigFromEnv,
+  handleCreateLeaderboardEntry,
+  handleListLeaderboard,
+  isQuestCompleted,
+  registerQuestSessionTurn,
+  sendLeaderboardResult,
+  type LeaderboardStore,
+} from "./leaderboard.js";
+import { createDynamoLeaderboardStore } from "./leaderboard-dynamodb.js";
 
 const app = express();
 const port = Number(process.env.SERVER_PORT || process.env.PORT || 8787);
 const providerRegistry = createProviderRegistry();
+const leaderboardConfig = getLeaderboardConfigFromEnv();
+const leaderboardStore = createLeaderboardStore();
 const MAX_TRANSCRIPT_LENGTH = 600;
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 
-app.use(express.json());
+app.use(express.json({ limit: "64kb", strict: true }));
 app.use("/api/stt/elevenlabs/recorded", express.raw({
   limit: MAX_AUDIO_BYTES,
   type: ["audio/*", "video/webm", "application/octet-stream"],
@@ -62,6 +74,26 @@ app.get("/api/status", (_request, response) => {
   };
 
   response.json(status);
+});
+
+app.get("/api/leaderboard", async (request, response) => {
+  const result = await handleListLeaderboard({
+    request,
+    store: leaderboardStore,
+    config: leaderboardConfig,
+  });
+
+  sendLeaderboardResult(response, result);
+});
+
+app.post("/api/leaderboard", async (request, response) => {
+  const result = await handleCreateLeaderboardEntry({
+    request,
+    store: leaderboardStore,
+    config: leaderboardConfig,
+  });
+
+  sendLeaderboardResult(response, result);
 });
 
 app.get("/api/stt/capability", (_request, response) => {
@@ -161,6 +193,11 @@ app.post("/api/voice-turn", async (request, response) => {
     questState: parsed.questState,
     getClaudeProvider: () => providerRegistry.getTextProvider("claude"),
   });
+  const session = registerQuestSessionTurn({
+    sessionId: parsed.questSessionId,
+    completed: isQuestCompleted(turn.nextQuestState),
+    config: leaderboardConfig,
+  });
   const reply = turn.reply;
   const payload: VoiceTurnResponse = {
     transcript: parsed.transcript,
@@ -171,6 +208,8 @@ app.post("/api/voice-turn", async (request, response) => {
     event: turn.event,
     previousQuestState: turn.previousQuestState,
     nextQuestState: turn.nextQuestState,
+    questSessionId: session.sessionId,
+    leaderboardCompletion: session.completion,
   };
 
   try {
@@ -205,7 +244,12 @@ app.listen(port, "0.0.0.0", () => {
 function parseVoiceTurnRequest(
   body: unknown,
 ):
-  | { ok: true; transcript: string; questState: QuestState }
+  | {
+      ok: true;
+      transcript: string;
+      questState: QuestState;
+      questSessionId?: string;
+    }
   | { ok: false; error: string } {
   const candidate = body as Partial<VoiceTurnRequest> | undefined;
   const transcript =
@@ -226,7 +270,26 @@ function parseVoiceTurnRequest(
     ok: true,
     transcript,
     questState: normalizeQuestState(candidate?.questState),
+    questSessionId:
+      typeof candidate?.questSessionId === "string"
+        ? candidate.questSessionId.trim() || undefined
+        : undefined,
   };
+}
+
+function createLeaderboardStore(): LeaderboardStore {
+  try {
+    return createDynamoLeaderboardStore();
+  } catch (error) {
+    return {
+      async list() {
+        throw error;
+      },
+      async create() {
+        throw error;
+      },
+    };
+  }
 }
 
 function getElevenLabsRealtimeSttConfigIfAvailable() {
