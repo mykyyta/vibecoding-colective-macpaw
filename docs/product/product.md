@@ -18,6 +18,13 @@ Character irony should fit that event context: jokes may reference AI, штуч�
 
 The product promise is that voice is not decorative. Spoken input moves the room state forward, name-based address unlocks character responses, a performed vocal action unlocks the code, and spoken output closes the interaction loop.
 
+The quest should be playable in Ukrainian and English without a visible language
+selector. The system infers the player's language on each spoken turn, replies
+in that language when confidence is sufficient, and keeps one shared quest state
+when the player naturally switches languages between turns. Short ambiguous
+turns such as `Pixel`, `404`, `meow`, or `mrr` should not cause unstable
+language switching; they may keep the previous reliable language.
+
 Spoken output should make the characters legible by ear: Oleg, Pixel, and the room/door use distinct voices when ElevenLabs TTS is configured. The room/door should use a calm female voice. Pixel is a male cat and should sound lazy, smug, and slightly catlike rather than like adult male narration or room narration describing a cat.
 
 The main interface must be one fullscreen quest-room scene, not a dashboard or control panel. The visual target is the original MacPaw Space reference: black presentation wall on the left, open light floor through the center, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise warm LED lines. UI chrome must stay minimal enough that the room remains the product.
@@ -49,6 +56,8 @@ Core line:
 - Build a small, playable product rather than a broad platform.
 - Prefer an interaction where voice, narration, audio generation, or conversational behavior is central enough that ElevenLabs is not just a decorative integration.
 - Treat voice as the only intended player input. Do not expose command buttons, typed command forms, progress panels, or dashboard controls in the main quest UI.
+- Support Ukrainian and English voice play through automatic per-turn language
+  detection, not a manual in-room language selector.
 - Make the first screen a fullscreen illustrated room. Any microphone affordance or transcript indicator must be minimal and integrated into the scene.
 - Prioritize visual fidelity to the MacPaw Space reference before adding visible gameplay UI.
 - A leaderboard affordance may exist as a small neutral control integrated into
@@ -72,4 +81,5 @@ Assume a casual player or project reviewer who needs to understand within the fi
 - No chatbot-only experience where voice merely reads static text.
 - No complex inventory, map, scoring system, or long puzzle chain until the core quest loop is strong.
 - No visible mock command buttons or manual text input in the main quest experience.
+- No visible language selector in the main quest experience.
 - No persistent side panels, logs, readiness boards, or progress dashboards on the primary game screen.

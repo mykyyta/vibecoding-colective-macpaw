@@ -1066,8 +1066,8 @@ button {
 
 .speech-bubble {
   position: absolute;
-  width: 220px;
-  max-width: 28vw;
+  width: 260px;
+  max-width: 30vw;
   padding: 9px 11px 10px;
   border: 1px solid color-mix(in oklch, var(--ink), transparent 84%);
   border-radius: 6px;
