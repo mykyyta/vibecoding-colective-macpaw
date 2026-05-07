@@ -6,7 +6,7 @@ export type VoiceAction =
   | { type: "clear-log" }
   | { type: "none" };
 
-export type QuestActor = "system" | "guard" | "pixel" | "door";
+export type QuestActor = "system" | "guard" | "pixel" | "door" | "sofia";
 
 export type QuestLanguage = "uk" | "en";
 
@@ -56,6 +56,8 @@ export type QuestTriggerType =
   | "pixel-directed-command"
   | "pixel-directed-purr"
   | "purr-without-pixel"
+  | "sofia-hint-request"
+  | "sofia-vcc-question"
   | "smalltalk"
   | "unknown";
 
@@ -83,6 +85,8 @@ export type QuestEventType =
   | "pixel-ordinary-rejected"
   | "code-revealed"
   | "door-opened"
+  | "sofia-hint-given"
+  | "sofia-vcc-explained"
   | "smalltalk-replied";
 
 export interface QuestEvent {

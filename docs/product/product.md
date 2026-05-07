@@ -12,7 +12,15 @@ quest product beyond the original vibe-coding event prototype.
 
 The current product is a short voice-operated quest room called **Exit MacPaw Space**, with the working scenario title **404 Door Not Found**.
 
-A user is locked inside a simplified MacPaw Space room after a `вайбкодінг івент` about AI and штучний інтелект. The exit is locked after the event, and the user must leave by speaking with two characters: a human guard named Oleg and Pixel the cat. Oleg does not respond to useful commands until the user learns and uses his name. Pixel knows the exit code, but only reveals it after the user addresses Pixel directly and gently purrs.
+A user is locked inside a simplified MacPaw Space room after a `вайбкодінг івент` about AI and штучний інтелект. The exit is locked after the event, and the user must leave by speaking with two required characters: a human guard named Oleg and Pixel the cat. Oleg does not respond to useful commands until the user learns and uses his name. Pixel knows the exit code, but only reveals it after the user addresses Pixel directly and gently purrs.
+
+Sofia is also present as an optional supporting character. She is the Vibe
+Coding Collective co-founder, product designer, and organizer of the first VCC
+event in Ukraine at MacPaw Space. She is not the quest organizer or a game
+master, and she does not know the exact solution. If asked for help, she offers
+calm facilitation ideas and stage-safe hints without advancing the puzzle or
+solving it for the player. If asked directly about Vibe Coding Collective or
+vibe coding, she can briefly explain the community and event context.
 
 Character irony should fit that event context: jokes may reference AI, штучний інтелект, prompts, generated decisions, and the `вайбкодінг івент`, but should not overuse generic tech metaphors or make every line sound like the same punchline.
 
@@ -30,13 +38,20 @@ The microphone affordance may keep the primary control label fixed in English as
 are accepted. The current compact hint is `EN/UA · sound on`, which also aligns
 the mobile sound/vibration-adjacent prompt with the voice-first interaction.
 
-Spoken output should make the characters legible by ear: Oleg, Pixel, and the room/door use distinct voices when ElevenLabs TTS is configured. The room/door should use a calm female voice. Pixel is a male cat and should sound lazy, smug, and slightly catlike rather than like adult male narration or room narration describing a cat.
+Spoken output should make the characters legible by ear: Oleg, Pixel, Sofia,
+and the room/door should feel distinct when speech output is available. Oleg,
+Pixel, and the room/door use distinct voices when ElevenLabs TTS is configured;
+Sofia may reuse the room voice in the first slice until a dedicated voice is
+worth configuring. The room/door should use a calm female voice. Pixel is a male
+cat and should sound lazy, smug, and slightly catlike rather than like adult
+male narration or room narration describing a cat.
 
 The main interface must be one fullscreen quest-room scene, not a dashboard or control panel. The visual target is the original MacPaw Space reference: black presentation wall on the left, open light floor through the center, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise warm LED lines. UI chrome must stay minimal enough that the room remains the product.
 
 ## Core Scenario
 
-The room shows a locked exit, a silent guard, and Pixel the cat near the door.
+The room shows a locked exit, a silent guard, Pixel the cat near the door, and
+Sofia as a visible optional facilitator in the room.
 
 The happy path is intentionally small:
 
@@ -51,6 +66,12 @@ The happy path is intentionally small:
 9. Pixel reveals code `404`.
 10. The user tells Oleg the code.
 11. Oleg opens the door with the line: "404 accepted. Door not found, but exit found."
+
+At any stage, the user may ask Sofia for an idea. Her answer does not progress
+state. It should sound like a facilitator who believes a way out will be found:
+calm, positive, non-competitive, and grounded in communication, exchange,
+experimentation, and vibe-coding accessibility. Sofia should not mention stages,
+mechanics, hidden logic, or answer keys.
 
 Core line:
 

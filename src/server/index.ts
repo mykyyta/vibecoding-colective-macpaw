@@ -374,6 +374,7 @@ function getElevenLabsVoiceRoleForActor(
       return "guard";
     case "pixel":
       return "pixel";
+    case "sofia":
     case "door":
     case "system":
       return "room";
