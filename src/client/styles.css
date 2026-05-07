@@ -307,51 +307,46 @@ button {
   z-index: 6;
 }
 
-.room-scene--leaderboard .ambient-hint,
-.room-scene--leaderboard .back-signage {
-  opacity: 0;
-  pointer-events: none;
-}
-
 .ambient-hint {
   position: absolute;
-  left: 5.5%;
-  top: 18%;
-  max-width: 34%;
-  padding: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.35rem;
-  color: color-mix(in oklch, var(--green), var(--plaster-lit) 18%);
+  left: max(1rem, env(safe-area-inset-left));
+  top: max(1rem, env(safe-area-inset-top));
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  max-width: min(360px, calc(100vw - 2rem));
+  min-height: 36px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--ink), transparent 82%);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--plaster-lit), transparent 18%);
+  box-shadow: 0 10px 24px color-mix(in oklch, var(--ink), transparent 88%);
+  color: var(--ink-soft);
   font-size: 0.74rem;
-  font-weight: 650;
+  font-weight: 740;
   letter-spacing: 0;
   line-height: 1.15;
-  text-shadow: 0 0 10px color-mix(in oklch, var(--green), transparent 42%);
-  z-index: 20;
   pointer-events: auto;
 }
 
 .ambient-hint__button {
-  width: 1.35rem;
-  height: 1.35rem;
+  min-width: 40px;
+  height: 34px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  border: 1px solid color-mix(in oklch, var(--green), transparent 46%);
-  border-radius: 50%;
-  background: color-mix(in oklch, var(--stage), transparent 18%);
-  color: color-mix(in oklch, var(--green), var(--plaster-lit) 14%);
+  border: 0;
+  border-radius: 999px;
+  padding: 0 0.82rem;
+  background: transparent;
+  color: var(--ink);
   font: inherit;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 900;
   line-height: 1;
-  opacity: 0.54;
-  text-shadow: inherit;
   cursor: pointer;
   transition:
-    border-color 160ms var(--ease-out),
-    opacity 160ms var(--ease-out),
+    background-color 160ms var(--ease-out),
     transform 160ms var(--ease-out);
   list-style: none;
 }
@@ -359,8 +354,7 @@ button {
 .ambient-hint__button:hover,
 .ambient-hint__button:focus-visible,
 .ambient-hint[open] .ambient-hint__button {
-  border-color: color-mix(in oklch, var(--green), transparent 20%);
-  opacity: 0.86;
+  background: color-mix(in oklch, var(--amber-soft), transparent 34%);
 }
 
 .ambient-hint__button::-webkit-details-marker {
@@ -373,6 +367,7 @@ button {
 
 .ambient-hint__text {
   display: block;
+  padding: 0 0.78rem 0 0.1rem;
   max-width: 0;
   overflow: hidden;
   opacity: 0;
@@ -383,22 +378,22 @@ button {
 }
 
 .ambient-hint[open] .ambient-hint__text {
-  max-width: 18rem;
-  opacity: 0.46;
+  max-width: 19rem;
+  opacity: 0.9;
 }
 
 .quest-app--listening .ambient-hint,
 .quest-app--codeRevealed .ambient-hint,
 .quest-app--doorOpening .ambient-hint,
 .quest-app--escaped .ambient-hint {
-  color: color-mix(in oklch, var(--green), var(--plaster-lit) 24%);
+  border-color: color-mix(in oklch, var(--green), transparent 68%);
 }
 
 .quest-app--listening .ambient-hint[open] .ambient-hint__text,
 .quest-app--codeRevealed .ambient-hint[open] .ambient-hint__text,
 .quest-app--doorOpening .ambient-hint[open] .ambient-hint__text,
 .quest-app--escaped .ambient-hint[open] .ambient-hint__text {
-  opacity: 0.58;
+  opacity: 0.92;
 }
 
 .wood-columns {
@@ -1435,7 +1430,7 @@ button {
 
 .leaderboard-list li {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(max-content, 4.2rem) minmax(max-content, 2.6rem);
+  grid-template-columns: minmax(0, 1fr) max-content;
   gap: 0.42rem;
   align-items: center;
   min-height: 30px;
@@ -1447,7 +1442,7 @@ button {
   line-height: 1;
 }
 
-.leaderboard-list li:only-child {
+.leaderboard-list__placeholder {
   grid-template-columns: minmax(0, 1fr);
   color: color-mix(in oklch, var(--plaster-lit), transparent 22%);
 }
@@ -1465,10 +1460,17 @@ button {
   white-space: nowrap;
 }
 
+.leaderboard-list__meta {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.32rem;
+  min-width: max-content !important;
+}
+
 .leaderboard-list time {
   color: color-mix(in oklch, var(--amber), var(--plaster-lit) 16%);
   overflow: hidden;
-  text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1476,7 +1478,6 @@ button {
 .leaderboard-list strong {
   overflow: hidden;
   font-size: 0.62rem;
-  text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1802,11 +1803,13 @@ button {
     z-index: 10;
   }
 
-  .ambient-hint {
-    left: 13%;
-    top: 19%;
-    max-width: 68%;
-    font-size: 0.62rem;
+  .room-scene--leaderboard .back-signage {
+    left: 58%;
+    top: 25%;
+    font-size: 0.58rem;
+    opacity: 0.76;
+    transform: perspective(700px) rotateY(-12deg) scale(0.86);
+    transform-origin: left center;
   }
 
   .stage-success {
@@ -1901,6 +1904,30 @@ button {
     font-size: 0.62rem;
   }
 
+  .ambient-hint {
+    left: max(0.75rem, env(safe-area-inset-left));
+    top: max(0.75rem, env(safe-area-inset-top));
+    max-width: min(254px, calc(100vw - 8.5rem));
+    min-height: 34px;
+    font-size: 0.64rem;
+  }
+
+  .ambient-hint__button {
+    min-width: 38px;
+    height: 32px;
+    padding: 0 0.76rem;
+    font-size: 0.84rem;
+  }
+
+  .ambient-hint__text {
+    padding-right: 0.62rem;
+  }
+
+  .ambient-hint[open] .ambient-hint__text {
+    max-width: calc(100vw - 11rem);
+    white-space: normal;
+  }
+
   .presentation-wall--leaderboard {
     left: 12%;
     width: 52%;
@@ -1962,11 +1989,15 @@ button {
   }
 
   .leaderboard-list li {
-    grid-template-columns: minmax(0, 1fr) minmax(max-content, 3.15rem) minmax(max-content, 2.1rem);
+    grid-template-columns: minmax(0, 1fr) max-content;
     min-height: 24px;
     gap: 0.22rem;
     padding: 0.22rem 0.28rem;
     font-size: 0.52rem;
+  }
+
+  .leaderboard-list__meta {
+    gap: 0.2rem;
   }
 
   .leaderboard-list strong {

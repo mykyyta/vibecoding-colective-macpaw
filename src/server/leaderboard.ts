@@ -53,6 +53,14 @@ interface QuestSession {
   completionTokenNonce?: string;
 }
 
+interface QuestSessionTokenPayload {
+  sessionId: string;
+  startedAt: string;
+  attempts: number;
+  completedAt?: string;
+  completionTokenNonce?: string;
+}
+
 interface CreateEntryResult {
   status: number;
   body:
@@ -93,14 +101,11 @@ export function registerQuestSessionTurn(input: {
   completion?: LeaderboardCompletionTokenResponse;
 } {
   const now = new Date();
-  const sessionId = input.sessionId?.trim() || randomId();
-  const session =
-    sessions.get(sessionId) ??
-    {
-      sessionId,
-      startedAt: now,
-      attempts: 0,
-    };
+  const session = getQuestSessionFromInput(
+    input.sessionId,
+    input.config.completionTokenSecret,
+    now,
+  );
 
   session.attempts += 1;
 
@@ -111,7 +116,10 @@ export function registerQuestSessionTurn(input: {
     );
   }
 
-  sessions.set(sessionId, session);
+  sessions.set(session.sessionId, session);
+  const responseSessionId = input.config.completionTokenSecret
+    ? signQuestSessionToken(session, input.config.completionTokenSecret)
+    : session.sessionId;
 
   if (
     session.completedAt === undefined ||
@@ -119,7 +127,7 @@ export function registerQuestSessionTurn(input: {
     !input.config.enabled ||
     !input.config.completionTokenSecret
   ) {
-    return { sessionId };
+    return { sessionId: responseSessionId };
   }
 
   const metrics = getSessionMetrics(session);
@@ -131,7 +139,7 @@ export function registerQuestSessionTurn(input: {
   };
 
   return {
-    sessionId,
+    sessionId: responseSessionId,
     completion: {
       token: signCompletionToken(payload, input.config.completionTokenSecret),
       metrics,
@@ -290,6 +298,36 @@ export class ConditionalWriteFailure extends Error {
   }
 }
 
+function getQuestSessionFromInput(
+  sessionTokenOrId: string | undefined,
+  secret: string | undefined,
+  now: Date,
+): QuestSession {
+  const trimmed = sessionTokenOrId?.trim();
+
+  if (trimmed && secret) {
+    const verifiedSession = verifyQuestSessionToken(trimmed, secret);
+
+    if (verifiedSession) {
+      return verifiedSession;
+    }
+  }
+
+  if (trimmed && !secret) {
+    const existingSession = sessions.get(trimmed);
+
+    if (existingSession) {
+      return existingSession;
+    }
+  }
+
+  return {
+    sessionId: secret ? randomId() : trimmed || randomId(),
+    startedAt: now,
+    attempts: 0,
+  };
+}
+
 function parseCreateRequest(
   body: unknown,
 ):
@@ -353,6 +391,49 @@ function signCompletionToken(
     .digest("base64url");
 
   return `${COMPLETION_TOKEN_VERSION}.${encodedPayload}.${signature}`;
+}
+
+function signQuestSessionToken(session: QuestSession, secret: string): string {
+  const payload: QuestSessionTokenPayload = {
+    sessionId: session.sessionId,
+    startedAt: session.startedAt.toISOString(),
+    attempts: session.attempts,
+    completedAt: session.completedAt?.toISOString(),
+    completionTokenNonce: session.completionTokenNonce,
+  };
+
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = createHmac("sha256", secret)
+    .update(`${COMPLETION_TOKEN_VERSION}.${encodedPayload}`)
+    .digest("base64url");
+
+  return `${COMPLETION_TOKEN_VERSION}.${encodedPayload}.${signature}`;
+}
+
+function verifyQuestSessionToken(token: string, secret: string): QuestSession | null {
+  const [version, encodedPayload, signature, extra] = token.split(".");
+
+  if (extra !== undefined || version !== COMPLETION_TOKEN_VERSION || !encodedPayload || !signature) {
+    return null;
+  }
+
+  const expectedSignature = createHmac("sha256", secret)
+    .update(`${version}.${encodedPayload}`)
+    .digest("base64url");
+
+  if (signature !== expectedSignature) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(
+      Buffer.from(encodedPayload, "base64url").toString("utf8"),
+    ) as Partial<QuestSessionTokenPayload>;
+
+    return parseQuestSessionTokenPayload(payload);
+  } catch {
+    return null;
+  }
 }
 
 function verifyCompletionToken(
@@ -424,6 +505,49 @@ function validateCompletionTokenPayload(
   return {
     ok: true,
     payload: payload as LeaderboardCompletionTokenPayload,
+  };
+}
+
+function parseQuestSessionTokenPayload(
+  payload: Partial<QuestSessionTokenPayload>,
+): QuestSession | null {
+  if (
+    typeof payload.sessionId !== "string" ||
+    typeof payload.startedAt !== "string" ||
+    typeof payload.attempts !== "number" ||
+    !Number.isInteger(payload.attempts) ||
+    payload.attempts < 0 ||
+    payload.attempts > MAX_COMPLETION_ATTEMPTS
+  ) {
+    return null;
+  }
+
+  const startedAtMs = Date.parse(payload.startedAt);
+
+  if (Number.isNaN(startedAtMs)) {
+    return null;
+  }
+
+  const completedAtMs =
+    typeof payload.completedAt === "string" ? Date.parse(payload.completedAt) : undefined;
+
+  if (completedAtMs !== undefined && Number.isNaN(completedAtMs)) {
+    return null;
+  }
+
+  if (
+    payload.completionTokenNonce !== undefined &&
+    typeof payload.completionTokenNonce !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    sessionId: payload.sessionId,
+    startedAt: new Date(startedAtMs),
+    attempts: payload.attempts,
+    completedAt: completedAtMs === undefined ? undefined : new Date(completedAtMs),
+    completionTokenNonce: payload.completionTokenNonce,
   };
 }
 

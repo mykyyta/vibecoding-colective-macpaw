@@ -107,7 +107,7 @@ export function createQuestTurn(
       actor = "pixel";
       if (!previousQuestState.guardHintGiven) {
         reply =
-          "Мр? Я Pixel, не пухнастий AI assistant. Спершу з'ясуй у охоронця, чому двері вдають стіну.";
+          "Хтось біля підлоги дивиться так, ніби ти перескочив потрібний prompt. Спершу з'ясуй у охоронця, чому двері вдають стіну.";
         break;
       }
 
@@ -164,7 +164,9 @@ export function createQuestTurn(
     case "purr-without-pixel":
       actor = "pixel";
       reply =
-        "Мр? Гарний звук, але без адресата це просто аудіо для майбутнього датасету. Скажи Pixel.";
+        previousQuestState.guardHintGiven
+          ? "Мр? Гарний звук, але без адресата це просто аудіо для майбутнього датасету. Скажи Pixel."
+          : "Кімната фіксує дивний звук і не робить висновків. Спершу розберися з дверима через охоронця.";
       break;
 
     case "smalltalk":

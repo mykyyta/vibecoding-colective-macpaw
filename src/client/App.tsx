@@ -810,6 +810,7 @@ export function App() {
         questState={questState}
         roomState={roomState}
       />
+      <AmbientHint questState={questState} roomState={roomState} />
       <SceneMic
         isListening={isListening}
         isBusy={voiceBusy}
@@ -881,7 +882,6 @@ function RoomScene({
         <span className="stage-label">MacPaw Space</span>
         <LeaderboardScreen {...leaderboard} />
       </div>
-      <AmbientHint questState={questState} roomState={roomState} />
 
       <div className="back-signage" aria-hidden="true">
         <span>Exit MacPaw Space</span>
@@ -1300,7 +1300,7 @@ function LeaderboardScreen({
 
           <ol className="leaderboard-list" aria-busy={isLoading}>
             {isLoading ? (
-              <li>Loading</li>
+              <li className="leaderboard-list__placeholder">Loading</li>
             ) : entries.length > 0 ? (
               entries.map((entry) => (
                 <li
@@ -1312,14 +1312,18 @@ function LeaderboardScreen({
                   }
                 >
                   <span>{entry.displayName}</span>
-                  <time dateTime={entry.completedAt}>
-                    {formatRelativeTime(entry.completedAt)}
-                  </time>
-                  <strong>{formatDuration(entry.durationMs)}</strong>
+                  <span className="leaderboard-list__meta">
+                    <time dateTime={entry.completedAt}>
+                      {formatRelativeTime(entry.completedAt)}
+                    </time>
+                    {entry.durationMs > 0 ? (
+                      <strong>{formatDuration(entry.durationMs)}</strong>
+                    ) : null}
+                  </span>
                 </li>
               ))
             ) : (
-              <li>No exits yet</li>
+              <li className="leaderboard-list__placeholder">No exits yet</li>
             )}
           </ol>
         </section>

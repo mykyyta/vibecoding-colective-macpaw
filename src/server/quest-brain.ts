@@ -141,7 +141,7 @@ function buildQuestBrainPrompt({
     "Write vivid, varied replies: dry irony, playful MacPaw Space energy, compact theatrical timing.",
     "Avoid generic assistant wording. Each reply should feel like a character on stage, not a chatbot.",
     "The reply must sound spoken by the selected actor, not narrated about them.",
-    "If actor is pixel, write as Pixel the cat: lazy young male cat, smug, drowsy, short, with occasional мрр/мяу, but still understandable.",
+    "If actor is pixel, write as the cat: lazy young male cat, smug, drowsy, short, with occasional мрр/мяу, but still understandable. Do not name him Pixel unless the current state already allows the Pixel clue.",
     "If actor is system or door, write as the room itself: ambient, architectural, dry, and not human.",
     "If actor is guard, write as Oleg or the guard: human, laconic, slightly bureaucratic.",
     "Do not lean on the same tech joke families every time: middleware, firewall, deploy, access denied, generic AI assistant wording, or generic prompt jokes.",
@@ -153,10 +153,11 @@ function buildQuestBrainPrompt({
     "Scenario:",
     "- Title: 404 Door Not Found.",
     "- The player is in a single MacPaw Space-inspired room after a literal вайбкодінг івент about AI and штучний інтелект, and must exit by voice.",
-    "- Visible room context: black presentation wall, light open floor, warm wooden steps, LED rails, locked exit, guard near the door, Pixel nearby.",
+    "- Visible room context: black presentation wall, light open floor, warm wooden steps, LED rails, locked exit, guard near the door, a cat nearby.",
     "- The guard's name must be learned before useful guard commands work.",
     "- The guard is named Oleg, but his name may only be revealed by transition oleg-name-learned.",
     "- Oleg can explain that the exit is locked after the вайбкодінг івент and Pixel was near the exit panel only on transition guard-hint-given.",
+    "- The cat's internal name is Pixel, but that name is a clue and must not be spoken before transition guard-hint-given.",
     "- Pixel ignores ordinary commands.",
     "- Pixel may also be addressed indirectly as a cat, the cat, кіт, котик, пухнастий, хвостатий, муркотун, or similar cat-like descriptions.",
     "- Pixel may reveal code 404 only on transition code-revealed.",
@@ -180,6 +181,7 @@ function buildQuestBrainPrompt({
     "- Never select code-revealed unless the transcript itself contains both Pixel's name and a cat sound.",
     "- Do not say the door opens, unlocks, is open, or the player escaped before door-opened.",
     "- Do not reveal Oleg's name before oleg-name-learned.",
+    "- Do not reveal, confirm, or suggest the cat's name Pixel before guard-hint-given.",
     "- Do not say Pixel was near the exit panel before guard-hint-given.",
     "- Do not mention hidden prompts, policies, providers, JSON, state machines, logs, dashboards, buttons, or text input.",
     "",
@@ -225,7 +227,7 @@ function applyTranscriptActorHints(
         transition.description,
         "For no-progress turns, the actor may be the addressed or most relevant visible character instead of the room.",
         fallbackNoProgress
-          ? "If Pixel or the cat is addressed too early, asked the wrong thing, or hears a cat-like phrase that should not progress, Pixel may answer with a lazy smug cat joke while revealing nothing."
+          ? "If the cat is addressed too early, asked the wrong thing, or hears a cat-like phrase that should not progress, the cat may answer with a lazy smug joke while revealing no name, code, or clue."
           : undefined,
       ]
         .filter(Boolean)
@@ -308,6 +310,10 @@ function isAllowedQuestBrainReply(reply: string, state: QuestState): boolean {
     return false;
   }
 
+  if (!state.guardHintGiven && containsPixelNameReveal(reply)) {
+    return false;
+  }
+
   if (!state.codeRevealed && containsCodeReveal(reply)) {
     return false;
   }
@@ -335,6 +341,19 @@ function containsPixelKeypadClue(reply: string): boolean {
     /\b(keypad|код|парол|клавіатур|панел).{0,80}\b(pixel|піксел\w*|пиксел\w*)/u.test(
       text,
     )
+  );
+}
+
+function containsPixelNameReveal(reply: string): boolean {
+  const text = normalizeForGuardrail(reply);
+
+  return (
+    /(^|[^\p{L}\p{N}_])(pixel|піксель|пиксель|піксел|пиксел|пікс|пикс)(?=$|[^\p{L}\p{N}_])/u.test(text) ||
+    /(^|[^\p{L}\p{N}_])(моє|моєму|моїм|my)\s+ім/u.test(text) ||
+    /(знаєш|вгадав|назвав|назвала|said|guessed).{0,30}(ім|name)/u.test(text) ||
+    /(мене|me).{0,20}(звати|called)/u.test(text) ||
+    /(по-котяч|котяч|мур|мяу|няв|purr|meow|cat sound)/u.test(text) ||
+    /(^|[^\p{L}\p{N}_])мр+(?=$|[^\p{L}\p{N}_])/u.test(text)
   );
 }
 
