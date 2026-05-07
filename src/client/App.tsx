@@ -1587,7 +1587,6 @@ function LeaderboardScreen({
                   value={displayName}
                   maxLength={32}
                   onChange={(event) => onChangeDisplayName(event.target.value)}
-                  placeholder="Myk"
                   disabled={isSubmitting || !tokenAvailable}
                 />
                 <button type="submit" disabled={!canSubmit}>
