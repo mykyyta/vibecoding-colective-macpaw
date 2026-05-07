@@ -385,10 +385,10 @@ Scope out:
 
 Acceptance criteria:
 
-- `guard` replies synthesize with the guard voice ID when configured.
-- `pixel` replies synthesize with the Pixel voice ID when configured.
-- `system` and `door` replies synthesize with the room voice ID when configured.
-- Missing actor-specific voice IDs fall back to `ELEVENLABS_DEFAULT_VOICE_ID`.
+- `guard` replies synthesize with the guard voice ID constant.
+- `pixel` replies synthesize with the Pixel voice ID constant.
+- `system` and `door` replies synthesize with the room voice ID constant.
+- Sofia replies synthesize with the Sofia voice ID constant.
 - Pixel fallback and Claude-guided replies are written as lazy, smug, male-cat first-person speech.
 - `npm run typecheck` passes.
 

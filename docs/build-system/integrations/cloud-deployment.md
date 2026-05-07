@@ -108,10 +108,6 @@ adapters used by the product:
 - `ELEVENLABS_API_KEY`
 - `ELEVENLABS_STT_MODEL`
 - `ELEVENLABS_TTS_MODEL`
-- `ELEVENLABS_DEFAULT_VOICE_ID`
-- `ELEVENLABS_GUARD_VOICE_ID`
-- `ELEVENLABS_PIXEL_VOICE_ID`
-- `ELEVENLABS_ROOM_VOICE_ID`
 - `DEMO_API_TOKEN` if paid routes are exposed beyond the demo team
 - `LEADERBOARD_TABLE_NAME` and `LEADERBOARD_COMPLETION_TOKEN_SECRET` when
   persistent leaderboard storage is enabled

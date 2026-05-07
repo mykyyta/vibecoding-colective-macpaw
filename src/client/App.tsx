@@ -2062,7 +2062,7 @@ function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState {
       return "guardHintGiven";
     case "no-progress":
     case "sofia-hint-given":
-    case "sofia-vcc-explained":
+    case "sofia-conversation-replied":
     case "smalltalk-replied":
       return mapQuestStateToRoomState(response.nextQuestState);
   }

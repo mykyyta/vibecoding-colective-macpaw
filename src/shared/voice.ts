@@ -57,7 +57,7 @@ export type QuestTriggerType =
   | "pixel-directed-purr"
   | "purr-without-pixel"
   | "sofia-hint-request"
-  | "sofia-vcc-question"
+  | "sofia-conversation"
   | "smalltalk"
   | "unknown";
 
@@ -86,7 +86,7 @@ export type QuestEventType =
   | "code-revealed"
   | "door-opened"
   | "sofia-hint-given"
-  | "sofia-vcc-explained"
+  | "sofia-conversation-replied"
   | "smalltalk-replied";
 
 export interface QuestEvent {

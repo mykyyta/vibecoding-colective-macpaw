@@ -39,8 +39,8 @@ Make the app ready to call Claude, Gemini, and ElevenLabs through a small server
   - `GEMINI_MODEL`;
   - `ELEVENLABS_API_KEY`;
   - `ELEVENLABS_TTS_MODEL`;
-  - `ELEVENLABS_DEFAULT_VOICE_ID`;
   - optional `DEMO_API_TOKEN` for paid provider endpoints exposed through a tunnel.
+- Keep ElevenLabs voice IDs as code constants, not environment variables.
 - Add minimal server endpoints or internal smoke routes only if needed to validate the connectors.
 - Keep provider calls behind Express. No browser code may receive raw provider API keys.
 

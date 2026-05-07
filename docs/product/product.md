@@ -21,6 +21,13 @@ master, and she does not know the exact solution. If asked for help, she offers
 calm facilitation ideas and stage-safe hints without advancing the puzzle or
 solving it for the player. If asked directly about Vibe Coding Collective or
 vibe coding, she can briefly explain the community and event context.
+She can also answer ordinary conversation when the player clearly addresses her
+by name or a feminine address such as `дівчино`, `пані`, `lady`, or `woman`.
+Unaddressed greetings and name questions should stay with the guard so the
+quest's required first relationship remains legible.
+Because the voice interaction is turn-based rather than a sustained dialogue,
+Sofia should answer in short statements and avoid follow-up questions, including
+questions or assumptions about how the event feels.
 
 Character irony should fit that event context: jokes may reference AI, штучний інтелект, prompts, generated decisions, and the `вайбкодінг івент`, but should not overuse generic tech metaphors or make every line sound like the same punchline.
 
@@ -40,11 +47,10 @@ the mobile sound/vibration-adjacent prompt with the voice-first interaction.
 
 Spoken output should make the characters legible by ear: Oleg, Pixel, Sofia,
 and the room/door should feel distinct when speech output is available. Oleg,
-Pixel, and the room/door use distinct voices when ElevenLabs TTS is configured;
-Sofia may reuse the room voice in the first slice until a dedicated voice is
-worth configuring. The room/door should use a calm female voice. Pixel is a male
-cat and should sound lazy, smug, and slightly catlike rather than like adult
-male narration or room narration describing a cat.
+Pixel, Sofia, and the room/door use distinct code-configured voices when
+ElevenLabs TTS is configured. The room/door should use a calm female voice.
+Pixel is a male cat and should sound lazy, smug, and slightly catlike rather
+than like adult male narration or room narration describing a cat.
 
 The main interface must be one fullscreen quest-room scene, not a dashboard or control panel. The visual target is the original MacPaw Space reference: black presentation wall on the left, open light floor through the center, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise warm LED lines. UI chrome must stay minimal enough that the room remains the product.
 
@@ -71,7 +77,18 @@ At any stage, the user may ask Sofia for an idea. Her answer does not progress
 state. It should sound like a facilitator who believes a way out will be found:
 calm, positive, non-competitive, and grounded in communication, exchange,
 experimentation, and vibe-coding accessibility. Sofia should not mention stages,
-mechanics, hidden logic, or answer keys.
+mechanics, hidden logic, or answer keys. Sofia hint generation must use the
+current quest-state hint context so the reply points to the player's current
+step instead of generic encouragement.
+Sofia has two voice routes. She gives a quest hint only when the player
+explicitly asks her for a hint, help, advice, an idea, what to do, or what to
+try next. Every other Sofia-directed or VCC/vibe-coding context turn uses one
+conversation route where Claude answers from her brief and the current context.
+The user may also simply talk with Sofia if they address her directly by name or
+a feminine address. In that case she should answer organically from her
+facilitator and product-designer role, without becoming a required puzzle step.
+Her conversation replies may be generated for variety, but must stay as compact
+statements rather than open questions or unwanted event banter.
 
 Core line:
 

@@ -35,6 +35,21 @@ changing the required quest path.
 - Sofia may explain Vibe Coding Collective or vibe coding in more detail only
   when the player explicitly asks about VCC, the community, vibe coding, or the
   event. She should not volunteer VCC exposition during ordinary hints.
+- Sofia may answer ordinary conversation only when the player clearly addresses
+  her by name or a feminine address such as `дівчино`, `пані`, `lady`, or
+  `woman`; unaddressed greetings and name questions should stay with the guard.
+- Sofia should answer with short statements and avoid follow-up questions,
+  especially questions about the event, because the quest does not support a
+  sustained dialogue loop.
+- Sofia conversation should not use recap jokes about the event being enjoyable
+  or getting stuck in the door.
+- Sofia conversation may use Claude-generated variety, with guardrails against
+  questions and event recap.
+- Sofia hint generation uses explicit current-state hint context so Claude has
+  to point to the player's current quest step instead of generic facilitation.
+- Sofia hint routing requires an explicit help/hint/advice/idea/what-to-do
+  request. Ordinary Sofia conversation, door/code comments, and VCC/vibe-coding
+  questions route to the general Sofia conversation route.
 - Sofia should carry the event's no-winners attitude: the point is
   communication, meeting people, exchange, lightness, and positive shared
   experience rather than competition.
@@ -42,7 +57,7 @@ changing the required quest path.
   especially for broad and non-technical audiences.
 - Sofia must respect existing reveal gates for Oleg, Pixel, code `404`, and the
   door opening.
-- Sofia reuses the room ElevenLabs voice role in this first slice.
+- Sofia uses a dedicated ElevenLabs voice ID constant.
 - Generated reference is stored at
   `docs/work/initiatives/sofia-quest-guide/sofia-generated-reference.png`.
 
@@ -56,8 +71,17 @@ fallback replies feel too directive, too expository, or not calm enough.
 - `npm run typecheck` passed.
 - Deterministic smoke check passed for:
   - Sofia initial hint as `sofia-hint-given` with unchanged quest state;
-  - Sofia VCC question as `sofia-vcc-explained` with unchanged quest state;
+  - Sofia VCC question as `sofia-conversation-replied` with unchanged quest
+    state;
   - Sofia post-Oleg hint with unchanged quest state;
+  - Sofia direct conversation as `sofia-conversation-replied` when addressed by
+    name or a feminine address;
+  - Sofia conversation using generated varied compact copy with guardrails;
+  - Sofia hint transition cards including state-specific context for each quest
+    step;
+  - generated Sofia replies with questions rejected into deterministic fallback;
+  - generated Sofia event-recap jokes rejected into deterministic fallback;
+  - generic `привіт` and `як тебе звати` still going to the guard path;
   - existing happy path through generic door command, Oleg name, guard hint,
     Pixel rejection, Pixel purr, `404`, and door opening.
 - Desktop screenshot checked at `1440x900`, latest review image:

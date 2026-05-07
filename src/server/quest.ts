@@ -82,8 +82,8 @@ type QuestReplyId =
   | "sofia-hint-pixel-rejected"
   | "sofia-hint-code-revealed"
   | "sofia-hint-after-escape"
-  | "sofia-vcc-context"
-  | "smalltalk-deterministic"
+  | "sofia-conversation-vcc"
+  | "sofia-conversation-smalltalk"
   | "smalltalk-after-escape"
   | "smalltalk-pixel"
   | "smalltalk-guard-known"
@@ -171,13 +171,13 @@ const QUEST_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
     uk: "Бачиш, це було не про перемогу, а про спільний вихід. Забирай цей вайб із собою.",
     en: "See, this was not about winning; it was about finding a way out together. Take that vibe with you.",
   },
-  "sofia-vcc-context": {
+  "sofia-conversation-vcc": {
     uk: "Vibe Coding Collective — це спільнота й серія подій про те, як робити AI-білдинг доступним, соціальним і творчим. Тут можна прийти з ідеєю, ноутбуком, навушниками й вайбом, а не з ідеальним планом.",
     en: "Vibe Coding Collective is a community and event series for making AI-assisted building accessible, social, and creative. You can arrive with an idea, a laptop, headphones, and vibe, not a perfect plan.",
   },
-  "smalltalk-deterministic": {
-    uk: "MacPaw Space любить smalltalk, але вихід не став розумнішим від слова AI.",
-    en: "MacPaw Space likes smalltalk, but the exit did not get smarter from the word AI.",
+  "sofia-conversation-smalltalk": {
+    uk: "Я Софія. Я поруч і тримаю простір спокійним, щоб було легше думати й пробувати.",
+    en: "I'm Sofia. I'm here, keeping the space calm so it is easier to think and try.",
   },
   "smalltalk-after-escape": {
     uk: "Двері світяться скромно, ніби AI щойно вперше визнав: так, це був вихід.",
@@ -398,15 +398,16 @@ export function createQuestTurn(
       reply = getSofiaHintReply(previousQuestState, replyLanguage);
       break;
 
-    case "sofia-vcc-question":
+    case "sofia-conversation":
       actor = "sofia";
-      event = { type: "sofia-vcc-explained", progressed: false };
-      reply = getQuestReply("sofia-vcc-context", replyLanguage);
+      event = { type: "sofia-conversation-replied", progressed: false };
+      reply = getSofiaConversationReply(trigger, replyLanguage);
       break;
 
     case "smalltalk":
+      actor = getSmalltalkActor(previousQuestState);
       event = { type: "smalltalk-replied", progressed: false };
-      reply = getQuestReply("smalltalk-deterministic", replyLanguage);
+      reply = getSmalltalkFallbackReply(previousQuestState, replyLanguage);
       break;
 
     case "unknown":
@@ -451,15 +452,20 @@ export function getAllowedQuestTransitions(
       id: "sofia-hint-given",
       actor: "sofia",
       description:
-        "Use only when the player asks Sofia for help, a hint, an idea, or what to try next. Sofia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
+        [
+          "Use only when the player explicitly asks Sofia for help, a hint, an idea, advice, what to do, or what to try next.",
+          "Do not use this for ordinary Sofia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
+          "Sofia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
+          getSofiaHintStageContext(state),
+        ].join(" "),
       fallbackReply: getSofiaHintReply(state, replyLanguage),
     },
     {
-      id: "sofia-vcc-explained",
+      id: "sofia-conversation-replied",
       actor: "sofia",
       description:
-        "Use only when the player directly asks about Vibe Coding Collective, VCC, vibe coding, the community, or the event. This is optional context, not quest progress, and should stay short enough for spoken dialogue.",
-      fallbackReply: getQuestReply("sofia-vcc-context", replyLanguage),
+        "Use for every Sofia-directed turn that is not an explicit hint request: ordinary conversation, questions about Sofia, door/code comments addressed to Sofia, and questions about Vibe Coding Collective, VCC, vibe coding, the community, or the event. Sofia should answer from her character brief and current visible context. She may explain VCC or vibe coding if that is what the player asked. She must not give a quest-step hint unless the player explicitly asks for a hint, help, advice, an idea, what to do, or what to try next.",
+      fallbackReply: getQuestReply("sofia-conversation-smalltalk", replyLanguage),
     },
   ];
 
@@ -468,7 +474,7 @@ export function getAllowedQuestTransitions(
       id: "oleg-name-learned",
       actor: "guard",
       description:
-        "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg.",
+        "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg. The spoken reply must explicitly include the name Oleg/Олег because name-based address is the core puzzle key.",
       fallbackReply: getQuestReply("guard-name", replyLanguage),
     });
   }
@@ -481,7 +487,7 @@ export function getAllowedQuestTransitions(
       id: "guard-hint-given",
       actor: "guard",
       description:
-        `The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. This may reveal that the exit is locked after the ${eventPhrase} and Pixel's exit-panel clue, but not the code.`,
+        `The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. The spoken reply must explicitly include the cat's name Pixel/Піксель because this is the key clue for the next step. This may reveal that the exit is locked after the ${eventPhrase} and Pixel's exit-panel clue, but not the code.`,
       fallbackReply: getQuestReply("guard-hint", replyLanguage),
     });
   }
@@ -560,6 +566,37 @@ function getSmalltalkFallbackReply(
     : getQuestReply("smalltalk-guard-unknown", replyLanguage);
 }
 
+function getSofiaConversationReply(
+  trigger: QuestTrigger,
+  replyLanguage: QuestLanguage,
+): string {
+  return hasVccConversationMatch(trigger.matched)
+    ? getQuestReply("sofia-conversation-vcc", replyLanguage)
+    : getQuestReply("sofia-conversation-smalltalk", replyLanguage);
+}
+
+function hasVccConversationMatch(matched: string[]): boolean {
+  return matched.some((match) =>
+    [
+      "vibe coding collective",
+      "vibecoding collective",
+      "vcc",
+      "вайбкодінг колектив",
+      "вайбкодинг колектив",
+      "вайбкодінг",
+      "вайбкодинг",
+      "vibe coding",
+      "vibecoding",
+      "івент",
+      "ивент",
+      "event",
+      "community",
+      "спільнот",
+      "сообще",
+    ].includes(match),
+  );
+}
+
 function getSofiaHintReply(
   state: QuestState,
   replyLanguage: QuestLanguage,
@@ -587,6 +624,30 @@ function getSofiaHintReply(
   return getQuestReply("sofia-hint-initial", replyLanguage);
 }
 
+function getSofiaHintStageContext(state: QuestState): string {
+  if (state.doorOpen || state.escaped) {
+    return "Current Sofia hint stage: the player has already escaped. Reflect on the shared exit and keep it celebratory, not instructional.";
+  }
+
+  if (state.codeRevealed) {
+    return "Current Sofia hint stage: the code is already known. Nudge the player to give the code to the person standing between them and the door, without saying this is a mechanic.";
+  }
+
+  if (state.pixelRejectedOrdinaryCommand) {
+    return "Current Sofia hint stage: Pixel rejected ordinary human requests. Nudge the player to try Pixel's own language or a cat-like sound, without revealing the code.";
+  }
+
+  if (state.guardHintGiven) {
+    return "Current Sofia hint stage: Oleg already pointed toward Pixel. Nudge the player to approach Pixel through tone and contact rather than control, without revealing the code.";
+  }
+
+  if (state.olegNameKnown) {
+    return "Current Sofia hint stage: the player knows the guard is Oleg. Nudge the player to address Oleg directly about the exit, not to speak to the room in general.";
+  }
+
+  return "Current Sofia hint stage: the player has not learned the guard's name. Nudge the player to start with a human introduction or ask the person near the door who he is.";
+}
+
 export function createQuestTurnFromTransition({
   transcript,
   questState = {},
@@ -602,7 +663,7 @@ export function createQuestTurnFromTransition({
     "no-progress",
     "smalltalk-replied",
     "sofia-hint-given",
-    "sofia-vcc-explained",
+    "sofia-conversation-replied",
   ].includes(transitionId);
 
   return {
@@ -644,7 +705,7 @@ function applyQuestTransition(
       break;
     case "no-progress":
     case "sofia-hint-given":
-    case "sofia-vcc-explained":
+    case "sofia-conversation-replied":
     case "smalltalk-replied":
       break;
   }
@@ -699,6 +760,35 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
     ],
     matched,
   );
+  const hasFeminineAddress = includesAny(
+    text,
+    [
+      "дівчино",
+      "дівчина",
+      "девушка",
+      "пані",
+      "леді",
+      "мисс",
+      "жінко",
+      "женщина",
+      "організаторка",
+      "організаторко",
+      "організатор",
+      "организатор",
+      "дизайнерко",
+      "product designer",
+      "designer",
+      "organizer",
+      "girl",
+      "lady",
+      "woman",
+      "ma'am",
+      "maam",
+      "madam",
+    ],
+    matched,
+  );
+  const hasSofiaAddress = hasSofia || hasFeminineAddress;
   const hasDoor = includesAny(
     text,
     [
@@ -835,20 +925,24 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
   const hasPurr = purrMatches.length > 0;
   matched.push(...purrMatches);
 
-  if (hasVccIntent && (hasSofia || hasNameQuestion || text.includes("що таке") || text.includes("what is"))) {
-    return {
-      type: "sofia-vcc-question",
-      actor: "sofia",
-      directAddress: hasSofia,
-      matched,
-    };
-  }
-
-  if (hasSofia && (hasSofiaHelpIntent || hasDoor || hasCodeIntent)) {
+  if (hasSofiaAddress && hasSofiaHelpIntent) {
     return {
       type: "sofia-hint-request",
       actor: "sofia",
       directAddress: true,
+      matched,
+    };
+  }
+
+  if (
+    hasSofiaAddress ||
+    (hasVccIntent &&
+      (hasNameQuestion || text.includes("що таке") || text.includes("what is")))
+  ) {
+    return {
+      type: "sofia-conversation",
+      actor: "sofia",
+      directAddress: hasSofiaAddress,
       matched,
     };
   }

@@ -33,10 +33,10 @@ Initiative created to coordinate the visual frontend and backend voice work for 
 - Quest progression is pivoting from deterministic-parser-first to Claude-first. Claude may select one backend-provided allowed transition and write a varied reply.
 - Backend remains the authority for legal progression: it derives allowed transitions from current state, validates Claude output, computes next state server-side, blocks early `404` or door/escape claims, and uses deterministic parser/state machine fallback on any Claude failure.
 - Existing ElevenLabs STT/TTS behavior should remain unchanged by the Claude-first packet unless a minimal response-contract adjustment is required.
-- ElevenLabs TTS voice roles are `guard`, `pixel`, and `room`; `door` and `system` actors use the room voice.
-- Actor-specific ElevenLabs voice IDs are optional overrides and fall back to `ELEVENLABS_DEFAULT_VOICE_ID`.
-- The local room voice is set to the female ElevenLabs voice **Bella - Professional, Bright, Warm** via `ELEVENLABS_ROOM_VOICE_ID`.
-- Pixel is a male cat; the local Pixel voice is set to **Will - Relaxed Optimist**, a young laid-back male voice, via `ELEVENLABS_PIXEL_VOICE_ID`.
+- ElevenLabs TTS voice roles are `guard`, `pixel`, `sofia`, and `room`; `door` and `system` actors use the room voice.
+- Actor-specific ElevenLabs voice IDs are code constants in `src/server/providers/config.ts`, not environment variables.
+- The local room voice is set with the room voice ID constant.
+- Pixel is a male cat; the local Pixel voice is set with the Pixel voice ID constant.
 - Pixel TTS uses slower, slightly stylized per-request voice settings so he reads as lazy and smug, not energetic or adult-masculine.
 - Pixel replies should sound like Pixel speaking as a cat, not room narration describing Pixel.
 - The first demo stays one room, two characters, one code, and one exit.

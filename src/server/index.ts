@@ -368,13 +368,14 @@ function getElevenLabsRealtimeSttConfigIfAvailable() {
 
 function getElevenLabsVoiceRoleForActor(
   actor: QuestActor,
-): "guard" | "pixel" | "room" {
+): "guard" | "pixel" | "room" | "sofia" {
   switch (actor) {
     case "guard":
       return "guard";
     case "pixel":
       return "pixel";
     case "sofia":
+      return "sofia";
     case "door":
     case "system":
       return "room";

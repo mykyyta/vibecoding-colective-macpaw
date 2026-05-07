@@ -33,6 +33,7 @@ interface QuestPromptTransition {
 
 const CLAUDE_QUEST_TIMEOUT_MS = 7000;
 const MAX_REPLY_LENGTH = 320;
+const MAX_SOFIA_REPLY_LENGTH = 220;
 const FINAL_DOOR_OPEN_REPLY = "404 accepted. Door not found, but exit found.";
 
 const TRANSITION_IDS: QuestTransitionId[] = [
@@ -43,7 +44,7 @@ const TRANSITION_IDS: QuestTransitionId[] = [
   "code-revealed",
   "door-opened",
   "sofia-hint-given",
-  "sofia-vcc-explained",
+  "sofia-conversation-replied",
   "smalltalk-replied",
 ];
 
@@ -110,7 +111,19 @@ export async function createQuestBrainTurn({
       return fallbackTurn;
     }
 
+    if (requiresOlegNameInReply(turn.event.type) && !containsOlegReveal(turn.reply)) {
+      return fallbackTurn;
+    }
+
+    if (turn.event.type === "guard-hint-given" && !containsPixelNameReveal(turn.reply)) {
+      return fallbackTurn;
+    }
+
     if (!isAllowedQuestBrainReply(turn.reply, turn.nextQuestState)) {
+      return fallbackTurn;
+    }
+
+    if (turn.actor === "sofia" && !isAllowedSofiaReply(turn.reply, turn.event.type)) {
       return fallbackTurn;
     }
 
@@ -170,7 +183,7 @@ function buildQuestBrainPrompt({
       ? "Reply in natural English. Keep proper names and the fixed final door line exactly as written."
       : "Reply in natural Ukrainian. Keep proper names and the fixed final door line exactly as written.",
     "Use the current actor, stage, visible room context, and allowed facts.",
-    `Include one small ironic joke or character beat about ${aiPhrase}, the ${eventPhrase}, prompts, or generated decisions when it fits the actor and stage.`,
+    `Include one small ironic joke or character beat about ${aiPhrase}, the ${eventPhrase}, prompts, or generated decisions when it fits the actor and stage. For Sofia, keep any irony very light and do not use event-satisfaction jokes.`,
     "Keep the joke grounded in this moment, not a reusable catchphrase.",
     "Write vivid, varied replies: dry irony, playful MacPaw Space energy, compact theatrical timing.",
     "Avoid generic assistant wording. Each reply should feel like a character on stage, not a chatbot.",
@@ -179,9 +192,13 @@ function buildQuestBrainPrompt({
     "If actor is system or door, write as the room itself: ambient, architectural, dry, and not human.",
     "If actor is guard, write as Oleg or the guard: human, laconic, slightly bureaucratic.",
     "If actor is sofia, write as Sofia: warm, calm, positive, concise, product-designer energy. She is the Vibe Coding Collective co-founder and event organizer, but not the quest organizer or game master.",
+    "For actor sofia, write one short statement. Do not ask questions, do not use a question mark, do not ask or assume how the event felt, and do not make jokes about the event getting stuck in the door. The player cannot sustain a dialogue loop here.",
     "Sofia does not know the exact solution. She believes a way out will be found, offers ideas or reframes, lowers pressure, and trusts the participant. She should not sound like she holds the answer key.",
-    "For sofia-hint-given, Sofia gives a gentle facilitation idea, not an instruction. She may carry the no-winners attitude: communication, exchange, lightness, and positive shared experience matter more than competition.",
-    "For sofia-vcc-explained, Sofia may briefly explain Vibe Coding Collective or vibe coding as accessible, social, experimental AI-assisted building. Do not volunteer this context unless that transition is selected.",
+    "For sofia-hint-given, Sofia must use the Sofia hint stageContext from the allowed transition card. Her hint should point to the current next step, not a generic reassurance line.",
+    "For sofia-hint-given, Sofia gives a gentle facilitation idea, not an instruction. She may carry the no-winners attitude, but only after the current-step clue is clear.",
+    "For sofia-conversation-replied, Sofia handles every non-hint Sofia route: ordinary conversation, questions about Sofia, door/code comments addressed to Sofia, and VCC/vibe-coding/event questions. She should answer from her character brief and the current visible context.",
+    "For sofia-conversation-replied, Sofia may briefly explain Vibe Coding Collective or vibe coding as accessible, social, experimental AI-assisted building if the player asked about that context. Otherwise she should not force VCC exposition.",
+    "For sofia-conversation-replied, Sofia must not give a quest-step hint unless the player explicitly asked for a hint, help, advice, an idea, what to do, or what to try next.",
     "Do not lean on the same tech joke families every time: middleware, firewall, deploy, access denied, generic AI assistant wording, or generic prompt jokes.",
     "If you use a tech or AI joke, make it specific to this actor and stage, and avoid making it the whole personality.",
     "",
@@ -195,7 +212,9 @@ function buildQuestBrainPrompt({
     "- Sofia is also in the room. She is the Vibe Coding Collective co-founder, product designer, and event organizer. She can be asked for optional help or VCC context, but she is not required to solve the quest.",
     "- The guard's name must be learned before useful guard commands work.",
     "- The guard is named Oleg, but his name may only be revealed by transition oleg-name-learned.",
+    "- For transition oleg-name-learned, the guard's spoken reply must explicitly say his name is Oleg/Олег.",
     `- Oleg can explain that the exit is locked after the ${eventPhrase} and Pixel was near the exit panel only on transition guard-hint-given.`,
+    "- For transition guard-hint-given, the guard's spoken reply must explicitly include the cat's name Pixel/Піксель because this is the clue the player needs for the next step.",
     "- The cat's internal name is Pixel, but that name is a clue and must not be spoken before transition guard-hint-given.",
     "- Pixel ignores ordinary commands.",
     "- Pixel may also be addressed indirectly as a cat, the cat, кіт, котик, пухнастий, хвостатий, муркотун, or similar cat-like descriptions.",
@@ -207,8 +226,17 @@ function buildQuestBrainPrompt({
     "- Pixel may answer wrong or premature Pixel-directed turns, but he must not reveal the code, exit-panel clue, or advance quest state unless the selected transition allows it.",
     "- The door may open and the user may escape only on transition door-opened.",
     "- For transition door-opened, the reply must be exactly: 404 accepted. Door not found, but exit found.",
-    "- Sofia may give stage-safe hint ideas only on transition sofia-hint-given. Sofia hint replies must not progress state, must not sound certain, and must not claim Sofia knows the solution.",
-    "- Sofia may explain Vibe Coding Collective only on transition sofia-vcc-explained, when the player asks about VCC, vibe coding, the community, or the event.",
+    "- Do not omit Oleg's name from oleg-name-learned replies.",
+    "- Do not omit Pixel/Піксель from guard-hint-given replies.",
+    "- Sofia has exactly two routes: sofia-hint-given for explicit hint/help/advice/idea/what-to-do requests, and sofia-conversation-replied for every other Sofia-directed or VCC/vibe-coding context turn.",
+    "- Select sofia-hint-given only when the player explicitly asks Sofia for a hint, help, advice, an idea, what to do, or what to try next.",
+    "- Select sofia-conversation-replied for ordinary Sofia conversation, door comments, code comments, and VCC/vibe-coding questions unless the transcript clearly asks Sofia for a hint.",
+    "- On sofia-hint-given, the current-step clue is mandatory. Do not answer with only generic encouragement, calm, experimentation, or collaboration.",
+    "- On sofia-conversation-replied, Sofia may decide whether to explain Vibe Coding Collective, simply talk, answer about herself, or respond to the player's comment based on the transcript and brief.",
+    "- Sofia replies must be short statements, not questions. Do not ask or speculate about the event, the user's feelings, whether the event was enjoyable, or what the user wants next.",
+    "- For sofia-conversation-replied, do not mention the event, VCC, Vibe Coding Collective, or vibe coding unless the player explicitly asked about that context.",
+    "- If the player only says a general greeting or asks a name without addressing Sofia, keep that smalltalk with the guard because the guard is the key early character.",
+    "- If the player clearly addresses Sofia by name or a feminine address such as дівчино, пані, lady, woman, or madam, Sofia should use sofia-conversation-replied unless the player explicitly asks for a hint.",
     "",
     "Backend authority:",
     "- Pick exactly one transitionId from allowedTransitions.",
@@ -346,6 +374,10 @@ function normalizeGeneratedReply(text: string): string {
     .trim();
 }
 
+function requiresOlegNameInReply(eventType: QuestTransitionId): boolean {
+  return eventType === "oleg-name-learned";
+}
+
 function isAllowedQuestBrainReply(reply: string, state: QuestState): boolean {
   if (!reply || reply.length > MAX_REPLY_LENGTH) {
     return false;
@@ -372,6 +404,48 @@ function isAllowedQuestBrainReply(reply: string, state: QuestState): boolean {
   }
 
   return true;
+}
+
+function isAllowedSofiaReply(
+  reply: string,
+  _eventType: QuestTransitionId,
+): boolean {
+  if (reply.length > MAX_SOFIA_REPLY_LENGTH || /[?？]/u.test(reply)) {
+    return false;
+  }
+
+  const text = normalizeForGuardrail(reply);
+  const hasEventRecapJoke =
+    /(івент|ивент|event).{0,80}(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy)/u.test(
+      text,
+    ) ||
+    /(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy).{0,80}(івент|ивент|event)/u.test(
+      text,
+    ) ||
+    text.includes("фінальний вайб");
+
+  if (hasEventRecapJoke) {
+    return false;
+  }
+
+  return ![
+    "як тобі",
+    "як вам",
+    "як ти",
+    "як ви",
+    "чи ти",
+    "чи ви",
+    "що ти хочеш",
+    "що ви хочете",
+    "what do you",
+    "what would you",
+    "how are you",
+    "how was",
+    "how do you",
+    "do you want",
+    "would you",
+    "did you",
+  ].some((phrase) => text.includes(phrase));
 }
 
 function containsOlegReveal(reply: string): boolean {

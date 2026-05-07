@@ -66,6 +66,7 @@ export interface TextToSpeechProvider {
     guard: string;
     pixel: string;
     room: string;
+    sofia: string;
   };
   synthesizeSpeech(
     request: TextToSpeechRequest,
