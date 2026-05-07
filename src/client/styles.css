@@ -1019,27 +1019,27 @@ button {
 
 .sofia-shirt {
   position: absolute;
-  left: 23px;
+  left: 25px;
   bottom: 96px;
-  width: 25px;
+  width: 21px;
   height: 37px;
-  border-radius: 8px 8px 9px 9px;
+  border-radius: 7px 7px 2px 2px;
   background:
-    linear-gradient(180deg, oklch(34% 0.035 54), oklch(22% 0.028 54)),
-    oklch(27% 0.03 54);
+    linear-gradient(180deg, oklch(96% 0.009 82), oklch(88% 0.012 82)),
+    oklch(93% 0.01 82);
   box-shadow:
-    inset 0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 88%),
-    inset -5px 0 0 color-mix(in oklch, var(--stage), transparent 62%);
+    inset 0 0 0 1px color-mix(in oklch, var(--ink), transparent 86%),
+    inset -5px 0 0 color-mix(in oklch, var(--ink), transparent 91%);
 }
 
 .sofia-shirt::before {
   content: "";
   position: absolute;
-  left: 12px;
+  left: 10px;
   top: 7px;
   width: 1px;
   height: 25px;
-  background: color-mix(in oklch, var(--plaster-lit), transparent 42%);
+  background: color-mix(in oklch, var(--ink), transparent 78%);
 }
 
 .sofia-collar {
@@ -1050,9 +1050,11 @@ button {
   height: 10px;
   z-index: 4;
   background:
-    linear-gradient(135deg, color-mix(in oklch, var(--plaster-lit), transparent 84%) 0 48%, transparent 50%) left top / 9px 8px no-repeat,
-    linear-gradient(225deg, color-mix(in oklch, var(--plaster-lit), transparent 84%) 0 48%, transparent 50%) right top / 9px 8px no-repeat;
-  filter: drop-shadow(0 0 0.5px color-mix(in oklch, var(--plaster-lit), transparent 52%));
+    linear-gradient(135deg, oklch(96% 0.009 82) 0 48%, transparent 50%) left top / 9px 8px no-repeat,
+    linear-gradient(225deg, oklch(96% 0.009 82) 0 48%, transparent 50%) right top / 9px 8px no-repeat;
+  filter:
+    drop-shadow(0 0 0.5px color-mix(in oklch, var(--ink), transparent 42%))
+    drop-shadow(0 1px 0 color-mix(in oklch, var(--ink), transparent 84%));
 }
 
 .sofia-sleeve {
@@ -1061,7 +1063,8 @@ button {
   width: 9px;
   height: 42px;
   border-radius: 999px;
-  background: oklch(30% 0.032 54);
+  background: linear-gradient(180deg, oklch(95% 0.009 82), oklch(87% 0.012 82));
+  box-shadow: inset -2px 0 0 color-mix(in oklch, var(--ink), transparent 91%);
   z-index: 3;
   transform-origin: top center;
 }
@@ -2305,7 +2308,7 @@ button {
   }
 
   .sofia {
-    left: 41%;
+    left: 34%;
     bottom: 25%;
     --sofia-scale: scale(0.68);
   }

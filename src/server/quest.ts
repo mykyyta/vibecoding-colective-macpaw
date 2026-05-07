@@ -454,6 +454,7 @@ export function getAllowedQuestTransitions(
       description:
         [
           "Use only when the player explicitly asks Sofia for help, a hint, an idea, advice, what to do, or what to try next.",
+          "This requires a direct Sofia address by name or feminine address; unaddressed help requests are not Sofia hints.",
           "Do not use this for ordinary Sofia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
           "Sofia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
           getSofiaHintStageContext(state),

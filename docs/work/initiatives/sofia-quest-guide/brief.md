@@ -98,11 +98,12 @@ Two character beats matter:
 - Sofia hint generation should use explicit current-state hint context so the
   player gets a hint for the current quest step rather than a generic
   facilitation line.
-- Sofia should give a quest hint only when the player explicitly asks her for a
-  hint, help, advice, an idea, what to do, or what to try next. Ordinary
-  conversation, door/code comments, and vibe-coding/VCC questions use one
-  general Sofia conversation route where Claude answers from the brief and
-  current context.
+- Sofia should give a quest hint only when the player both addresses Sofia by
+  name or feminine address and explicitly asks her for a hint, help, advice, an
+  idea, what to do, or what to try next. Unaddressed help requests do not route
+  to Sofia and do not advance the quest. Ordinary conversation, door/code
+  comments, and vibe-coding/VCC questions use one general Sofia conversation
+  route where Claude answers from the brief and current context.
 - Sofia should not say she built, prepared, designed, controls, or understands
   the quest.
 - Sofia should not mention stages, puzzles, mechanics, state, scripts, or hidden
