@@ -189,6 +189,51 @@ const pixelPurr = await runTurn({
 assert.equal(pixelPurr.event.type, "code-revealed");
 assert.equal(pixelPurr.nextQuestState.codeRevealed, true);
 
+const pixelMyau = await runTurn({
+  transcript: "Pixel мяу",
+  questState: {
+    olegNameKnown: true,
+    guardHintGiven: true,
+  },
+  decision: {
+    route: "pixel",
+    transitionId: "code-revealed",
+    actor: "pixel",
+    reply: "Мяу. Код 404 на бейджику.",
+  },
+});
+assert.equal(pixelMyau.event.type, "code-revealed");
+
+const pixelPromurkay = await runTurn({
+  transcript: "Pixel, промуркай",
+  questState: {
+    olegNameKnown: true,
+    guardHintGiven: true,
+  },
+  decision: {
+    route: "pixel",
+    transitionId: "code-revealed",
+    actor: "pixel",
+    reply: "Мур-мур. 404 на ошийнику.",
+  },
+});
+assert.equal(pixelPromurkay.event.type, "code-revealed");
+
+const pixelMurMur = await runTurn({
+  transcript: "Піксель, мур-мур",
+  questState: {
+    olegNameKnown: true,
+    guardHintGiven: true,
+  },
+  decision: {
+    route: "pixel",
+    transitionId: "code-revealed",
+    actor: "pixel",
+    reply: "Мрр-р. Код 404, відкривайте двері.",
+  },
+});
+assert.equal(pixelMurMur.event.type, "code-revealed");
+
 const doorOpened = await runTurn({
   transcript: "Олег, код 404",
   questState: {
