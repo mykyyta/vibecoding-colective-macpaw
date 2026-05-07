@@ -25,6 +25,11 @@ when the player naturally switches languages between turns. Short ambiguous
 turns such as `Pixel`, `404`, `meow`, or `mrr` should not cause unstable
 language switching; they may keep the previous reliable language.
 
+The microphone affordance may keep the primary control label fixed in English as
+`Push to talk`, but it must clearly signal that both English and Ukrainian input
+are accepted. The current compact hint is `EN/UA · sound on`, which also aligns
+the mobile sound/vibration-adjacent prompt with the voice-first interaction.
+
 Spoken output should make the characters legible by ear: Oleg, Pixel, and the room/door use distinct voices when ElevenLabs TTS is configured. The room/door should use a calm female voice. Pixel is a male cat and should sound lazy, smug, and slightly catlike rather than like adult male narration or room narration describing a cat.
 
 The main interface must be one fullscreen quest-room scene, not a dashboard or control panel. The visual target is the original MacPaw Space reference: black presentation wall on the left, open light floor through the center, warm wooden stepped seating on the right, vertical wood columns, ceiling fixtures, and precise warm LED lines. UI chrome must stay minimal enough that the room remains the product.
@@ -58,6 +63,9 @@ Core line:
 - Treat voice as the only intended player input. Do not expose command buttons, typed command forms, progress panels, or dashboard controls in the main quest UI.
 - Support Ukrainian and English voice play through automatic per-turn language
   detection, not a manual in-room language selector.
+- Keep microphone control copy compact: `Push to talk` may remain fixed English,
+  while the nearby hint should tell players that English and Ukrainian are both
+  valid and that sound should be on.
 - Make the first screen a fullscreen illustrated room. Any microphone affordance or transcript indicator must be minimal and integrated into the scene.
 - Prioritize visual fidelity to the MacPaw Space reference before adding visible gameplay UI.
 - A leaderboard affordance may exist as a small neutral control integrated into

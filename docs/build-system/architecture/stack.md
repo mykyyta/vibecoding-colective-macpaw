@@ -109,6 +109,13 @@ language-ambiguous. They should not switch the reply language unless provider
 confidence is high enough. Use a sticky previous language for these turns when a
 quest session already has one.
 
+Main quest UI copy should follow the current quest language for player-facing
+messages, errors, leaderboard states, and accessibility labels. The microphone
+control is the deliberate exception: its primary button label may remain fixed
+English as `Push to talk`, with a compact bilingual hint such as
+`EN/UA · sound on` so players understand both input languages are accepted
+without adding a selector.
+
 ElevenLabs recorded and realtime STT are the primary bilingual paths. Browser
 speech recognition is only a fallback because browser support for automatic
 per-turn Ukrainian/English language detection is inconsistent; fallback may use

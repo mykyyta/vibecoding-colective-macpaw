@@ -32,6 +32,8 @@ main quest UI.
   low-confidence turns.
 - The main quest UI must not add language buttons, typed input, or dashboard
   controls.
+- The microphone button may keep `Push to talk` as fixed English control copy,
+  with `EN/UA · sound on` as the compact bilingual and sound-on hint.
 - Raw transcripts should not be stored for language analytics as part of this
   initiative.
 
@@ -48,13 +50,15 @@ main quest UI.
 
 ## Next Action
 
-Initiative implementation is ready for review.
+Implementation has been merged into `main` for local verification.
 
-Review handoff:
+Follow-up handoff:
 
 - Product, technical contract, STT metadata, quest brain, UI copy, and QA
   packets are complete.
-- Review the diff in branch `work/bilingual-voice-quest`.
+- Post-merge copy fixes covered English event wording, localized leaderboard
+  labels/errors, localized accessibility labels, and the bilingual microphone
+  prompt.
 - Real ElevenLabs microphone/STT/TTS validation remains optional and requires
   local credentials plus acceptance of paid provider use.
 
@@ -74,6 +78,16 @@ Review handoff:
 
 ## Latest Validation
 
+- Post-merge UI copy follow-up:
+  - Fixed English-mode event wording to use `vibecoding event`.
+  - Localized leaderboard labels, relative time, loading/empty states, and
+    friendly error messages.
+  - Localized accessibility labels for the room, keypad, Pixel, guard, and
+    leaderboard controls.
+  - Set the compact microphone copy to fixed English `Push to talk` with
+    `EN/UA · sound on` as the bilingual sound hint.
+  - `npm run typecheck` passed.
+  - `npm run build` passed.
 - Packet 5:
   - `npm run typecheck` passed.
   - `npm run build` passed.
