@@ -388,7 +388,7 @@ Acceptance criteria:
 - `guard` replies synthesize with the guard voice ID constant.
 - `pixel` replies synthesize with the Pixel voice ID constant.
 - `system` and `door` replies synthesize with the room voice ID constant.
-- Sofia replies synthesize with the Sofia voice ID constant.
+- Sofiia replies synthesize with the Sofiia voice ID constant.
 - Pixel fallback and Claude-guided replies are written as lazy, smug, male-cat first-person speech.
 - `npm run typecheck` passes.
 

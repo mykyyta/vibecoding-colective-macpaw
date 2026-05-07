@@ -14,7 +14,7 @@ The current product is a short voice-operated quest room called **Exit MacPaw Sp
 
 A user is locked inside a simplified MacPaw Space room after a `вайбкодінг івент` about AI and штучний інтелект. The exit is locked after the event, and the user must leave by speaking with two required characters: a human guard named Oleg and Pixel the cat. Oleg does not respond to useful commands until the user learns and uses his name. Pixel knows the exit code, but only reveals it after the user addresses Pixel directly and gently purrs.
 
-Sofia is also present as an optional supporting character. She is the Vibe
+Sofiia is also present as an optional supporting character. She is the Vibe
 Coding Collective co-founder, product designer, and organizer of the first VCC
 event in Ukraine at MacPaw Space. She is not the quest organizer or a game
 master, and she does not know the exact solution. If asked for help, she offers
@@ -26,7 +26,7 @@ by name or a feminine address such as `дівчино`, `пані`, `lady`, or `
 Unaddressed greetings and name questions should stay with the guard so the
 quest's required first relationship remains legible.
 Because the voice interaction is turn-based rather than a sustained dialogue,
-Sofia should answer in short statements and avoid follow-up questions, including
+Sofiia should answer in short statements and avoid follow-up questions, including
 questions or assumptions about how the event feels.
 
 Character irony should fit that event context: jokes may reference AI, штучний інтелект, prompts, generated decisions, and the `вайбкодінг івент`, but should not overuse generic tech metaphors or make every line sound like the same punchline.
@@ -45,9 +45,9 @@ The microphone affordance may keep the primary control label fixed in English as
 are accepted. The current compact hint is `EN/UA · sound on`, which also aligns
 the mobile sound/vibration-adjacent prompt with the voice-first interaction.
 
-Spoken output should make the characters legible by ear: Oleg, Pixel, Sofia,
+Spoken output should make the characters legible by ear: Oleg, Pixel, Sofiia,
 and the room/door should feel distinct when speech output is available. Oleg,
-Pixel, Sofia, and the room/door use distinct code-configured voices when
+Pixel, Sofiia, and the room/door use distinct code-configured voices when
 ElevenLabs TTS is configured. The room/door should use a calm female voice.
 Pixel is a male cat and should sound lazy, smug, and slightly catlike rather
 than like adult male narration or room narration describing a cat.
@@ -57,7 +57,7 @@ The main interface must be one fullscreen quest-room scene, not a dashboard or c
 ## Core Scenario
 
 The room shows a locked exit, a silent guard, Pixel the cat near the door, and
-Sofia as a visible optional facilitator in the room.
+Sofiia as a visible optional facilitator in the room.
 
 The happy path is intentionally small:
 
@@ -80,25 +80,25 @@ mention the exit panel, or reveal code `404`. After the clue, the cat can be
 addressed as Pixel, but code `404` is still revealed only by the purr
 interaction.
 
-Sofia's Pixel-stage hints should be staged carefully. After Oleg points to
-Pixel, Sofia should only suggest addressing Pixel and talking to him calmly. She
+Sofiia's Pixel-stage hints should be staged carefully. After Oleg points to
+Pixel, Sofiia should only suggest addressing Pixel and talking to him calmly. She
 should not suggest cat language, purring, meowing, or Pixel's own language until
 Pixel has rejected an ordinary request.
 
-At any stage, the user may ask Sofia for an idea. Her answer does not progress
+At any stage, the user may ask Sofiia for an idea. Her answer does not progress
 state. It should sound like a facilitator who believes a way out will be found:
 calm, positive, non-competitive, and grounded in communication, exchange,
-experimentation, and vibe-coding accessibility. Sofia should not mention stages,
-mechanics, hidden logic, or answer keys. Sofia hint generation must use the
+experimentation, and vibe-coding accessibility. Sofiia should not mention stages,
+mechanics, hidden logic, or answer keys. Sofiia hint generation must use the
 current quest-state hint context so the reply points to the player's current
 step instead of generic encouragement.
-Sofia has two voice routes. For direct Sofia-addressed turns, Claude decides
+Sofiia has two voice routes. For direct Sofiia-addressed turns, Claude decides
 semantically whether the player is asking her for a quest idea, hint, help,
-advice, direction, or next step. If yes, Sofia gives a quest hint. Unaddressed
-help requests do not route to Sofia and do not advance the quest. Every other
-Sofia-directed or VCC/vibe-coding context turn uses one conversation route where
+advice, direction, or next step. If yes, Sofiia gives a quest hint. Unaddressed
+help requests do not route to Sofiia and do not advance the quest. Every other
+Sofiia-directed or VCC/vibe-coding context turn uses one conversation route where
 Claude answers from her brief and the current context.
-The user may also simply talk with Sofia if they address her directly by name or
+The user may also simply talk with Sofiia if they address her directly by name or
 a feminine address. In that case she should answer organically from her
 facilitator and product-designer role, without becoming a required puzzle step.
 Her conversation replies may be generated for variety, but must stay as compact

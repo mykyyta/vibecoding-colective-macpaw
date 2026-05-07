@@ -31,8 +31,8 @@ reveal gates, transition legality, and fallback behavior remains in place.
   state mutation, forbidden reveals, final door wording, and safe fallback.
 - The deterministic classifier remains as fallback and safety support, not the
   main router for valid Claude turns.
-- Sofia's two-route model stays: `sofia-hint-given` for directly addressed hint
-  or help intent, and `sofia-conversation-replied` for other Sofia-directed or
+- Sofiia's two-route model stays: `sofia-hint-given` for directly addressed hint
+  or help intent, and `sofia-conversation-replied` for other Sofiia-directed or
   VCC/vibe-coding context turns.
 - Existing Oleg, Pixel, code `404`, and door-opening reveal gates must not be
   loosened.
@@ -53,7 +53,7 @@ Packet 1 completed on 2026-05-07.
 - Added an internal Router-Brain `route` contract for Claude decisions and
   transition cards.
 - Added explicit hard validators for Oleg, Pixel, code `404`, door opening, and
-  Sofia address requirements.
+  Sofiia address requirements.
 - Kept deterministic fallback intact.
 - Added `npm run test:quest-routing` for fake-Claude accepted/rejected decision
   coverage.
@@ -71,8 +71,8 @@ Packet 2 completed on 2026-05-07.
 - Clarified that Claude chooses route, transition, actor, and reply
   semantically from the transcript and current state.
 - Expanded fake-Claude smoke coverage across guard name, guard hint, Pixel
-  ordinary rejection, Pixel purr code reveal, Oleg code submission, Sofia hint,
-  Sofia conversation, unaddressed help, invalid JSON fallback, and route
+  ordinary rejection, Pixel purr code reveal, Oleg code submission, Sofiia hint,
+  Sofiia conversation, unaddressed help, invalid JSON fallback, and route
   mismatch fallback.
 
 Validation run:
@@ -88,7 +88,7 @@ Packet 3 completed on 2026-05-07.
 
 - Expanded `npm run test:quest-routing` into a compact Ukrainian and English
   routing matrix.
-- Covered the full happy path plus Sofia hint/conversation, unaddressed help,
+- Covered the full happy path plus Sofiia hint/conversation, unaddressed help,
   invalid JSON fallback, route mismatch fallback, premature Pixel/code reveal,
   and premature door opening.
 - No additional prompt tuning was needed after the matrix passed.
@@ -107,13 +107,13 @@ Cat small talk follow-up completed on 2026-05-07.
 - Kept Pixel/code/panel reveal guardrails: early cat replies may sound cat-like
   but cannot say Pixel's name, mention the exit panel, or reveal code `404`.
 
-Sofia Pixel-stage hint correction completed on 2026-05-07.
+Sofiia Pixel-stage hint correction completed on 2026-05-07.
 
-- Tightened Sofia's `guardHintGiven` hint stage: after Oleg points to Pixel,
-  Sofia should only suggest addressing Pixel and talking to him calmly.
+- Tightened Sofiia's `guardHintGiven` hint stage: after Oleg points to Pixel,
+  Sofiia should only suggest addressing Pixel and talking to him calmly.
 - Cat language, purring, meowing, or "Pixel's own language" are allowed only
   after Pixel rejects an ordinary request.
-- Added prompt instructions and a backend guardrail for premature Sofia cat
+- Added prompt instructions and a backend guardrail for premature Sofiia cat
   language hints.
 
 ## Validation Plan
@@ -134,6 +134,6 @@ Run the smallest meaningful checks per packet:
   too verbose.
 - Static deterministic fallback replies will still appear when Claude fails;
   that is acceptable, but should not be the normal path for natural addressed
-  Sofia hint requests.
+  Sofiia hint requests.
 - A technical-contract review by Architect may be needed if Packet 1 changes the
   public voice response shape rather than keeping route internal.

@@ -200,7 +200,7 @@ const QUEST_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
   },
   "sofia-conversation-smalltalk": {
     uk: "Я Софія. Я поруч і тримаю простір спокійним, щоб було легше думати й пробувати.",
-    en: "I'm Sofia. I'm here, keeping the space calm so it is easier to think and try.",
+    en: "I'm Sofiia. I'm here, keeping the space calm so it is easier to think and try.",
   },
   "smalltalk-after-escape": {
     uk: "Двері світяться скромно, ніби AI щойно вперше визнав: так, це був вихід.",
@@ -491,10 +491,10 @@ export function getAllowedQuestTransitions(
       actor: "sofia",
       description:
         [
-          "Use when the player directly addresses Sofia and semantically asks for a quest idea, hint, help, advice, direction, or next step.",
-          "This requires a direct Sofia address by name or feminine address; unaddressed help requests are not Sofia hints.",
-          "Do not use this for ordinary Sofia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
-          "Sofia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
+          "Use when the player directly addresses Sofiia and semantically asks for a quest idea, hint, help, advice, direction, or next step.",
+          "This requires a direct Sofiia address by name or feminine address; unaddressed help requests are not Sofiia hints.",
+          "Do not use this for ordinary Sofiia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
+          "Sofiia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
           getSofiaHintStageContext(state),
         ].join(" "),
       fallbackReply: getSofiaHintReply(state, replyLanguage),
@@ -503,7 +503,7 @@ export function getAllowedQuestTransitions(
       id: "sofia-conversation-replied",
       actor: "sofia",
       description:
-        "Use for every Sofia-directed turn that is not semantically asking Sofia for a quest idea or next step: ordinary conversation, questions about Sofia, door/code comments addressed to Sofia, and questions about Vibe Coding Collective, VCC, vibe coding, the community, or the event. Sofia should answer from her character brief and current visible context. She may explain VCC or vibe coding if that is what the player asked. She must not give a quest-step hint unless the player is asking Sofia for help with the quest.",
+        "Use for every Sofiia-directed turn that is not semantically asking Sofiia for a quest idea or next step: ordinary conversation, questions about Sofiia, door/code comments addressed to Sofiia, and questions about Vibe Coding Collective, VCC, vibe coding, the community, or the event. Sofiia should answer from her character brief and current visible context. She may explain VCC or vibe coding if that is what the player asked. She must not give a quest-step hint unless the player is asking Sofiia for help with the quest.",
       fallbackReply: getQuestReply("sofia-conversation-smalltalk", replyLanguage),
     },
   ];
@@ -669,26 +669,26 @@ function getSofiaHintReply(
 
 function getSofiaHintStageContext(state: QuestState): string {
   if (state.doorOpen || state.escaped) {
-    return "Current Sofia hint stage: the player has already escaped. Reflect on the shared exit and keep it celebratory, not instructional.";
+    return "Current Sofiia hint stage: the player has already escaped. Reflect on the shared exit and keep it celebratory, not instructional.";
   }
 
   if (state.codeRevealed) {
-    return "Current Sofia hint stage: the code is already known. Nudge the player to give the code to the person standing between them and the door, without saying this is a mechanic.";
+    return "Current Sofiia hint stage: the code is already known. Nudge the player to give the code to the person standing between them and the door, without saying this is a mechanic.";
   }
 
   if (state.pixelRejectedOrdinaryCommand) {
-    return "Current Sofia hint stage: Pixel rejected ordinary human requests. Nudge the player to try Pixel's own language or a cat-like sound, without revealing the code.";
+    return "Current Sofiia hint stage: Pixel rejected ordinary human requests. Nudge the player to try Pixel's own language or a cat-like sound, without revealing the code.";
   }
 
   if (state.guardHintGiven) {
-    return "Current Sofia hint stage: Oleg already pointed toward Pixel. Nudge the player only to address Pixel directly and try talking to him calmly. Do not suggest cat language, cat sounds, purring, meowing, or Pixel's own language yet.";
+    return "Current Sofiia hint stage: Oleg already pointed toward Pixel. Nudge the player only to address Pixel directly and try talking to him calmly. Do not suggest cat language, cat sounds, purring, meowing, or Pixel's own language yet.";
   }
 
   if (state.olegNameKnown) {
-    return "Current Sofia hint stage: the player knows the guard is Oleg. Nudge the player to address Oleg directly about the exit, not to speak to the room in general.";
+    return "Current Sofiia hint stage: the player knows the guard is Oleg. Nudge the player to address Oleg directly about the exit, not to speak to the room in general.";
   }
 
-  return "Current Sofia hint stage: the player has not learned the guard's name. Nudge the player to start with a human introduction or ask the person near the door who he is.";
+  return "Current Sofiia hint stage: the player has not learned the guard's name. Nudge the player to start with a human introduction or ask the person near the door who he is.";
 }
 
 export function createQuestTurnFromTransition({

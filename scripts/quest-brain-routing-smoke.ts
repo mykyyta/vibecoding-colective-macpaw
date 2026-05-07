@@ -411,7 +411,7 @@ const englishDoorOpened = await runTurn({
 assert.equal(englishDoorOpened.event.type, "door-opened");
 
 const englishSofiaHint = await runTurn({
-  transcript: "Sofia, any ideas?",
+  transcript: "Sofiia, any ideas?",
   decision: {
     route: "sofia-hint",
     transitionId: "sofia-hint-given",
@@ -422,7 +422,7 @@ const englishSofiaHint = await runTurn({
 assert.equal(englishSofiaHint.event.type, "sofia-hint-given");
 
 const englishSofiaTalk = await runTurn({
-  transcript: "Sofia, hello",
+  transcript: "Sofiia, hello",
   decision: {
     route: "sofia-talk",
     transitionId: "sofia-conversation-replied",

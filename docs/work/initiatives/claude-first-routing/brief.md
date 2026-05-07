@@ -28,7 +28,7 @@ authority.
   transcript classification, allowed transition cards, fallback replies, and
   transition application.
 - `classifyQuestTranscript()` currently scans normalized transcript text for
-  Sofia, feminine address, Oleg, Pixel, door, name, code, VCC, purr, and
+  Sofiia, feminine address, Oleg, Pixel, door, name, code, VCC, purr, and
   smalltalk matches. It returns one `QuestTrigger`.
 - `createQuestTurn()` uses that trigger to create a full fallback turn and may
   progress state deterministically.
@@ -41,13 +41,13 @@ authority.
   with the allowed transitions. Claude returns `transitionId`, `actor`, `reply`,
   and optional `confidence`.
 - The backend validates Claude's output against allowed transition IDs, allowed
-  actors, required Oleg/Pixel mentions, early code/door reveal guardrails, Sofia
+  actors, required Oleg/Pixel mentions, early code/door reveal guardrails, Sofiia
   reply guardrails, and exact final door wording.
 - `applyTranscriptActorHints()` and `isAllowedSofiaTransitionForTrigger()` still
   depend on the local fallback trigger. This means regex-like deterministic
   routing can decide whether Claude is even allowed to use some routes, which
-  causes brittle misses such as natural Sofia hint wording falling into generic
-  Sofia fallback.
+  causes brittle misses such as natural Sofiia hint wording falling into generic
+  Sofiia fallback.
 
 ## Desired System
 
@@ -86,7 +86,7 @@ The backend remains responsible for:
 - enforcing exact final door wording;
 - validating route-specific hard conditions, especially Pixel plus cat sound for
   `code-revealed` and Oleg plus known code for `door-opened`;
-- validating Sofia's no-question, no-event-recap, non-game-master constraints;
+- validating Sofiia's no-question, no-event-recap, non-game-master constraints;
 - falling back to deterministic safe turns when Claude times out, returns invalid
   JSON, chooses an illegal transition, or violates a guardrail.
 
@@ -105,7 +105,7 @@ routing mistakes can reveal puzzle facts early or make the quest unplayable.
 - Refactor quest routing so Claude is the primary semantic router.
 - Keep `quest.ts` as the deterministic fallback and state-rule engine.
 - Make allowed transition cards state-driven rather than fallback-trigger-driven.
-- Add or update backend validators for all progress transitions and Sofia
+- Add or update backend validators for all progress transitions and Sofiia
   non-progress routes.
 - Update prompt shape to include visible characters, character briefs, route
   choices, and current stage context.
@@ -119,17 +119,17 @@ routing mistakes can reveal puzzle facts early or make the quest unplayable.
 - New quest mechanics, new state flags, inventory, scoring, or extra characters.
 - New UI controls, typed input, visible route debugger, or progress dashboard.
 - Changing ElevenLabs provider setup or voice IDs.
-- Changing Sofia's visual design.
+- Changing Sofiia's visual design.
 - Rewriting the whole quest engine into a generic platform.
 - Removing deterministic fallback.
 
 ## Acceptance Criteria
 
 - Claude can route natural turns without relying on exact local hint phrases.
-- Direct Sofia turns can become either `sofia-hint-given` or
+- Direct Sofiia turns can become either `sofia-hint-given` or
   `sofia-conversation-replied` based on meaning, not a hardcoded hint phrase
   list.
-- Unaddressed help does not route to Sofia and does not progress the quest.
+- Unaddressed help does not route to Sofiia and does not progress the quest.
 - Generic greetings and name questions still teach the guard/Oleg path early.
 - Oleg's name is revealed only by `oleg-name-learned`.
 - Pixel's name and exit-panel clue are revealed only by `guard-hint-given`.
@@ -153,7 +153,7 @@ Scope in:
 - add or refine Router-Brain decision types around route, transition, actor,
   reply, and confidence;
 - make state-based allowed transitions the primary list Claude can choose from;
-- identify route-specific backend validators for progress transitions and Sofia
+- identify route-specific backend validators for progress transitions and Sofiia
   routes;
 - preserve existing behavior while reducing dependence on
   `isAllowedSofiaTransitionForTrigger()` and fallback-trigger checks;
@@ -176,7 +176,7 @@ Files or areas likely touched:
 
 Acceptance criteria:
 
-- backend validation responsibilities are explicit and not hidden inside Sofia
+- backend validation responsibilities are explicit and not hidden inside Sofiia
   phrase matching;
 - a Claude decision can be validated primarily by state, transition card, actor,
   and hard safety predicates;
@@ -187,9 +187,9 @@ Validation:
 
 - `npm run typecheck`
 - targeted fake-Claude smoke for allowed and rejected decisions:
-  - Sofia addressed hint;
-  - Sofia addressed conversation;
-  - unaddressed help rejected from Sofia;
+  - Sofiia addressed hint;
+  - Sofiia addressed conversation;
+  - unaddressed help rejected from Sofiia;
   - premature Pixel/code reveal rejected;
   - premature door opening rejected.
 
@@ -223,10 +223,10 @@ Files or areas likely touched:
 Acceptance criteria:
 
 - Claude receives enough context to decide whether the player is addressing
-  Oleg, Pixel, Sofia, the door, the room, or nobody useful;
-- natural Sofia phrases such as `Софія, чи є ідеї`, `Софія, що думаєш`, and
+  Oleg, Pixel, Sofiia, the door, the room, or nobody useful;
+- natural Sofiia phrases such as `Софія, чи є ідеї`, `Софія, що думаєш`, and
   `дівчино, я застряг` route as hints;
-- direct Sofia smalltalk routes as Sofia conversation;
+- direct Sofiia smalltalk routes as Sofiia conversation;
 - Pixel, Oleg, and door routing are selected by Claude semantics but accepted
   only when backend rules allow them;
 - fallback behavior still works if Claude times out or returns invalid JSON.
@@ -240,8 +240,8 @@ Validation:
   - Pixel ordinary request;
   - Pixel purr reveal;
   - Oleg code submission;
-  - Sofia hint;
-  - Sofia conversation;
+  - Sofiia hint;
+  - Sofiia conversation;
   - unaddressed help.
 
 ### Packet 3: Regression Pass and Prompt Tuning
@@ -272,7 +272,7 @@ Files or areas likely touched:
 Acceptance criteria:
 
 - the routing matrix passes for Ukrainian and English examples;
-- Sofia no longer falls into the repeated static fallback for natural addressed
+- Sofiia no longer falls into the repeated static fallback for natural addressed
   hint requests when Claude is available;
 - reveal gates remain blocked under adversarial fake-Claude outputs;
 - status doc names the next unblocked action or marks the initiative complete.
@@ -288,7 +288,7 @@ Validation:
 - Product direction is already accepted in `docs/product/product.md`: the quest
   listens for who the player is speaking to and how they perform the voice
   interaction.
-- Existing Sofia initiative decisions remain authoritative for Sofia's character
+- Existing Sofiia initiative decisions remain authoritative for Sofiia's character
   and constraints.
 - No new provider, UI, or state persistence dependency is required.
 - If Packet 1 expands the durable technical contract beyond the current code, an
@@ -298,7 +298,7 @@ Validation:
 
 - Claude may over-route ambiguous turns to a progress transition. Backend hard
   validators must stay stricter than the prompt.
-- Removing fallback-trigger gating too quickly could allow Sofia, Pixel, or door
+- Removing fallback-trigger gating too quickly could allow Sofiia, Pixel, or door
   routes in places where the current deterministic classifier used to block
   them. Replace each removed gate with an explicit validator or a documented
   acceptance test.
@@ -314,13 +314,13 @@ Validation:
 Dispatch Packet 1 to Executor.
 
 One-line handoff: make the Router-Brain decision and backend validation contract
-explicit, preserving behavior while removing Sofia/fallback-trigger coupling as
+explicit, preserving behavior while removing Sofiia/fallback-trigger coupling as
 the first safe step toward Claude-first routing.
 
 ## Open Questions
 
 - Should `route` become a public response/debug field, or remain internal to
   `quest-brain.ts` while `transitionId` stays the public contract?
-- How much deterministic direct-address validation should remain for Sofia and
+- How much deterministic direct-address validation should remain for Sofiia and
   Oleg after Claude becomes primary router? The recommended starting point is to
   keep only safety-critical validators and remove phrase-list-based hint intent.

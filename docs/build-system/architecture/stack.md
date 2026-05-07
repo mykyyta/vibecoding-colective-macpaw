@@ -70,7 +70,7 @@ npm start
 - `CLAUDE_API_KEY` and `CLAUDE_MODEL` configure server-side Claude text generation.
 - `GEMINI_API_KEY` and `GEMINI_MODEL` configure server-side Gemini text generation and image-generation readiness.
 - `ELEVENLABS_API_KEY` and `ELEVENLABS_TTS_MODEL` configure server-side ElevenLabs direct API calls.
-- ElevenLabs voice IDs for Oleg, Pixel, Sofia, and room/door narration are code constants in `src/server/providers/config.ts`, not deployment environment variables.
+- ElevenLabs voice IDs for Oleg, Pixel, Sofiia, and room/door narration are code constants in `src/server/providers/config.ts`, not deployment environment variables.
 - `ELEVENLABS_MCP_SERVER_URL` is used by the MCP registration helper.
 - `DEMO_API_TOKEN` can protect paid provider endpoints if a demo route is exposed through a public tunnel.
 - DynamoDB configuration belongs in server-side environment variables when a
