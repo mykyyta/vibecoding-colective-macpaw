@@ -83,6 +83,41 @@ Direct provider API calls live under `src/server/providers/` and are called only
 
 The direct ElevenLabs connector is separate from the ElevenLabs MCP registration helper. Use the direct connector when this app calls ElevenLabs APIs. Use MCP registration when an ElevenLabs Conversational AI agent needs to call tools exposed by this project or another MCP server.
 
+## Voice Language Contract
+
+The voice quest supports Ukrainian and English without a visible language
+selector. Language is decided per voice turn and carried through shared
+TypeScript contracts in `src/shared/voice.ts`.
+
+Supported quest languages are:
+
+```ts
+type QuestLanguage = "uk" | "en";
+```
+
+The browser may send provider language metadata with `/api/voice-turn`, but the
+server owns the final `languageDecision` used for quest classification and reply
+generation. The decision should consider, in order:
+
+1. high-confidence ElevenLabs STT metadata for Ukrainian or English;
+2. transcript heuristics when provider metadata is missing;
+3. the last reliable session language for short or ambiguous turns;
+4. Ukrainian as the default when no reliable signal exists.
+
+Short turns such as `Pixel`, `404`, `meow`, `mrr`, `purr`, or `мур` are
+language-ambiguous. They should not switch the reply language unless provider
+confidence is high enough. Use a sticky previous language for these turns when a
+quest session already has one.
+
+ElevenLabs recorded and realtime STT are the primary bilingual paths. Browser
+speech recognition is only a fallback because browser support for automatic
+per-turn Ukrainian/English language detection is inconsistent; fallback may use
+the last reliable language or a conservative default. Do not claim browser STT
+has provider-grade language detection.
+
+Do not store raw voice transcripts for language analytics unless the product
+privacy posture is updated first.
+
 ## Storage Boundary
 
 Persistent product data lives behind Express API routes. The browser sends

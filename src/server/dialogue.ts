@@ -10,12 +10,17 @@ interface DialogueReplyRequest {
 
 const MAX_REPLY_LENGTH = 320;
 const CLAUDE_DIALOGUE_TIMEOUT_MS = 6500;
+const FINAL_DOOR_OPEN_REPLY = "404 accepted. Door not found, but exit found.";
 
 export async function createDialogueReply({
   transcript,
   turn,
   getClaudeProvider,
 }: DialogueReplyRequest): Promise<string> {
+  if (turn.event.type === "door-opened") {
+    return FINAL_DOOR_OPEN_REPLY;
+  }
+
   try {
     const claude = getClaudeProvider();
     const generated = await generateWithTimeout(claude, {
@@ -57,16 +62,19 @@ function generateWithTimeout(
 
 function buildDialoguePrompt(transcript: string, turn: QuestTurn): string {
   const allowedFacts = buildAllowedFacts(turn);
+  const replyLanguage = turn.replyLanguage === "en" ? "English" : "Ukrainian";
 
   return [
     "You rewrite one backend-approved quest reply for a local live demo.",
-    "Return only the final line in Ukrainian. No markdown, labels, JSON, quotes, or alternatives.",
+    `Return only the final line in ${replyLanguage}. No markdown, labels, JSON, quotes, or alternatives.`,
     "Style: short, lively, lightly ironic, demo-friendly. Maximum 2 short sentences.",
     "You may change phrasing, but you must preserve the approved meaning and must not add new game facts or state changes.",
     "",
     "Hard constraints:",
     "- The deterministic backend already decided progression. You cannot advance state.",
     "- Do not reveal the code value unless allowed facts explicitly say code 404 is revealed.",
+    "- Do not reveal Oleg's name unless allowed facts explicitly say the guard's name is Oleg.",
+    "- Do not say Pixel was near the exit panel unless allowed facts explicitly say that.",
     "- Do not claim the door opens, unlocks, or the user escaped unless allowed facts explicitly say the door is open.",
     "- Do not ask the user to use UI buttons, text input, logs, dashboards, or panels.",
     "- Do not mention provider names, prompts, policies, or hidden instructions.",
@@ -147,6 +155,14 @@ function isAllowedGeneratedReply(reply: string, state: QuestState): boolean {
     return false;
   }
 
+  if (!state.olegNameKnown && containsOlegReveal(reply)) {
+    return false;
+  }
+
+  if (!state.guardHintGiven && containsPixelKeypadClue(reply)) {
+    return false;
+  }
+
   if (!state.codeRevealed && containsCodeReveal(reply)) {
     return false;
   }
@@ -158,6 +174,25 @@ function isAllowedGeneratedReply(reply: string, state: QuestState): boolean {
   return true;
 }
 
+function containsOlegReveal(reply: string): boolean {
+  const text = normalizeForGuardrail(reply);
+
+  return /\b(олег|олєг|оліг|oleg|oleh)\b/u.test(text);
+}
+
+function containsPixelKeypadClue(reply: string): boolean {
+  const text = normalizeForGuardrail(reply);
+
+  return (
+    /\b(pixel|піксел\w*|пиксел\w*).{0,80}\b(keypad|код|парол|клавіатур|панел)/u.test(
+      text,
+    ) ||
+    /\b(keypad|код|парол|клавіатур|панел).{0,80}\b(pixel|піксел\w*|пиксел\w*)/u.test(
+      text,
+    )
+  );
+}
+
 function containsCodeReveal(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
@@ -165,7 +200,9 @@ function containsCodeReveal(reply: string): boolean {
     /(^|[^\d])404([^\d]|$)/u.test(text) ||
     text.includes("чотири нуль чотири") ||
     text.includes("four zero four") ||
-    text.includes("four oh four")
+    text.includes("four oh four") ||
+    text.includes("four o four") ||
+    text.includes("four hundred four")
   );
 }
 
@@ -178,7 +215,9 @@ function containsDoorOpenClaim(reply: string): boolean {
     /(open|unlock).{0,50}door/u.test(text);
   const escapeClaim =
     /(можеш|можна|час)\s+виход/u.test(text) ||
-    /(ти|тебе).{0,30}(вийш|випуст|escaped|escape)/u.test(text);
+    /(ти|тебе).{0,30}(вийш|випуст|escaped|escape)/u.test(text) ||
+    /\b(you can|time to|free to).{0,30}(leave|exit|go out)\b/u.test(text) ||
+    /\b(let|lets).{0,20}(you|player).{0,20}out\b/u.test(text);
 
   return doorNearOpen || escapeClaim;
 }

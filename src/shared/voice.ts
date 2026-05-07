@@ -8,6 +8,46 @@ export type VoiceAction =
 
 export type QuestActor = "system" | "guard" | "pixel" | "door";
 
+export type QuestLanguage = "uk" | "en";
+
+export type QuestLanguageSource =
+  | "elevenlabs"
+  | "browser-speech"
+  | "heuristic"
+  | "sticky"
+  | "default";
+
+export interface QuestLanguageInput {
+  language?: QuestLanguage;
+  confidence?: number;
+  providerLanguageCode?: string;
+  source?: QuestLanguageSource;
+}
+
+export interface QuestLanguageDecision {
+  language: QuestLanguage;
+  source: QuestLanguageSource;
+  confidence?: number;
+  providerLanguageCode?: string;
+  ambiguous: boolean;
+}
+
+export function mapProviderLanguageCodeToQuestLanguage(
+  providerLanguageCode: string,
+): QuestLanguage | undefined {
+  const normalized = providerLanguageCode.trim().toLowerCase().replace("_", "-");
+
+  if (normalized === "uk" || normalized === "ukr" || normalized.startsWith("uk-")) {
+    return "uk";
+  }
+
+  if (normalized === "en" || normalized === "eng" || normalized.startsWith("en-")) {
+    return "en";
+  }
+
+  return undefined;
+}
+
 export type QuestTriggerType =
   | "generic-door-command"
   | "ask-guard-name"
@@ -54,10 +94,13 @@ export interface VoiceTurnRequest {
   transcript: string;
   questState?: Partial<QuestState>;
   questSessionId?: string;
+  language?: QuestLanguageInput;
+  previousLanguage?: QuestLanguage;
 }
 
 export interface VoiceTurnResponse {
   transcript: string;
+  languageDecision: QuestLanguageDecision;
   reply: string;
   action: VoiceAction;
   actor: QuestActor;
@@ -93,4 +136,5 @@ export interface RealtimeSttSessionResponse {
 export interface RecordedSttResponse {
   provider: "elevenlabs";
   text: string;
+  language?: QuestLanguageInput;
 }

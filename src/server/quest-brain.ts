@@ -1,4 +1,4 @@
-import type { QuestActor, QuestState } from "../shared/voice.js";
+import type { QuestActor, QuestLanguage, QuestState } from "../shared/voice.js";
 import type { TextGenerationProvider } from "./providers/contracts.js";
 import {
   createQuestTurn,
@@ -13,6 +13,7 @@ import {
 interface QuestBrainRequest {
   transcript: string;
   questState: Partial<QuestState>;
+  replyLanguage?: QuestLanguage;
   getClaudeProvider: () => TextGenerationProvider;
 }
 
@@ -32,6 +33,7 @@ interface QuestPromptTransition {
 
 const CLAUDE_QUEST_TIMEOUT_MS = 7000;
 const MAX_REPLY_LENGTH = 320;
+const FINAL_DOOR_OPEN_REPLY = "404 accepted. Door not found, but exit found.";
 
 const TRANSITION_IDS: QuestTransitionId[] = [
   "no-progress",
@@ -48,12 +50,17 @@ const ACTORS: QuestActor[] = ["system", "guard", "pixel", "door"];
 export async function createQuestBrainTurn({
   transcript,
   questState,
+  replyLanguage = "uk",
   getClaudeProvider,
 }: QuestBrainRequest): Promise<QuestTurn> {
   const normalizedQuestState = normalizeQuestState(questState);
-  const fallbackTurn = createQuestTurn(transcript, normalizedQuestState);
+  const fallbackTurn = createQuestTurn(
+    transcript,
+    normalizedQuestState,
+    replyLanguage,
+  );
   const allowedTransitions = applyTranscriptActorHints(
-    getAllowedQuestTransitions(normalizedQuestState),
+    getAllowedQuestTransitions(normalizedQuestState, replyLanguage),
     fallbackTurn,
   );
 
@@ -64,6 +71,7 @@ export async function createQuestBrainTurn({
         transcript,
         questState: normalizedQuestState,
         allowedTransitions,
+        replyLanguage,
       }),
       maxTokens: 220,
       temperature: 0.68,
@@ -90,7 +98,15 @@ export async function createQuestBrainTurn({
       transitionId: decision.transitionId,
       actor: decision.actor,
       reply: decision.reply,
+      replyLanguage,
     });
+
+    if (
+      turn.event.type === "door-opened" &&
+      turn.reply !== FINAL_DOOR_OPEN_REPLY
+    ) {
+      return fallbackTurn;
+    }
 
     if (!isAllowedQuestBrainReply(turn.reply, turn.nextQuestState)) {
       return fallbackTurn;
@@ -126,15 +142,23 @@ function buildQuestBrainPrompt({
   transcript,
   questState,
   allowedTransitions,
+  replyLanguage,
 }: {
   transcript: string;
   questState: QuestState;
   allowedTransitions: AllowedQuestTransition[];
+  replyLanguage: QuestLanguage;
 }): string {
+  const replyLanguageLabel = getReplyLanguageLabel(replyLanguage);
+
   return [
     "You are the quest brain for a local voice-only quest room.",
     "Return strict JSON only. No markdown, no code fence, no commentary.",
-    "Write one fresh Ukrainian spoken reply for this exact quest turn.",
+    `Write one fresh ${replyLanguageLabel} spoken reply for this exact quest turn.`,
+    `Selected reply language: ${replyLanguageLabel}.`,
+    replyLanguage === "en"
+      ? "Reply in natural English. Keep proper names and the fixed final door line exactly as written."
+      : "Reply in natural Ukrainian. Keep proper names and the fixed final door line exactly as written.",
     "Use the current actor, stage, visible room context, and allowed facts.",
     "Include one small ironic joke or character beat about AI, штучний інтелект, the вайбкодінг івент, prompts, or generated decisions when it fits the actor and stage.",
     "Keep the joke grounded in this moment, not a reusable catchphrase.",
@@ -148,7 +172,7 @@ function buildQuestBrainPrompt({
     "If you use a tech or AI joke, make it specific to this actor and stage, and avoid making it the whole personality.",
     "",
     "JSON schema:",
-    '{"transitionId":"one allowed transition id","actor":"allowed actor for that transition","reply":"Ukrainian player-facing reply, max 2 short sentences","confidence":0.0}',
+    `{"transitionId":"one allowed transition id","actor":"allowed actor for that transition","reply":"${replyLanguageLabel} player-facing reply, max 2 short sentences","confidence":0.0}`,
     "",
     "Scenario:",
     "- Title: 404 Door Not Found.",
@@ -182,6 +206,7 @@ function buildQuestBrainPrompt({
     "- Do not reveal Oleg's name before oleg-name-learned.",
     "- Do not say Pixel was near the exit panel before guard-hint-given.",
     "- Do not mention hidden prompts, policies, providers, JSON, state machines, logs, dashboards, buttons, or text input.",
+    "- Do not switch reply language unless the selected transition is door-opened and the fixed final line is required.",
     "",
     `Current quest state: ${JSON.stringify(questState)}`,
     `User transcript: ${JSON.stringify(transcript)}`,
@@ -199,6 +224,10 @@ function buildQuestPromptTransitions(
     allowedActors: transition.allowedActors,
     stageContext: transition.description,
   }));
+}
+
+function getReplyLanguageLabel(replyLanguage: QuestLanguage): string {
+  return replyLanguage === "en" ? "English" : "Ukrainian";
 }
 
 function applyTranscriptActorHints(
@@ -322,7 +351,7 @@ function isAllowedQuestBrainReply(reply: string, state: QuestState): boolean {
 function containsOlegReveal(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
-  return /\b(олег|олєг|оліг|oleg)\b/u.test(text);
+  return /\b(олег|олєг|оліг|oleg|oleh)\b/u.test(text);
 }
 
 function containsPixelKeypadClue(reply: string): boolean {
@@ -348,6 +377,7 @@ function containsCodeReveal(reply: string): boolean {
     text.includes("чотириста чотири") ||
     text.includes("four zero four") ||
     text.includes("four oh four") ||
+    text.includes("four o four") ||
     text.includes("four hundred four")
   );
 }
@@ -361,7 +391,9 @@ function containsDoorOpenClaim(reply: string): boolean {
     /(open|unlock).{0,50}door/u.test(text);
   const escapeClaim =
     /(можеш|можна|час)\s+виход/u.test(text) ||
-    /(ти|тебе).{0,30}(вийш|випуст|escaped|escape)/u.test(text);
+    /(ти|тебе).{0,30}(вийш|випуст|escaped|escape)/u.test(text) ||
+    /\b(you can|time to|free to).{0,30}(leave|exit|go out)\b/u.test(text) ||
+    /\b(let|lets).{0,20}(you|player).{0,20}out\b/u.test(text);
 
   return doorNearOpen || escapeClaim;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent } from "react";
+import { mapProviderLanguageCodeToQuestLanguage } from "../shared/voice";
 import type {
   CreateLeaderboardEntryResponse,
   LeaderboardCompletionMetrics,
@@ -8,6 +9,9 @@ import type {
 } from "../shared/leaderboard";
 import type {
   QuestActor,
+  QuestLanguage,
+  QuestLanguageDecision,
+  QuestLanguageInput,
   QuestState,
   RealtimeSttCapabilityResponse,
   RealtimeSttSessionResponse,
@@ -77,6 +81,8 @@ interface ElevenLabsRealtimeEvent {
   text?: string;
   message?: string;
   error?: string;
+  language_code?: string;
+  language_probability?: number;
 }
 
 interface RealtimeSpeechRecognizer {
@@ -124,6 +130,135 @@ const SILENT_REPLY_AUDIO_DATA_URL =
   "data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQIAAAAAAA==";
 const PURR_MARKER_PATTERN =
   /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/giu;
+const DEFAULT_QUEST_LANGUAGE: QuestLanguage = "uk";
+const BROWSER_RECOGNITION_LANGUAGE: Record<QuestLanguage, string> = {
+  uk: "uk-UA",
+  en: "en-US",
+};
+
+interface VoiceCopy {
+  microphoneName: string;
+  roomName: string;
+  playerName: string;
+  guardName: string;
+  doorName: string;
+  listening: string;
+  holdLonger: string;
+  thinking: string;
+  notUnderstood: string;
+  elevenLabsRetryBrowser: string;
+  elevenLabsRetryMicrophone: string;
+  browserUnavailableReadout: string;
+  browserUnavailableBubble: string;
+  microphoneBlocked: string;
+  speechNotRecognized: string;
+  questServerUnavailable: string;
+  micSpeaking: string;
+  micBusy: string;
+  micReady: string;
+  micUnavailable: string;
+  micAudioHint: string;
+  micWaitAria: string;
+  micPressAria: string;
+  hintAria: string;
+  restart: string;
+  leaderboardSubmitted: string;
+  ambientListening: string;
+  ambientDoorOpening: string;
+  ambientEscaped: string;
+  ambientCodeRevealed: string;
+  ambientPixelAddressed: string;
+  ambientGuardHintGiven: string;
+  ambientOlegKnown: string;
+  ambientInitial: string;
+}
+
+const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
+  uk: {
+    microphoneName: "Мікрофон",
+    roomName: "Кімната",
+    playerName: "Ти",
+    guardName: "Охоронець",
+    doorName: "Двері",
+    listening: "Слухаю.",
+    holdLonger: "Потримай кнопку трохи довше і скажи фразу ще раз.",
+    thinking: "Думаю, що ти сказав.",
+    notUnderstood: "Не розібрав. Утримай кнопку і скажи ще раз.",
+    elevenLabsRetryBrowser:
+      "ElevenLabs не розшифрував. Спробуй ще раз: наступна спроба піде через браузер.",
+    elevenLabsRetryMicrophone:
+      "ElevenLabs не розшифрував. Перевір мікрофон і спробуй ще раз.",
+    browserUnavailableReadout:
+      "Цей браузер не дав голос. Відкрий http://localhost:3000 у Chrome або Safari і дозволь мікрофон.",
+    browserUnavailableBubble:
+      "Цей браузер не дав голос. Відкрий демо в Chrome або Safari і дозволь мікрофон.",
+    microphoneBlocked:
+      "Мікрофон заблоковано. Дозволь доступ у браузері або відкрий демо в Chrome/Safari.",
+    speechNotRecognized: "Голос не розпізнано.",
+    questServerUnavailable:
+      "Сервер квесту не відповів. Спробуй ще раз, коли локальний API піднятий.",
+    micSpeaking: "Говори",
+    micBusy: "Чекай...",
+    micReady: "Натисни, щоб говорити",
+    micUnavailable: "Мікрофон заблоковано",
+    micAudioHint: "звук не на вібро",
+    micWaitAria: "Зачекай",
+    micPressAria: "Натисни, щоб говорити",
+    hintAria: "Показати підказку",
+    restart: "Нова спроба",
+    leaderboardSubmitted: "Записано. Ти вийшов з кімнати офіційно.",
+    ambientListening: "утримуй, говори, відпусти",
+    ambientDoorOpening: "EXIT resolved",
+    ambientEscaped: "EXIT accepted",
+    ambientCodeRevealed: "Олег чекає код",
+    ambientPixelAddressed: "Pixel любить лагідне мур-мур",
+    ambientGuardHintGiven: "Pixel сидів біля keypad",
+    ambientOlegKnown: "Олег реагує на своє ім'я",
+    ambientInitial: "спитай, як звуть охоронця",
+  },
+  en: {
+    microphoneName: "Microphone",
+    roomName: "Room",
+    playerName: "You",
+    guardName: "Guard",
+    doorName: "Door",
+    listening: "Listening.",
+    holdLonger: "Hold the button a little longer and say the phrase again.",
+    thinking: "Working out what you said.",
+    notUnderstood: "I did not catch that. Hold the button and try again.",
+    elevenLabsRetryBrowser:
+      "ElevenLabs could not transcribe that. Try again: the next attempt will use browser speech.",
+    elevenLabsRetryMicrophone:
+      "ElevenLabs could not transcribe that. Check the microphone and try again.",
+    browserUnavailableReadout:
+      "This browser did not provide voice input. Open http://localhost:3000 in Chrome or Safari and allow the microphone.",
+    browserUnavailableBubble:
+      "This browser did not provide voice input. Open the demo in Chrome or Safari and allow the microphone.",
+    microphoneBlocked:
+      "Microphone blocked. Allow browser access or open the demo in Chrome/Safari.",
+    speechNotRecognized: "Voice was not recognized.",
+    questServerUnavailable:
+      "The quest server did not answer. Try again when the local API is running.",
+    micSpeaking: "Speak",
+    micBusy: "Wait...",
+    micReady: "Hold to speak",
+    micUnavailable: "Mic blocked",
+    micAudioHint: "sound on",
+    micWaitAria: "Wait",
+    micPressAria: "Press to talk",
+    hintAria: "Show hint",
+    restart: "Restart",
+    leaderboardSubmitted: "Saved. You escaped the room officially.",
+    ambientListening: "hold, speak, release",
+    ambientDoorOpening: "EXIT resolved",
+    ambientEscaped: "EXIT accepted",
+    ambientCodeRevealed: "Oleg is waiting for the code",
+    ambientPixelAddressed: "Pixel likes a gentle purr",
+    ambientGuardHintGiven: "Pixel sat near the keypad",
+    ambientOlegKnown: "Oleg responds to his name",
+    ambientInitial: "ask the guard for his name",
+  },
+};
 
 export function App() {
   const [roomState, setRoomState] = useState<RoomState>("idle");
@@ -146,6 +281,9 @@ export function App() {
   const [leaderboardSubmitting, setLeaderboardSubmitting] = useState(false);
   const [submittedLeaderboardEntryId, setSubmittedLeaderboardEntryId] =
     useState<string | null>(null);
+  const [voiceLanguage, setVoiceLanguage] = useState<QuestLanguage>(
+    DEFAULT_QUEST_LANGUAGE,
+  );
   const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const realtimeRecognitionRef = useRef<RealtimeSpeechRecognizer | null>(null);
   const recordedRecognitionRef = useRef<RecordedSpeechRecognizer | null>(null);
@@ -154,6 +292,9 @@ export function App() {
   const escapeTimerRef = useRef<number | null>(null);
   const questStateRef = useRef<QuestState>(initialQuestState);
   const questSessionIdRef = useRef<string | null>(null);
+  const previousLanguageRef = useRef<QuestLanguage | null>(null);
+  const voiceLanguageRef = useRef<QuestLanguage>(DEFAULT_QUEST_LANGUAGE);
+  const browserFallbackLanguageRef = useRef<QuestLanguage>(DEFAULT_QUEST_LANGUAGE);
   const turnIdRef = useRef(0);
   const wantsListeningRef = useRef(false);
   const listenAttemptRef = useRef(0);
@@ -205,6 +346,15 @@ export function App() {
 
   }
 
+  function setVoiceLanguageSafely(language: QuestLanguage) {
+    voiceLanguageRef.current = language;
+    setVoiceLanguage(language);
+  }
+
+  function getCurrentVoiceCopy() {
+    return VOICE_COPY[voiceLanguageRef.current];
+  }
+
   function scheduleEscapedState(delayMs = ESCAPE_REWARD_DELAY_MS) {
     if (escapeTimerRef.current !== null) {
       window.clearTimeout(escapeTimerRef.current);
@@ -231,11 +381,12 @@ export function App() {
     realtimeRecognitionRef.current?.abort();
     recognitionRef.current?.abort();
     previousStateRef.current = roomState === "listening" ? "idle" : roomState;
+    const copy = getCurrentVoiceCopy();
     setInterimTranscript("");
     setBubble({
       actor: "room",
-      name: "Мікрофон",
-      text: "Слухаю.",
+      name: copy.microphoneName,
+      text: copy.listening,
     });
     setRoomState("listening");
 
@@ -317,11 +468,12 @@ export function App() {
     recorder.start();
 
     setSpeechAvailable(true);
+    const copy = getCurrentVoiceCopy();
     setInterimTranscript("");
     setBubble({
       actor: "room",
-      name: "Мікрофон",
-      text: "Слухаю.",
+      name: copy.microphoneName,
+      text: copy.listening,
     });
     setRoomState("listening");
 
@@ -349,8 +501,8 @@ export function App() {
         setRoomState(previousStateRef.current);
         setBubble({
           actor: "room",
-          name: "Мікрофон",
-          text: "Потримай кнопку трохи довше і скажи фразу ще раз.",
+          name: copy.microphoneName,
+          text: copy.holdLonger,
         });
         return;
       }
@@ -368,8 +520,8 @@ export function App() {
         setRoomState(previousStateRef.current);
         setBubble({
           actor: "room",
-          name: "Мікрофон",
-          text: "Потримай кнопку трохи довше і скажи фразу ще раз.",
+          name: copy.microphoneName,
+          text: copy.holdLonger,
         });
         return;
       }
@@ -378,8 +530,8 @@ export function App() {
       setVoiceBusy(true);
       setBubble({
         actor: "room",
-        name: "Мікрофон",
-        text: "Думаю, що ти сказав.",
+        name: copy.microphoneName,
+        text: copy.thinking,
       });
 
       try {
@@ -390,14 +542,14 @@ export function App() {
           setRoomState(previousStateRef.current);
           setBubble({
             actor: "room",
-            name: "Мікрофон",
-            text: "Не розібрав. Утримай кнопку і скажи ще раз.",
+            name: copy.microphoneName,
+            text: copy.notUnderstood,
           });
           return;
         }
 
         observePurrMarkers("elevenlabs-recorded", "committed", transcription.text);
-        await applyTranscript(transcription.text);
+        await applyTranscript(transcription.text, transcription.language);
       } catch (error) {
         console.info("[elevenlabs-stt] Recorded transcription failed.", {
           error: error instanceof Error ? error.message : String(error),
@@ -410,10 +562,10 @@ export function App() {
         setRoomState(previousStateRef.current);
         setBubble({
           actor: "room",
-          name: "Мікрофон",
+          name: copy.microphoneName,
           text: getSpeechRecognitionConstructor()
-            ? "ElevenLabs не розшифрував. Спробуй ще раз: наступна спроба піде через браузер."
-            : "ElevenLabs не розшифрував. Перевір мікрофон і спробуй ще раз.",
+            ? copy.elevenLabsRetryBrowser
+            : copy.elevenLabsRetryMicrophone,
         });
       }
     };
@@ -430,6 +582,7 @@ export function App() {
 
   function startBrowserSpeechRecognition() {
     const SpeechRecognition = getSpeechRecognitionConstructor();
+    const copy = getCurrentVoiceCopy();
 
     if (!wantsListeningRef.current) {
       return;
@@ -438,11 +591,11 @@ export function App() {
     if (!SpeechRecognition) {
       setSpeechAvailable(false);
       setRoomState("listening");
-      setReadout("Цей браузер не дав голос. Відкрий http://localhost:3000 у Chrome або Safari і дозволь мікрофон.");
+      setReadout(copy.browserUnavailableReadout);
       setBubble({
         actor: "room",
-        name: "Мікрофон",
-        text: "Цей браузер не дав голос. Відкрий демо в Chrome або Safari і дозволь мікрофон.",
+        name: copy.microphoneName,
+        text: copy.browserUnavailableBubble,
       });
       return;
     }
@@ -450,9 +603,13 @@ export function App() {
     recognitionRef.current?.abort();
 
     const recognition = new SpeechRecognition();
-    recognition.lang = "uk-UA";
+    recognition.lang = BROWSER_RECOGNITION_LANGUAGE[browserFallbackLanguageRef.current];
     recognition.continuous = false;
     recognition.interimResults = true;
+    const browserLanguage = createLanguageInput({
+      source: "browser-speech",
+      providerLanguageCode: recognition.lang,
+    });
     let submittedFinalTranscript = false;
 
     recognition.onstart = () => {
@@ -464,8 +621,8 @@ export function App() {
       setInterimTranscript("");
       setBubble({
         actor: "room",
-        name: "Мікрофон",
-        text: "Слухаю.",
+        name: copy.microphoneName,
+        text: copy.listening,
       });
       setRoomState("listening");
     };
@@ -490,7 +647,7 @@ export function App() {
       if (finalTranscript) {
         submittedFinalTranscript = true;
         observePurrMarkers("browser-speech", "committed", finalTranscript);
-        void applyTranscript(finalTranscript);
+        void applyTranscript(finalTranscript, browserLanguage);
       }
     };
 
@@ -502,13 +659,13 @@ export function App() {
       setRoomState(previousStateRef.current);
       const message =
         event.error === "not-allowed"
-          ? "Мікрофон заблоковано. Дозволь доступ у браузері або відкрий демо в Chrome/Safari."
-          : "Голос не розпізнано.";
+          ? copy.microphoneBlocked
+          : copy.speechNotRecognized;
 
       setReadout(message);
       setBubble({
         actor: "room",
-        name: "Мікрофон",
+        name: copy.microphoneName,
         text: message,
       });
     };
@@ -541,12 +698,13 @@ export function App() {
           return;
         }
 
+        const copy = getCurrentVoiceCopy();
         setSpeechAvailable(true);
         setInterimTranscript("");
         setBubble({
           actor: "room",
-          name: "Мікрофон",
-          text: "Слухаю.",
+          name: copy.microphoneName,
+          text: copy.listening,
         });
         setRoomState("listening");
       },
@@ -558,14 +716,14 @@ export function App() {
         setInterimTranscript(transcript);
         observePurrMarkers("elevenlabs", "partial", transcript);
       },
-      onCommittedTranscript(transcript) {
+      onCommittedTranscript(transcript, language) {
         if (!wantsListeningRef.current) {
           return;
         }
 
         setInterimTranscript(transcript);
         observePurrMarkers("elevenlabs", "committed", transcript);
-        void applyTranscript(transcript);
+        void applyTranscript(transcript, language);
       },
       onError(error) {
         console.info("[elevenlabs-stt] Realtime session ended with an error.", {
@@ -636,6 +794,9 @@ export function App() {
     setVoiceBusy(false);
     setBubble(null);
     setQuestSessionId(null);
+    previousLanguageRef.current = null;
+    browserFallbackLanguageRef.current = DEFAULT_QUEST_LANGUAGE;
+    setVoiceLanguageSafely(DEFAULT_QUEST_LANGUAGE);
     setLeaderboardCompletionToken(null);
     setLeaderboardCompletionMetrics(null);
     setLeaderboardOpen(false);
@@ -647,7 +808,10 @@ export function App() {
     setSubmittedLeaderboardEntryId(null);
   }
 
-  async function applyTranscript(transcript: string) {
+  async function applyTranscript(
+    transcript: string,
+    language?: QuestLanguageInput,
+  ) {
     const cleanedTranscript = transcript.trim();
 
     if (!cleanedTranscript) {
@@ -663,7 +827,7 @@ export function App() {
     setReadout(cleanedTranscript);
     setBubble({
       actor: "room",
-      name: "Ти",
+      name: getCurrentVoiceCopy().playerName,
       text: cleanedTranscript,
     });
 
@@ -672,6 +836,8 @@ export function App() {
         cleanedTranscript,
         questStateBeforeTurn,
         questSessionIdRef.current,
+        language,
+        previousLanguageRef.current,
       );
 
       if (turnId !== turnIdRef.current) {
@@ -681,6 +847,13 @@ export function App() {
       if (response.questSessionId) {
         questSessionIdRef.current = response.questSessionId;
         setQuestSessionId(response.questSessionId);
+      }
+
+      previousLanguageRef.current = response.languageDecision.language;
+      setVoiceLanguageSafely(response.languageDecision.language);
+
+      if (isReliableLanguageDecision(response.languageDecision)) {
+        browserFallbackLanguageRef.current = response.languageDecision.language;
       }
 
       if (response.leaderboardCompletion) {
@@ -699,6 +872,7 @@ export function App() {
         response.actor,
         response.reply,
         response.nextQuestState,
+        response.languageDecision.language,
       );
 
       setReadout(response.reply);
@@ -720,17 +894,17 @@ export function App() {
         return;
       }
 
-      const message =
-        "Сервер квесту не відповів. Спробуй ще раз, коли локальний API піднятий.";
+      const copy = getCurrentVoiceCopy();
+      const message = copy.questServerUnavailable;
 
       setRoomStateSafely(mapQuestStateToRoomState(questStateBeforeTurn));
       setReadout(message);
       setBubble({
         actor: "room",
-        name: "Кімната",
+        name: copy.roomName,
         text: message,
       });
-      void speakWithBrowser(message, "system");
+      void speakWithBrowser(message, "system", voiceLanguageRef.current);
     } finally {
       if (turnId === turnIdRef.current) {
         setVoiceBusy(false);
@@ -774,7 +948,7 @@ export function App() {
 
       setSubmittedLeaderboardEntryId(result.entry.entryId);
       setLeaderboardEntries(result.leaderboard.entries);
-      setLeaderboardMessage("Записано. Ти вийшов з кімнати офіційно.");
+      setLeaderboardMessage(getCurrentVoiceCopy().leaderboardSubmitted);
     } catch (error) {
       setLeaderboardMessage(getFriendlyLeaderboardError(error));
     } finally {
@@ -809,15 +983,21 @@ export function App() {
         }}
         questState={questState}
         roomState={roomState}
+        voiceLanguage={voiceLanguage}
       />
       <SceneMic
         isListening={isListening}
         isBusy={voiceBusy}
         speechAvailable={speechAvailable}
+        voiceLanguage={voiceLanguage}
         onStart={startListening}
         onStop={stopListening}
       />
-      <RestartButton disabled={isListening || voiceBusy} onRestart={restartQuest} />
+      <RestartButton
+        disabled={isListening || voiceBusy}
+        voiceLanguage={voiceLanguage}
+        onRestart={restartQuest}
+      />
     </main>
   );
 }
@@ -827,11 +1007,13 @@ function RoomScene({
   leaderboard,
   questState,
   roomState,
+  voiceLanguage,
 }: {
   bubble: SceneBubbleContent | null;
   leaderboard: LeaderboardScreenProps;
   questState: QuestState;
   roomState: RoomState;
+  voiceLanguage: QuestLanguage;
 }) {
   const doorOpen = roomState === "doorOpening" || roomState === "escaped";
   const pixelMood =
@@ -881,7 +1063,11 @@ function RoomScene({
         <span className="stage-label">MacPaw Space</span>
         <LeaderboardScreen {...leaderboard} />
       </div>
-      <AmbientHint questState={questState} roomState={roomState} />
+      <AmbientHint
+        questState={questState}
+        roomState={roomState}
+        voiceLanguage={voiceLanguage}
+      />
 
       <div className="back-signage" aria-hidden="true">
         <span>Exit MacPaw Space</span>
@@ -922,7 +1108,11 @@ function RoomScene({
       <Character actor="pixel" mood={pixelMood} roomState={roomState} />
 
       <FinalFireworks />
-      <SceneBubble bubble={bubble} roomState={roomState} />
+      <SceneBubble
+        bubble={bubble}
+        roomState={roomState}
+        voiceLanguage={voiceLanguage}
+      />
     </section>
   );
 }
@@ -942,15 +1132,18 @@ function FinalFireworks() {
 function AmbientHint({
   questState,
   roomState,
+  voiceLanguage,
 }: {
   questState: QuestState;
   roomState: RoomState;
+  voiceLanguage: QuestLanguage;
 }) {
-  const hint = getAmbientHint(questState, roomState);
+  const copy = VOICE_COPY[voiceLanguage];
+  const hint = getAmbientHint(questState, roomState, voiceLanguage);
 
   return (
     <details className="ambient-hint" key={hint}>
-      <summary className="ambient-hint__button" aria-label="Показати підказку">
+      <summary className="ambient-hint__button" aria-label={copy.hintAria}>
         ?
       </summary>
       <span className="ambient-hint__text" aria-live="polite">
@@ -1010,11 +1203,13 @@ function Character({
 function SceneBubble({
   bubble,
   roomState,
+  voiceLanguage,
 }: {
   bubble: SceneBubbleContent | null;
   roomState: RoomState;
+  voiceLanguage: QuestLanguage;
 }) {
-  const content = bubble ?? getListeningBubble(roomState);
+  const content = bubble ?? getListeningBubble(roomState, voiceLanguage);
 
   if (!content) {
     return null;
@@ -1032,25 +1227,28 @@ function SceneMic({
   isListening,
   isBusy,
   speechAvailable,
+  voiceLanguage,
   onStart,
   onStop,
 }: {
   isListening: boolean;
   isBusy: boolean;
   speechAvailable: boolean;
+  voiceLanguage: QuestLanguage;
   onStart: () => void;
   onStop: () => void;
 }) {
   const activePointerIdRef = useRef<number | null>(null);
   const keyboardHoldActiveRef = useRef(false);
+  const copy = VOICE_COPY[voiceLanguage];
   const prompt =
     isListening
-      ? "Говори"
+      ? copy.micSpeaking
       : isBusy
-      ? "Чекай..."
+      ? copy.micBusy
       : speechAvailable
-        ? "Натисни, щоб говорити"
-        : "Мікрофон заблоковано";
+        ? copy.micReady
+        : copy.micUnavailable;
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
     if (
@@ -1144,13 +1342,13 @@ function SceneMic({
       onPointerCancel={handlePointerCancel}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      aria-label={isListening || isBusy ? "Wait" : "Press to talk"}
+      aria-label={isListening || isBusy ? copy.micWaitAria : copy.micPressAria}
       disabled={isBusy && !isListening}
     >
       <span className="scene-mic-icon" aria-hidden="true" />
       <span className="scene-mic-text">
         <span className="scene-mic-copy">{prompt}</span>
-        <span className="scene-mic-hint">звук не на вібро</span>
+        <span className="scene-mic-hint">{copy.micAudioHint}</span>
       </span>
     </button>
   );
@@ -1158,20 +1356,24 @@ function SceneMic({
 
 function RestartButton({
   disabled,
+  voiceLanguage,
   onRestart,
 }: {
   disabled: boolean;
+  voiceLanguage: QuestLanguage;
   onRestart: () => void;
 }) {
+  const copy = VOICE_COPY[voiceLanguage];
+
   return (
     <button
       className="restart-quest"
       type="button"
       disabled={disabled}
       onClick={onRestart}
-      aria-label="Нова спроба"
+      aria-label={copy.restart}
     >
-      Нова спроба
+      {copy.restart}
     </button>
   );
 }
@@ -1180,6 +1382,8 @@ async function requestVoiceTurn(
   transcript: string,
   questState: QuestState,
   questSessionId: string | null,
+  language?: QuestLanguageInput,
+  previousLanguage?: QuestLanguage | null,
 ): Promise<VoiceTurnResponse> {
   const response = await fetch("/api/voice-turn", {
     method: "POST",
@@ -1190,6 +1394,8 @@ async function requestVoiceTurn(
       transcript,
       questState,
       questSessionId: questSessionId ?? undefined,
+      language,
+      previousLanguage: previousLanguage ?? undefined,
     }),
   });
 
@@ -1520,7 +1726,10 @@ function startElevenLabsRealtimeRecognition({
 }: {
   onStart: () => void;
   onPartialTranscript: (transcript: string) => void;
-  onCommittedTranscript: (transcript: string) => void;
+  onCommittedTranscript: (
+    transcript: string,
+    language?: QuestLanguageInput,
+  ) => void;
   onError: (error: string) => void;
   onEnd: () => void;
 }): Promise<RealtimeSpeechRecognizer> {
@@ -1631,6 +1840,7 @@ function startElevenLabsRealtimeRecognition({
 
         const eventType = payload.message_type ?? payload.type;
         const transcript = typeof payload.text === "string" ? payload.text.trim() : "";
+        const language = createElevenLabsRealtimeLanguageInput(payload);
 
         if (eventType === "partial_transcript" && transcript) {
           onPartialTranscript(transcript);
@@ -1642,7 +1852,7 @@ function startElevenLabsRealtimeRecognition({
             eventType === "committed_transcript_with_timestamps") &&
           transcript
         ) {
-          onCommittedTranscript(transcript);
+          onCommittedTranscript(transcript, language);
           return;
         }
 
@@ -1718,12 +1928,15 @@ function getBubbleForVoiceTurn(
   actor: QuestActor,
   reply: string,
   questState: QuestState,
+  language: QuestLanguage,
 ): SceneBubbleContent {
+  const copy = VOICE_COPY[language];
+
   switch (actor) {
     case "guard":
       return {
         actor: "guard",
-        name: questState.olegNameKnown ? "Олег" : "Охоронець",
+        name: questState.olegNameKnown ? "Олег" : copy.guardName,
         text: reply,
       };
     case "pixel":
@@ -1735,72 +1948,91 @@ function getBubbleForVoiceTurn(
     case "door":
       return {
         actor: "guard",
-        name: "Двері",
+        name: copy.doorName,
         text: reply,
       };
     case "system":
       return {
         actor: "room",
-        name: "Кімната",
+        name: copy.roomName,
         text: reply,
       };
   }
 }
 
-function getListeningBubble(state: RoomState): SceneBubbleContent | null {
+function getListeningBubble(
+  state: RoomState,
+  language: QuestLanguage,
+): SceneBubbleContent | null {
   if (state === "listening") {
+    const copy = VOICE_COPY[language];
+
     return {
       actor: "room",
-      name: "Мікрофон",
-      text: "Слухаю.",
+      name: copy.microphoneName,
+      text: copy.listening,
     };
   }
 
   return null;
 }
 
-function getAmbientHint(questState: QuestState, roomState: RoomState): string {
+function getAmbientHint(
+  questState: QuestState,
+  roomState: RoomState,
+  language: QuestLanguage,
+): string {
+  const copy = VOICE_COPY[language];
+
   if (roomState === "listening") {
-    return "утримуй, говори, відпусти";
+    return copy.ambientListening;
   }
 
   if (roomState === "doorOpening") {
-    return "EXIT resolved";
+    return copy.ambientDoorOpening;
   }
 
   if (questState.escaped || questState.doorOpen) {
-    return "EXIT accepted";
+    return copy.ambientEscaped;
   }
 
   if (questState.codeRevealed) {
-    return "Олег чекає код";
+    return copy.ambientCodeRevealed;
   }
 
   if (questState.pixelAddressed) {
-    return "Pixel любить лагідне мур-мур";
+    return copy.ambientPixelAddressed;
   }
 
   if (questState.guardHintGiven) {
-    return "Pixel сидів біля keypad";
+    return copy.ambientGuardHintGiven;
   }
 
   if (questState.olegNameKnown) {
-    return "Олег реагує на своє ім'я";
+    return copy.ambientOlegKnown;
   }
 
-  return "спитай, як звуть охоронця";
+  return copy.ambientInitial;
 }
 
 async function playTurnReply(response: VoiceTurnResponse): Promise<void> {
   if (!response.audio) {
-    await speakWithBrowser(response.reply, response.actor);
+    await speakWithBrowser(
+      response.reply,
+      response.actor,
+      response.languageDecision.language,
+    );
     return;
   }
 
   try {
     await playBase64Audio(response.audio.base64, response.audio.contentType);
   } catch {
-    await speakWithBrowser(response.reply, response.actor);
+    await speakWithBrowser(
+      response.reply,
+      response.actor,
+      response.languageDecision.language,
+    );
   }
 }
 
@@ -2004,6 +2236,53 @@ function parseElevenLabsRealtimeEvent(data: unknown): ElevenLabsRealtimeEvent | 
   }
 }
 
+function createElevenLabsRealtimeLanguageInput(
+  event: ElevenLabsRealtimeEvent,
+): QuestLanguageInput | undefined {
+  return createLanguageInput({
+    source: "elevenlabs",
+    providerLanguageCode:
+      typeof event.language_code === "string" ? event.language_code : undefined,
+    confidence:
+      typeof event.language_probability === "number"
+        ? event.language_probability
+        : undefined,
+  });
+}
+
+function isReliableLanguageDecision(decision: QuestLanguageDecision): boolean {
+  return !decision.ambiguous && decision.source !== "default";
+}
+
+function createLanguageInput({
+  source,
+  providerLanguageCode,
+  confidence,
+}: {
+  source: QuestLanguageInput["source"];
+  providerLanguageCode?: string;
+  confidence?: number;
+}): QuestLanguageInput | undefined {
+  const cleanProviderLanguageCode = providerLanguageCode?.trim();
+  const cleanConfidence =
+    typeof confidence === "number" && Number.isFinite(confidence)
+      ? Math.max(0, Math.min(1, confidence))
+      : undefined;
+
+  if (!source && !cleanProviderLanguageCode && cleanConfidence === undefined) {
+    return undefined;
+  }
+
+  return {
+    language: cleanProviderLanguageCode
+      ? mapProviderLanguageCodeToQuestLanguage(cleanProviderLanguageCode)
+      : undefined,
+    confidence: cleanConfidence,
+    providerLanguageCode: cleanProviderLanguageCode || undefined,
+    source,
+  };
+}
+
 function encodePcm16Base64(
   input: Float32Array,
   inputSampleRate: number,
@@ -2055,13 +2334,17 @@ function observePurrMarkers(
   }
 }
 
-function speakWithBrowser(text: string, actor: QuestActor): Promise<void> {
+function speakWithBrowser(
+  text: string,
+  actor: QuestActor,
+  language: QuestLanguage,
+): Promise<void> {
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
     return Promise.resolve();
   }
 
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "uk-UA";
+  utterance.lang = BROWSER_RECOGNITION_LANGUAGE[language];
   const settings = getBrowserSpeechSettings(actor);
 
   utterance.rate = settings.rate;

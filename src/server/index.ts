@@ -5,6 +5,9 @@ import type { AppStatus } from "../shared/status.js";
 import type {
   QuestState,
   QuestActor,
+  QuestLanguage,
+  QuestLanguageInput,
+  QuestLanguageSource,
   RealtimeSttCapabilityResponse,
   RealtimeSttSessionResponse,
   RecordedSttResponse,
@@ -18,7 +21,7 @@ import {
 } from "./providers/config.js";
 import { createProviderRegistry } from "./providers/registry.js";
 import { createQuestBrainTurn } from "./quest-brain.js";
-import { normalizeQuestState } from "./quest.js";
+import { decideQuestLanguage, normalizeQuestState } from "./quest.js";
 import {
   createElevenLabsRealtimeSttSession,
   transcribeElevenLabsAudio,
@@ -162,6 +165,7 @@ app.post("/api/stt/elevenlabs/recorded", async (request, response) => {
     const payload: RecordedSttResponse = {
       provider: "elevenlabs",
       text: transcription.text,
+      language: transcription.language,
     };
 
     response.json(payload);
@@ -188,9 +192,15 @@ app.post("/api/voice-turn", async (request, response) => {
     return;
   }
 
+  const languageDecision = decideQuestLanguage({
+    transcript: parsed.transcript,
+    language: parsed.language,
+    previousLanguage: parsed.previousLanguage,
+  });
   const turn = await createQuestBrainTurn({
     transcript: parsed.transcript,
     questState: parsed.questState,
+    replyLanguage: languageDecision.language,
     getClaudeProvider: () => providerRegistry.getTextProvider("claude"),
   });
   const session = registerQuestSessionTurn({
@@ -201,6 +211,7 @@ app.post("/api/voice-turn", async (request, response) => {
   const reply = turn.reply;
   const payload: VoiceTurnResponse = {
     transcript: parsed.transcript,
+    languageDecision,
     reply,
     action: turn.action,
     actor: turn.actor,
@@ -249,6 +260,8 @@ function parseVoiceTurnRequest(
       transcript: string;
       questState: QuestState;
       questSessionId?: string;
+      language?: QuestLanguageInput;
+      previousLanguage?: QuestLanguage;
     }
   | { ok: false; error: string } {
   const candidate = body as Partial<VoiceTurnRequest> | undefined;
@@ -274,7 +287,56 @@ function parseVoiceTurnRequest(
       typeof candidate?.questSessionId === "string"
         ? candidate.questSessionId.trim() || undefined
         : undefined,
+    language: parseQuestLanguageInput(candidate?.language),
+    previousLanguage: parseQuestLanguage(candidate?.previousLanguage),
   };
+}
+
+function parseQuestLanguageInput(value: unknown): QuestLanguageInput | undefined {
+  const candidate = value as Partial<QuestLanguageInput> | undefined;
+  const language = parseQuestLanguage(candidate?.language);
+  const source = parseQuestLanguageSource(candidate?.source);
+  const providerLanguageCode =
+    typeof candidate?.providerLanguageCode === "string"
+      ? candidate.providerLanguageCode.trim().slice(0, 32) || undefined
+      : undefined;
+  const confidence =
+    typeof candidate?.confidence === "number" && Number.isFinite(candidate.confidence)
+      ? Math.max(0, Math.min(1, candidate.confidence))
+      : undefined;
+
+  if (
+    language === undefined &&
+    source === undefined &&
+    providerLanguageCode === undefined &&
+    confidence === undefined
+  ) {
+    return undefined;
+  }
+
+  return {
+    language,
+    confidence,
+    providerLanguageCode,
+    source,
+  };
+}
+
+function parseQuestLanguage(value: unknown): QuestLanguage | undefined {
+  return value === "uk" || value === "en" ? value : undefined;
+}
+
+function parseQuestLanguageSource(value: unknown): QuestLanguageSource | undefined {
+  switch (value) {
+    case "elevenlabs":
+    case "browser-speech":
+    case "heuristic":
+    case "sticky":
+    case "default":
+      return value;
+    default:
+      return undefined;
+  }
 }
 
 function createLeaderboardStore(): LeaderboardStore {

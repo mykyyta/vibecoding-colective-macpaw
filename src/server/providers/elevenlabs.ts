@@ -8,6 +8,10 @@ import type {
   ElevenLabsRealtimeSttConfig,
 } from "./config.js";
 import { throwProviderHttpError } from "./http.js";
+import {
+  mapProviderLanguageCodeToQuestLanguage,
+  type QuestLanguageInput,
+} from "../../shared/voice.js";
 
 const MAX_TTS_TEXT_LENGTH = 1_000;
 const ELEVENLABS_REALTIME_STT_URL =
@@ -26,6 +30,7 @@ export interface ElevenLabsTranscription {
   provider: "elevenlabs";
   modelId: string;
   text: string;
+  language?: QuestLanguageInput;
 }
 
 export function createElevenLabsTextToSpeechProvider(
@@ -118,7 +123,6 @@ export async function createElevenLabsRealtimeSttSession(
   const query = new URLSearchParams({
     model_id: config.model,
     token,
-    language_code: "uk",
     audio_format: "pcm_16000",
     commit_strategy: "vad",
     vad_silence_threshold_secs: "1.3",
@@ -159,7 +163,6 @@ export async function transcribeElevenLabsAudio({
 
   formData.append("file", file, getAudioFileName(contentType));
   formData.append("model_id", modelId);
-  formData.append("language_code", "uk");
   formData.append("tag_audio_events", "false");
 
   const response = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
@@ -174,13 +177,47 @@ export async function transcribeElevenLabsAudio({
     await throwProviderHttpError("ElevenLabs", response);
   }
 
-  const body = (await response.json()) as { text?: unknown };
+  const body = (await response.json()) as {
+    text?: unknown;
+    language_code?: unknown;
+    language_probability?: unknown;
+  };
   const text = typeof body.text === "string" ? body.text.trim() : "";
 
   return {
     provider: "elevenlabs",
     modelId,
     text,
+    language: createElevenLabsLanguageInput(body),
+  };
+}
+
+function createElevenLabsLanguageInput({
+  language_code,
+  language_probability,
+}: {
+  language_code?: unknown;
+  language_probability?: unknown;
+}): QuestLanguageInput | undefined {
+  const providerLanguageCode =
+    typeof language_code === "string" ? language_code.trim() : "";
+  const confidence =
+    typeof language_probability === "number" &&
+    Number.isFinite(language_probability)
+      ? Math.max(0, Math.min(1, language_probability))
+      : undefined;
+
+  if (!providerLanguageCode && confidence === undefined) {
+    return undefined;
+  }
+
+  return {
+    language: providerLanguageCode
+      ? mapProviderLanguageCodeToQuestLanguage(providerLanguageCode)
+      : undefined,
+    confidence,
+    providerLanguageCode: providerLanguageCode || undefined,
+    source: "elevenlabs",
   };
 }
 
