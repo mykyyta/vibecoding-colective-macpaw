@@ -163,6 +163,19 @@ interface VoiceCopy {
   hintAria: string;
   restart: string;
   leaderboardSubmitted: string;
+  leaderboardHeading: string;
+  leaderboardSceneLabel: string;
+  leaderboardBoardLabel: string;
+  leaderboardAria: string;
+  leaderboardNameLabel: string;
+  leaderboardSaving: string;
+  leaderboardSave: string;
+  leaderboardTries: string;
+  leaderboardLoading: string;
+  leaderboardEmpty: string;
+  relativeJustNow: string;
+  relativeMinuteAgo: (minutes: number) => string;
+  relativeHourAgo: (hours: number) => string;
   ambientListening: string;
   ambientDoorOpening: string;
   ambientEscaped: string;
@@ -207,6 +220,19 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     hintAria: "Показати підказку",
     restart: "Нова спроба",
     leaderboardSubmitted: "Записано. Ти вийшов з кімнати офіційно.",
+    leaderboardHeading: "Останні виходи",
+    leaderboardSceneLabel: "Сцена",
+    leaderboardBoardLabel: "Дошка",
+    leaderboardAria: "Останні проходження",
+    leaderboardNameLabel: "Ім'я",
+    leaderboardSaving: "Збереження",
+    leaderboardSave: "Зберегти",
+    leaderboardTries: "спроб",
+    leaderboardLoading: "Завантаження",
+    leaderboardEmpty: "Ще немає виходів",
+    relativeJustNow: "щойно",
+    relativeMinuteAgo: (minutes) => `${minutes} хв тому`,
+    relativeHourAgo: (hours) => `${hours} год тому`,
     ambientListening: "утримуй, говори, відпусти",
     ambientDoorOpening: "EXIT resolved",
     ambientEscaped: "EXIT accepted",
@@ -249,6 +275,19 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     hintAria: "Show hint",
     restart: "Restart",
     leaderboardSubmitted: "Saved. You escaped the room officially.",
+    leaderboardHeading: "Recent exits",
+    leaderboardSceneLabel: "Scene",
+    leaderboardBoardLabel: "Board",
+    leaderboardAria: "Recent exits",
+    leaderboardNameLabel: "Name",
+    leaderboardSaving: "Saving",
+    leaderboardSave: "Save",
+    leaderboardTries: "tries",
+    leaderboardLoading: "Loading",
+    leaderboardEmpty: "No exits yet",
+    relativeJustNow: "just now",
+    relativeMinuteAgo: (minutes) => `${minutes} min ago`,
+    relativeHourAgo: (hours) => `${hours} hr ago`,
     ambientListening: "hold, speak, release",
     ambientDoorOpening: "EXIT resolved",
     ambientEscaped: "EXIT accepted",
@@ -1066,7 +1105,7 @@ function RoomScene({
           <span>EXIT RESOLVED</span>
         </div>
         <span className="stage-label">MacPaw Space</span>
-        <LeaderboardScreen {...leaderboard} />
+        <LeaderboardScreen {...leaderboard} voiceLanguage={voiceLanguage} />
       </div>
       <div className="back-signage" aria-hidden="true">
         <span>Exit MacPaw Space</span>
@@ -1437,14 +1476,15 @@ function LeaderboardScreen({
   onSubmit,
   submittedEntryId,
   tokenAvailable,
-}: LeaderboardScreenProps) {
+  voiceLanguage,
+}: LeaderboardScreenProps & { voiceLanguage: QuestLanguage }) {
   const canSubmit =
     completed &&
     tokenAvailable &&
     submittedEntryId === null &&
     displayName.trim().length > 0 &&
     !isSubmitting;
-  const heading = "Recent exits";
+  const copy = VOICE_COPY[voiceLanguage];
 
   return (
     <>
@@ -1456,17 +1496,19 @@ function LeaderboardScreen({
         aria-controls="leaderboard-screen"
       >
         <span aria-hidden="true">{isOpen ? "SCN" : "TOP"}</span>
-        <strong>{isOpen ? "Сцена" : "Дошка"}</strong>
+        <strong>
+          {isOpen ? copy.leaderboardSceneLabel : copy.leaderboardBoardLabel}
+        </strong>
       </button>
 
       {isOpen ? (
         <section
           className="screen-leaderboard"
           id="leaderboard-screen"
-          aria-label="Останні проходження"
+          aria-label={copy.leaderboardAria}
         >
           <div className="screen-leaderboard__head">
-            <h2>{heading}</h2>
+            <h2>{copy.leaderboardHeading}</h2>
           </div>
 
           {completed && submittedEntryId === null ? (
@@ -1477,7 +1519,7 @@ function LeaderboardScreen({
                 onSubmit();
               }}
             >
-              <label htmlFor="leaderboard-name">Name</label>
+              <label htmlFor="leaderboard-name">{copy.leaderboardNameLabel}</label>
               <div className="leaderboard-form__row">
                 <input
                   id="leaderboard-name"
@@ -1489,13 +1531,13 @@ function LeaderboardScreen({
                   disabled={isSubmitting || !tokenAvailable}
                 />
                 <button type="submit" disabled={!canSubmit}>
-                  {isSubmitting ? "Saving" : "Save"}
+                  {isSubmitting ? copy.leaderboardSaving : copy.leaderboardSave}
                 </button>
               </div>
               {completionMetrics ? (
                 <p>
                   {formatDuration(completionMetrics.durationMs)} ·{" "}
-                  {completionMetrics.attempts} tries
+                  {completionMetrics.attempts} {copy.leaderboardTries}
                 </p>
               ) : null}
             </form>
@@ -1505,7 +1547,9 @@ function LeaderboardScreen({
 
           <ol className="leaderboard-list" aria-busy={isLoading}>
             {isLoading ? (
-              <li className="leaderboard-list__placeholder">Loading</li>
+              <li className="leaderboard-list__placeholder">
+                {copy.leaderboardLoading}
+              </li>
             ) : entries.length > 0 ? (
               entries.map((entry) => (
                 <li
@@ -1519,7 +1563,7 @@ function LeaderboardScreen({
                   <span>{entry.displayName}</span>
                   <span className="leaderboard-list__meta">
                     <time dateTime={entry.completedAt}>
-                      {formatRelativeTime(entry.completedAt)}
+                      {formatRelativeTime(entry.completedAt, voiceLanguage)}
                     </time>
                     {entry.durationMs > 0 ? (
                       <strong>{formatDuration(entry.durationMs)}</strong>
@@ -1528,7 +1572,9 @@ function LeaderboardScreen({
                 </li>
               ))
             ) : (
-              <li className="leaderboard-list__placeholder">No exits yet</li>
+              <li className="leaderboard-list__placeholder">
+                {copy.leaderboardEmpty}
+              </li>
             )}
           </ol>
         </section>
@@ -1682,29 +1728,33 @@ function formatDuration(durationMs: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-function formatRelativeTime(isoDate: string): string {
+function formatRelativeTime(
+  isoDate: string,
+  language: QuestLanguage,
+): string {
+  const copy = VOICE_COPY[language];
   const elapsedSeconds = Math.max(
     0,
     Math.round((Date.now() - Date.parse(isoDate)) / 1000),
   );
 
   if (elapsedSeconds < 45) {
-    return "щойно";
+    return copy.relativeJustNow;
   }
 
   const elapsedMinutes = Math.round(elapsedSeconds / 60);
 
   if (elapsedMinutes < 60) {
-    return `${elapsedMinutes} хв тому`;
+    return copy.relativeMinuteAgo(elapsedMinutes);
   }
 
   const elapsedHours = Math.round(elapsedMinutes / 60);
 
   if (elapsedHours < 24) {
-    return `${elapsedHours} год тому`;
+    return copy.relativeHourAgo(elapsedHours);
   }
 
-  return new Intl.DateTimeFormat("uk-UA", {
+  return new Intl.DateTimeFormat(language === "en" ? "en-US" : "uk-UA", {
     day: "2-digit",
     month: "short",
   }).format(new Date(isoDate));
