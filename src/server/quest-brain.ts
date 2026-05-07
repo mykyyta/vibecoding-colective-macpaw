@@ -1,11 +1,13 @@
 import type { QuestActor, QuestLanguage, QuestState } from "../shared/voice.js";
 import type { TextGenerationProvider } from "./providers/contracts.js";
 import {
+  analyzeQuestTranscript,
   createQuestTurn,
   createQuestTurnFromTransition,
   getAllowedQuestTransitions,
   normalizeQuestState,
   type AllowedQuestTransition,
+  type QuestTranscriptFacts,
   type QuestTransitionId,
   type QuestTurn,
 } from "./quest.js";
@@ -18,14 +20,25 @@ interface QuestBrainRequest {
 }
 
 interface ClaudeQuestDecision {
+  route: QuestRoute;
   transitionId: QuestTransitionId;
   actor: QuestActor;
   reply: string;
   confidence?: number;
 }
 
+type QuestRoute =
+  | "guard"
+  | "pixel"
+  | "sofia-hint"
+  | "sofia-talk"
+  | "door"
+  | "smalltalk"
+  | "no-progress";
+
 interface QuestPromptTransition {
   id: QuestTransitionId;
+  route: QuestRoute;
   actor: QuestActor;
   allowedActors?: QuestActor[];
   stageContext: string;
@@ -41,6 +54,7 @@ const TRANSITION_IDS: QuestTransitionId[] = [
   "oleg-name-learned",
   "guard-hint-given",
   "pixel-ordinary-rejected",
+  "pixel-smalltalk-replied",
   "code-revealed",
   "door-opened",
   "sofia-hint-given",
@@ -49,6 +63,15 @@ const TRANSITION_IDS: QuestTransitionId[] = [
 ];
 
 const ACTORS: QuestActor[] = ["system", "guard", "pixel", "door", "sofia"];
+const ROUTES: QuestRoute[] = [
+  "guard",
+  "pixel",
+  "sofia-hint",
+  "sofia-talk",
+  "door",
+  "smalltalk",
+  "no-progress",
+];
 
 export async function createQuestBrainTurn({
   transcript,
@@ -62,10 +85,11 @@ export async function createQuestBrainTurn({
     normalizedQuestState,
     replyLanguage,
   );
-  const allowedTransitions = applyTranscriptActorHints(
-    getAllowedQuestTransitions(normalizedQuestState, replyLanguage),
-    fallbackTurn,
+  const allowedTransitions = getAllowedQuestTransitions(
+    normalizedQuestState,
+    replyLanguage,
   );
+  const transcriptFacts = analyzeQuestTranscript(transcript);
 
   try {
     const claude = getClaudeProvider();
@@ -95,7 +119,14 @@ export async function createQuestBrainTurn({
       return fallbackTurn;
     }
 
-    if (!isAllowedSofiaTransitionForTrigger(decision.transitionId, fallbackTurn)) {
+    if (
+      !isValidQuestBrainDecision({
+        decision,
+        allowedTransition,
+        normalizedQuestState,
+        transcriptFacts,
+      })
+    ) {
       return fallbackTurn;
     }
 
@@ -123,7 +154,18 @@ export async function createQuestBrainTurn({
       return fallbackTurn;
     }
 
-    if (!isAllowedQuestBrainReply(turn.reply, turn.nextQuestState)) {
+    if (isPrematureSofiaCatLanguageHint(turn)) {
+      return createQuestTurnFromTransition({
+        transcript,
+        questState: normalizedQuestState,
+        transitionId: decision.transitionId,
+        actor: decision.actor,
+        reply: allowedTransition.fallbackReply,
+        replyLanguage,
+      });
+    }
+
+    if (!isAllowedQuestBrainReply(turn)) {
       return fallbackTurn;
     }
 
@@ -135,25 +177,6 @@ export async function createQuestBrainTurn({
   } catch {
     return fallbackTurn;
   }
-}
-
-function isAllowedSofiaTransitionForTrigger(
-  transitionId: QuestTransitionId,
-  fallbackTurn: QuestTurn,
-): boolean {
-  if (transitionId === "sofia-hint-given") {
-    return (
-      fallbackTurn.trigger.type === "sofia-hint-request" ||
-      (fallbackTurn.trigger.type === "sofia-conversation" &&
-        fallbackTurn.trigger.directAddress)
-    );
-  }
-
-  if (transitionId === "sofia-conversation-replied") {
-    return fallbackTurn.trigger.type === "sofia-conversation";
-  }
-
-  return true;
 }
 
 function generateWithTimeout(
@@ -200,12 +223,13 @@ function buildQuestBrainPrompt({
   return [
     "You are the quest brain for a local voice-only quest room.",
     "Return strict JSON only. No markdown, no code fence, no commentary.",
+    "You choose the route, transitionId, actor, and spoken reply from the user transcript and current state.",
     `Write one fresh ${replyLanguageLabel} spoken reply for this exact quest turn.`,
     `Selected reply language: ${replyLanguageLabel}.`,
     replyLanguage === "en"
       ? "Reply in natural English. Keep proper names and the fixed final door line exactly as written."
       : "Reply in natural Ukrainian. Keep proper names and the fixed final door line exactly as written.",
-    "Use the current actor, stage, visible room context, and allowed facts.",
+    "Use the selected route, actor, current stage, visible room context, and allowed facts.",
     `Include one small ironic joke or character beat about ${aiPhrase}, the ${eventPhrase}, prompts, or generated decisions when it fits the actor and stage. For Sofia, keep any irony very light and do not use event-satisfaction jokes.`,
     "Keep the joke grounded in this moment, not a reusable catchphrase.",
     "Write vivid, varied replies: dry irony, playful MacPaw Space energy, compact theatrical timing.",
@@ -219,19 +243,23 @@ function buildQuestBrainPrompt({
     "Sofia does not know the exact solution. She believes a way out will be found, offers ideas or reframes, lowers pressure, and trusts the participant. She should not sound like she holds the answer key.",
     "For sofia-hint-given, Sofia must use the Sofia hint stageContext from the allowed transition card. Her hint should point to the current next step, not a generic reassurance line.",
     "For sofia-hint-given, Sofia gives a gentle facilitation idea, not an instruction. She may carry the no-winners attitude, but only after the current-step clue is clear.",
+    "For Sofia hints after Oleg points to Pixel but before Pixel rejects an ordinary request, Sofia may only suggest addressing Pixel and talking to him calmly. Do not suggest cat language, purring, meowing, sounds, or Pixel's own language at that stage.",
+    "For Sofia hints after Pixel rejects an ordinary request, Sofia may then suggest trying Pixel's own language or a cat-like sound.",
     "For sofia-conversation-replied, Sofia handles every non-hint Sofia route: ordinary conversation, questions about Sofia, door/code comments addressed to Sofia, and VCC/vibe-coding/event questions. She should answer from her character brief and the current visible context.",
     "For sofia-conversation-replied, Sofia may briefly explain Vibe Coding Collective or vibe coding as accessible, social, experimental AI-assisted building if the player asked about that context. Otherwise she should not force VCC exposition.",
-    "For sofia-conversation-replied, Sofia must not give a quest-step hint unless the player explicitly asked for a hint, help, advice, an idea, what to do, or what to try next.",
+    "For sofia-conversation-replied, Sofia must not give a quest-step hint unless the player semantically asks Sofia for a hint, help, advice, an idea, direction, or next step.",
     "Do not lean on the same tech joke families every time: middleware, firewall, deploy, access denied, generic AI assistant wording, or generic prompt jokes.",
     "If you use a tech or AI joke, make it specific to this actor and stage, and avoid making it the whole personality.",
     "",
     "JSON schema:",
-    `{"transitionId":"one allowed transition id","actor":"allowed actor for that transition","reply":"${replyLanguageLabel} player-facing reply, max 2 short sentences","confidence":0.0}`,
+    `{"route":"one route from the selected transition card","transitionId":"one allowed transition id","actor":"allowed actor for that transition","reply":"${replyLanguageLabel} player-facing reply, max 2 short sentences","confidence":0.0}`,
     "",
     "Scenario:",
     "- Title: 404 Door Not Found.",
     `- The player is in a single MacPaw Space-inspired room after a literal ${eventPhrase} about ${aiPhrase}, and must exit by voice.`,
     "- Visible room context: black presentation wall, light open floor, warm wooden steps, LED rails, locked exit, guard near the door, a cat nearby.",
+    `- Current stage: ${getQuestStageSummary(questState)}`,
+    `- Visible characters: ${getVisibleCharacterSummary(questState)}.`,
     "- Sofia is also in the room. She is the Vibe Coding Collective co-founder, product designer, and event organizer. She can be asked for optional help or VCC context, but she is not required to solve the quest.",
     "- The guard's name must be learned before useful guard commands work.",
     "- The guard is named Oleg, but his name may only be revealed by transition oleg-name-learned.",
@@ -241,6 +269,10 @@ function buildQuestBrainPrompt({
     "- The cat's internal name is Pixel, but that name is a clue and must not be spoken before transition guard-hint-given.",
     "- Pixel ignores ordinary commands.",
     "- Pixel may also be addressed indirectly as a cat, the cat, кіт, котик, пухнастий, хвостатий, муркотун, or similar cat-like descriptions.",
+    "- Cat small talk is always available through pixel-smalltalk-replied when the player addresses the cat. The cat should answer in context in his lazy, smug style without changing quest state.",
+    "- If the player addresses the cat and no Pixel progress transition should happen, select pixel-smalltalk-replied rather than no-progress.",
+    "- Before guard-hint-given, cat small talk must not reveal or imply the cat's name is Pixel and must not mention the exit panel.",
+    "- Before code-revealed, cat small talk must not reveal, hint, or joke around code 404.",
     "- Pixel may reveal code 404 only on transition code-revealed.",
     "- code-revealed requires both conditions in the same user transcript: the player names Pixel/Піксель/Пікс directly, and the player performs a clear cat sound such as мур, мрр, мяу, няв, пур, purr, prr, meow, or similar.",
     "- If the player addresses Pixel but only asks, commands, begs, or asks for the code without a cat sound, choose pixel-ordinary-rejected, not code-revealed.",
@@ -261,9 +293,10 @@ function buildQuestBrainPrompt({
     "- Sofia replies must be short statements, not questions. Do not ask or speculate about the event, the user's feelings, whether the event was enjoyable, or what the user wants next.",
     "- For sofia-conversation-replied, do not mention the event, VCC, Vibe Coding Collective, or vibe coding unless the player explicitly asked about that context.",
     "- If the player only says a general greeting or asks a name without addressing Sofia, keep that smalltalk with the guard because the guard is the key early character.",
-    "- If the player clearly addresses Sofia by name or a feminine address such as дівчино, пані, lady, woman, or madam, Sofia should use sofia-conversation-replied unless the player explicitly asks for a hint.",
     "",
     "Backend authority:",
+    "- Decide semantically who the player is addressing. Do not rely on exact keyword matches when the intent is clear.",
+    "- Pick route and transitionId from one allowed transition card. The route must match the selected card.",
     "- Pick exactly one transitionId from allowedTransitions.",
     "- For smalltalk-replied, use one of allowedActors if present; prefer a visible character over the room.",
     "- Do not invent state fields or set quest state directly.",
@@ -295,6 +328,7 @@ function buildQuestPromptTransitions(
 ): QuestPromptTransition[] {
   return allowedTransitions.map((transition) => ({
     id: transition.id,
+    route: getQuestRouteForTransition(transition.id),
     actor: transition.actor,
     allowedActors: transition.allowedActors,
     stageContext: transition.description,
@@ -305,41 +339,139 @@ function getReplyLanguageLabel(replyLanguage: QuestLanguage): string {
   return replyLanguage === "en" ? "English" : "Ukrainian";
 }
 
-function applyTranscriptActorHints(
-  allowedTransitions: AllowedQuestTransition[],
-  fallbackTurn: QuestTurn,
-): AllowedQuestTransition[] {
-  return allowedTransitions.map((transition) => {
-    if (transition.id !== "no-progress") {
-      return transition;
-    }
+function getQuestStageSummary(state: QuestState): string {
+  if (state.doorOpen || state.escaped) {
+    return "the player has escaped; only celebratory or ambient follow-up should remain";
+  }
 
-    const fallbackNoProgress = fallbackTurn.event.type === "no-progress";
-    const allowedActors = uniqueActors([
-      transition.actor,
-      ...(transition.allowedActors ?? []),
-      ...(fallbackNoProgress ? [fallbackTurn.actor] : []),
-      ...(fallbackNoProgress ? ["pixel" as const] : []),
-    ]);
+  if (state.codeRevealed) {
+    return "the code is known; the next useful move is giving code 404 to Oleg";
+  }
 
-    return {
-      ...transition,
-      allowedActors,
-      description: [
-        transition.description,
-        "For no-progress turns, the actor may be the addressed or most relevant visible character instead of the room.",
-        fallbackNoProgress
-          ? "If the cat is addressed too early, asked the wrong thing, or hears a cat-like phrase that should not progress, the cat may answer with a lazy smug joke while revealing no name, code, or clue."
-          : undefined,
-      ]
-        .filter(Boolean)
-        .join(" "),
-    };
-  });
+  if (state.pixelRejectedOrdinaryCommand) {
+    return "Pixel rejected ordinary human requests; the next useful move is addressing Pixel with a cat-like sound";
+  }
+
+  if (state.guardHintGiven) {
+    return "Oleg revealed Pixel as the clue near the exit panel; the next useful move is engaging Pixel";
+  }
+
+  if (state.olegNameKnown) {
+    return "the guard is known as Oleg; the next useful move is directly asking Oleg about the exit";
+  }
+
+  return "the guard's name is not known; the next useful move is learning who the person by the door is";
 }
 
-function uniqueActors(actors: QuestActor[]): QuestActor[] {
-  return actors.filter((actor, index) => actors.indexOf(actor) === index);
+function getVisibleCharacterSummary(state: QuestState): string {
+  const visible = [
+    "guard near the door",
+    "cat nearby",
+    "locked door/room",
+    "Sofia in the room",
+  ];
+
+  if (state.olegNameKnown) {
+    visible[0] = "Oleg, the guard near the door";
+  }
+
+  if (state.guardHintGiven) {
+    visible[1] = "Pixel, the cat near the exit panel";
+  }
+
+  return visible.join("; ");
+}
+
+function isValidQuestBrainDecision({
+  decision,
+  allowedTransition,
+  normalizedQuestState,
+  transcriptFacts,
+}: {
+  decision: ClaudeQuestDecision;
+  allowedTransition: AllowedQuestTransition;
+  normalizedQuestState: QuestState;
+  transcriptFacts: QuestTranscriptFacts;
+}): boolean {
+  if (decision.route !== getQuestRouteForTransition(decision.transitionId)) {
+    return false;
+  }
+
+  const allowedActors = allowedTransition.allowedActors ?? [
+    allowedTransition.actor,
+  ];
+
+  if (!allowedActors.includes(decision.actor)) {
+    return false;
+  }
+
+  return satisfiesHardTransitionRequirements(
+    decision.transitionId,
+    normalizedQuestState,
+    transcriptFacts,
+  );
+}
+
+function satisfiesHardTransitionRequirements(
+  transitionId: QuestTransitionId,
+  state: QuestState,
+  facts: QuestTranscriptFacts,
+): boolean {
+  switch (transitionId) {
+    case "oleg-name-learned":
+      return !state.olegNameKnown && facts.hasNameQuestion;
+    case "guard-hint-given":
+      return (
+        state.olegNameKnown &&
+        !state.guardHintGiven &&
+        facts.hasOleg &&
+        (facts.hasDoor || facts.hasCodeIntent)
+      );
+    case "pixel-ordinary-rejected":
+      return state.guardHintGiven && !state.pixelRejectedOrdinaryCommand && facts.hasPixel;
+    case "pixel-smalltalk-replied":
+      return facts.hasPixel || facts.hasCatAddress;
+    case "code-revealed":
+      return state.guardHintGiven && !state.codeRevealed && facts.hasPixel && facts.hasPurr;
+    case "door-opened":
+      return (
+        state.olegNameKnown &&
+        state.codeRevealed &&
+        !state.doorOpen &&
+        facts.hasOleg &&
+        facts.hasCode404
+      );
+    case "sofia-hint-given":
+      return facts.hasSofiaAddress;
+    case "sofia-conversation-replied":
+      return facts.hasSofiaAddress || facts.hasVccIntent;
+    case "smalltalk-replied":
+      return true;
+    case "no-progress":
+      return !facts.hasPixel && !facts.hasCatAddress;
+  }
+}
+
+function getQuestRouteForTransition(transitionId: QuestTransitionId): QuestRoute {
+  switch (transitionId) {
+    case "oleg-name-learned":
+    case "guard-hint-given":
+      return "guard";
+    case "pixel-ordinary-rejected":
+    case "pixel-smalltalk-replied":
+    case "code-revealed":
+      return "pixel";
+    case "sofia-hint-given":
+      return "sofia-hint";
+    case "sofia-conversation-replied":
+      return "sofia-talk";
+    case "door-opened":
+      return "door";
+    case "smalltalk-replied":
+      return "smalltalk";
+    case "no-progress":
+      return "no-progress";
+  }
 }
 
 function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
@@ -350,6 +482,7 @@ function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
   }
 
   const transitionId = parsed.transitionId;
+  const route = parsed.route;
   const actor = parsed.actor;
   const reply = parsed.reply;
   const confidence = parsed.confidence;
@@ -369,6 +502,11 @@ function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
     throw new Error("Claude quest decision has invalid reply.");
   }
 
+  const normalizedRoute =
+    typeof route === "string" && ROUTES.includes(route as QuestRoute)
+      ? (route as QuestRoute)
+      : getQuestRouteForTransition(transitionId as QuestTransitionId);
+
   if (
     confidence !== undefined &&
     (typeof confidence !== "number" || confidence < 0 || confidence > 1)
@@ -377,6 +515,7 @@ function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
   }
 
   return {
+    route: normalizedRoute,
     transitionId: transitionId as QuestTransitionId,
     actor: actor as QuestActor,
     reply: normalizeGeneratedReply(reply),
@@ -403,7 +542,9 @@ function requiresOlegNameInReply(eventType: QuestTransitionId): boolean {
   return eventType === "oleg-name-learned";
 }
 
-function isAllowedQuestBrainReply(reply: string, state: QuestState): boolean {
+function isAllowedQuestBrainReply(turn: QuestTurn): boolean {
+  const { actor, reply, nextQuestState: state } = turn;
+
   if (!reply || reply.length > MAX_REPLY_LENGTH) {
     return false;
   }
@@ -417,6 +558,14 @@ function isAllowedQuestBrainReply(reply: string, state: QuestState): boolean {
   }
 
   if (!state.guardHintGiven && containsPixelNameReveal(reply)) {
+    return false;
+  }
+
+  if (
+    actor !== "pixel" &&
+    !state.guardHintGiven &&
+    containsCatSoundOrLanguageHint(reply)
+  ) {
     return false;
   }
 
@@ -473,6 +622,15 @@ function isAllowedSofiaReply(
   ].some((phrase) => text.includes(phrase));
 }
 
+function isPrematureSofiaCatLanguageHint(turn: QuestTurn): boolean {
+  return (
+    turn.event.type === "sofia-hint-given" &&
+    turn.previousQuestState.guardHintGiven &&
+    !turn.previousQuestState.pixelRejectedOrdinaryCommand &&
+    containsCatSoundOrLanguageHint(turn.reply)
+  );
+}
+
 function containsOlegReveal(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
@@ -499,8 +657,15 @@ function containsPixelNameReveal(reply: string): boolean {
     /(^|[^\p{L}\p{N}_])(pixel|піксель|пиксель|піксел|пиксел|пікс|пикс)(?=$|[^\p{L}\p{N}_])/u.test(text) ||
     /(^|[^\p{L}\p{N}_])(моє|моєму|моїм|my)\s+ім/u.test(text) ||
     /(знаєш|вгадав|назвав|назвала|said|guessed).{0,30}(ім|name)/u.test(text) ||
-    /(мене|me).{0,20}(звати|called)/u.test(text) ||
-    /(по-котяч|котяч|мур|мяу|няв|purr|meow|cat sound)/u.test(text) ||
+    /(мене|me).{0,20}(звати|called)/u.test(text)
+  );
+}
+
+function containsCatSoundOrLanguageHint(reply: string): boolean {
+  const text = normalizeForGuardrail(reply);
+
+  return (
+    /(по-котяч|котяч|його мов|її мов|own language|мур|мяу|няв|purr|meow|cat sound)/u.test(text) ||
     /(^|[^\p{L}\p{N}_])мр+(?=$|[^\p{L}\p{N}_])/u.test(text)
   );
 }

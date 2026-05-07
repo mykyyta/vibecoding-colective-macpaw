@@ -46,6 +46,24 @@ export interface QuestLanguageDecisionRequest {
   previousLanguage?: QuestLanguage;
 }
 
+export interface QuestTranscriptFacts {
+  text: string;
+  matched: string[];
+  hasOleg: boolean;
+  hasPixel: boolean;
+  hasCatAddress: boolean;
+  hasSofia: boolean;
+  hasFeminineAddress: boolean;
+  hasSofiaAddress: boolean;
+  hasDoor: boolean;
+  hasNameQuestion: boolean;
+  hasCode404: boolean;
+  hasCodeIntent: boolean;
+  hasVccIntent: boolean;
+  hasPurr: boolean;
+  hasSmalltalk: boolean;
+}
+
 export const initialQuestState: QuestState = {
   olegNameKnown: false,
   guardHintGiven: false,
@@ -67,6 +85,7 @@ type QuestReplyId =
   | "guard-hint"
   | "pixel-too-early"
   | "pixel-ordinary-rejected"
+  | "pixel-smalltalk"
   | "pixel-purr-too-early"
   | "code-revealed"
   | "anonymous-code"
@@ -110,6 +129,10 @@ const QUEST_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
   "pixel-ordinary-rejected": {
     uk: "Мяу. На людські prompt-и я реагую, як кіт на autocomplete: бачу, зневажаю.",
     en: "Meow. I treat human prompts like autocomplete: I see them, I judge them.",
+  },
+  "pixel-smalltalk": {
+    uk: "Мр. Я не техпідтримка, я атмосфера з хвостом.",
+    en: "Mrr. I am not support; I am atmosphere with a tail.",
   },
   "pixel-purr-too-early": {
     uk: "Мрр, звук правильний, але секрет ще не має адреси. Спершу розберися з дверима через охоронця.",
@@ -156,8 +179,8 @@ const QUEST_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
     en: "I think the door ignores general wishes. Try addressing Oleg directly and asking him to think about the exit with you.",
   },
   "sofia-hint-guard-clue": {
-    uk: "Олег уже дав напрям. Я б не тиснула на Pixel командами, а спробувала контакт: з котами часто працює тон, не контроль.",
-    en: "Oleg already gave a direction. I would not push Pixel with commands; I would try connection: with cats, tone often matters more than control.",
+    uk: "Олег уже дав напрям. Я б просто звернулася до Pixel і спробувала поговорити з ним спокійно, без тиску.",
+    en: "Oleg already gave a direction. I would simply address Pixel and try talking to him calmly, without pressure.",
   },
   "sofia-hint-pixel-rejected": {
     uk: "Схоже, звичайні прохання Pixel не надихають. Може, варто спробувати не людський prompt, а щось ближче до його мови.",
@@ -336,7 +359,8 @@ export function createQuestTurn(
     case "pixel-directed-command":
       actor = "pixel";
       if (!previousQuestState.guardHintGiven) {
-        reply = getQuestReply("pixel-too-early", replyLanguage);
+        event = { type: "pixel-smalltalk-replied", progressed: false };
+        reply = getQuestReply("pixel-smalltalk", replyLanguage);
         break;
       }
 
@@ -344,6 +368,12 @@ export function createQuestTurn(
       nextQuestState.pixelRejectedOrdinaryCommand = true;
       event = { type: "pixel-ordinary-rejected", progressed: true };
       reply = getQuestReply("pixel-ordinary-rejected", replyLanguage);
+      break;
+
+    case "pixel-smalltalk":
+      actor = "pixel";
+      event = { type: "pixel-smalltalk-replied", progressed: false };
+      reply = getQuestReply("pixel-smalltalk", replyLanguage);
       break;
 
     case "pixel-directed-purr":
@@ -436,8 +466,9 @@ export function getAllowedQuestTransitions(
     {
       id: "no-progress",
       actor: "system",
+      allowedActors: getNoProgressActors(),
       description:
-        "Use when the player command should not progress the puzzle, including generic door commands, premature code guesses, or unclear input.",
+        "Use when the player command should not progress the puzzle, including generic door commands, premature code guesses, unclear input, or addressed character turns that should answer without changing state. The actor may be the addressed or most relevant visible character.",
       fallbackReply: getQuestReply("unknown", replyLanguage),
     },
     {
@@ -447,6 +478,13 @@ export function getAllowedQuestTransitions(
       description:
         "Use for harmless greetings, thanks, jokes, or smalltalk that should not progress the puzzle. Let the most relevant visible character answer: guard before Pixel is engaged, Pixel after Pixel is engaged, door after escape.",
       fallbackReply: getSmalltalkFallbackReply(state, replyLanguage),
+    },
+    {
+      id: "pixel-smalltalk-replied",
+      actor: "pixel",
+      description:
+        "Use for any player turn addressed to the cat before or outside the progress-critical Pixel interactions, when the cat should answer in his lazy, smug style without changing quest state. This route is always available. Do not reveal the cat's name before the guard clue, do not reveal code 404, and do not mention the exit-panel clue before guard-hint-given.",
+      fallbackReply: getQuestReply("pixel-smalltalk", replyLanguage),
     },
     {
       id: "sofia-hint-given",
@@ -550,6 +588,10 @@ function getSmalltalkActors(state: QuestState): QuestActor[] {
   return ["guard"];
 }
 
+function getNoProgressActors(): QuestActor[] {
+  return ["system", "guard", "pixel", "door", "sofia"];
+}
+
 function getSmalltalkFallbackReply(
   state: QuestState,
   replyLanguage: QuestLanguage,
@@ -639,7 +681,7 @@ function getSofiaHintStageContext(state: QuestState): string {
   }
 
   if (state.guardHintGiven) {
-    return "Current Sofia hint stage: Oleg already pointed toward Pixel. Nudge the player to approach Pixel through tone and contact rather than control, without revealing the code.";
+    return "Current Sofia hint stage: Oleg already pointed toward Pixel. Nudge the player only to address Pixel directly and try talking to him calmly. Do not suggest cat language, cat sounds, purring, meowing, or Pixel's own language yet.";
   }
 
   if (state.olegNameKnown) {
@@ -663,6 +705,7 @@ export function createQuestTurnFromTransition({
   const progressed = ![
     "no-progress",
     "smalltalk-replied",
+    "pixel-smalltalk-replied",
     "sofia-hint-given",
     "sofia-conversation-replied",
   ].includes(transitionId);
@@ -705,6 +748,7 @@ function applyQuestTransition(
       nextQuestState.escaped = true;
       break;
     case "no-progress":
+    case "pixel-smalltalk-replied":
     case "sofia-hint-given":
     case "sofia-conversation-replied":
     case "smalltalk-replied":
@@ -715,6 +759,120 @@ function applyQuestTransition(
 }
 
 export function classifyQuestTranscript(transcript: string): QuestTrigger {
+  const facts = analyzeQuestTranscript(transcript);
+  const {
+    hasOleg,
+    hasPixel,
+    hasCatAddress,
+    hasSofiaAddress,
+    hasDoor,
+    hasNameQuestion,
+    hasCode404,
+    hasCodeIntent,
+    hasVccIntent,
+    hasPurr,
+    hasSmalltalk,
+    matched,
+    text,
+  } = facts;
+
+  if (
+    hasSofiaAddress ||
+    (hasVccIntent &&
+      (hasNameQuestion || text.includes("що таке") || text.includes("what is")))
+  ) {
+    return {
+      type: "sofia-conversation",
+      actor: "sofia",
+      directAddress: hasSofiaAddress,
+      matched,
+    };
+  }
+
+  if (hasPixel && hasPurr) {
+    return {
+      type: "pixel-directed-purr",
+      actor: "pixel",
+      directAddress: true,
+      matched,
+    };
+  }
+
+  if (hasOleg && hasCode404) {
+    return {
+      type: "oleg-directed-code",
+      actor: "guard",
+      directAddress: true,
+      matched,
+    };
+  }
+
+  if (hasOleg && (hasDoor || hasCodeIntent)) {
+    return {
+      type: "oleg-directed-door-command",
+      actor: "guard",
+      directAddress: true,
+      matched,
+    };
+  }
+
+  if (hasPixel || hasCatAddress) {
+    return {
+      type:
+        (hasCodeIntent || hasDoor) && hasPixel
+          ? "pixel-directed-command"
+          : "pixel-smalltalk",
+      actor: "pixel",
+      directAddress: true,
+      matched,
+    };
+  }
+
+  if (hasNameQuestion) {
+    return {
+      type: "ask-guard-name",
+      actor: "guard",
+      directAddress: false,
+      matched,
+    };
+  }
+
+  if (hasDoor) {
+    return {
+      type: "generic-door-command",
+      actor: "guard",
+      directAddress: false,
+      matched,
+    };
+  }
+
+  if (hasPurr) {
+    return {
+      type: "purr-without-pixel",
+      actor: "pixel",
+      directAddress: false,
+      matched,
+    };
+  }
+
+  if (hasSmalltalk) {
+    return {
+      type: "smalltalk",
+      actor: "system",
+      directAddress: false,
+      matched,
+    };
+  }
+
+  return {
+    type: "unknown",
+    actor: "system",
+    directAddress: false,
+    matched,
+  };
+}
+
+export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts {
   const text = normalizeTranscript(transcript);
   const matched: string[] = [];
   const hasOleg = includesAny(
@@ -738,6 +896,31 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
       "пікс",
       "пикс",
       "pix",
+      "kitty",
+      "kitten",
+      "the cat",
+      "fluffy",
+      "furball",
+    ],
+    matched,
+  );
+  const hasCatAddress = includesAny(
+    text,
+    [
+      "кіт",
+      "котик",
+      "котику",
+      "кот",
+      "киця",
+      "кицю",
+      "кіцю",
+      "пухнастий",
+      "пухнаст",
+      "хвостатий",
+      "хвостат",
+      "муркотун",
+      "мурчику",
+      "cat",
       "kitty",
       "kitten",
       "the cat",
@@ -903,118 +1086,43 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
   const purrMatches = findPurrMatches(text);
   const hasPurr = purrMatches.length > 0;
   matched.push(...purrMatches);
-
-  if (
-    hasSofiaAddress ||
-    (hasVccIntent &&
-      (hasNameQuestion || text.includes("що таке") || text.includes("what is")))
-  ) {
-    return {
-      type: "sofia-conversation",
-      actor: "sofia",
-      directAddress: hasSofiaAddress,
-      matched,
-    };
-  }
-
-  if (hasPixel && hasPurr) {
-    return {
-      type: "pixel-directed-purr",
-      actor: "pixel",
-      directAddress: true,
-      matched,
-    };
-  }
-
-  if (hasOleg && hasCode404) {
-    return {
-      type: "oleg-directed-code",
-      actor: "guard",
-      directAddress: true,
-      matched,
-    };
-  }
-
-  if (hasOleg && (hasDoor || hasCodeIntent)) {
-    return {
-      type: "oleg-directed-door-command",
-      actor: "guard",
-      directAddress: true,
-      matched,
-    };
-  }
-
-  if (hasPixel) {
-    return {
-      type: "pixel-directed-command",
-      actor: "pixel",
-      directAddress: true,
-      matched,
-    };
-  }
-
-  if (hasNameQuestion) {
-    return {
-      type: "ask-guard-name",
-      actor: "guard",
-      directAddress: false,
-      matched,
-    };
-  }
-
-  if (hasDoor) {
-    return {
-      type: "generic-door-command",
-      actor: "guard",
-      directAddress: false,
-      matched,
-    };
-  }
-
-  if (hasPurr) {
-    return {
-      type: "purr-without-pixel",
-      actor: "pixel",
-      directAddress: false,
-      matched,
-    };
-  }
-
-  if (
-    includesAny(
-      text,
-      [
-        "привіт",
-        "дякую",
-        "як справи",
-        "hello",
-        "hi",
-        "thanks",
-        "thank you",
-        "how are you",
-        "hey",
-        "good morning",
-        "good afternoon",
-        "good evening",
-        "please",
-        "nice to meet you",
-      ],
-      matched,
-    )
-  ) {
-    return {
-      type: "smalltalk",
-      actor: "system",
-      directAddress: false,
-      matched,
-    };
-  }
+  const hasSmalltalk = includesAny(
+    text,
+    [
+      "привіт",
+      "дякую",
+      "як справи",
+      "hello",
+      "hi",
+      "thanks",
+      "thank you",
+      "how are you",
+      "hey",
+      "good morning",
+      "good afternoon",
+      "good evening",
+      "please",
+      "nice to meet you",
+    ],
+    matched,
+  );
 
   return {
-    type: "unknown",
-    actor: "system",
-    directAddress: false,
+    text,
     matched,
+    hasOleg,
+    hasPixel,
+    hasCatAddress,
+    hasSofia,
+    hasFeminineAddress,
+    hasSofiaAddress,
+    hasDoor,
+    hasNameQuestion,
+    hasCode404,
+    hasCodeIntent,
+    hasVccIntent,
+    hasPurr,
+    hasSmalltalk,
   };
 }
 

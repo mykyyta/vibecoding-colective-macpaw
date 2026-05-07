@@ -73,6 +73,18 @@ The happy path is intentionally small:
 10. The user tells Oleg the code.
 11. Oleg opens the door with the line: "404 accepted. Door not found, but exit found."
 
+The user may address the cat at any stage. Cat small talk never progresses
+state and should answer in the cat's lazy, smug style in context of the phrase.
+Before Oleg reveals the cat clue, cat small talk must not say the name Pixel,
+mention the exit panel, or reveal code `404`. After the clue, the cat can be
+addressed as Pixel, but code `404` is still revealed only by the purr
+interaction.
+
+Sofia's Pixel-stage hints should be staged carefully. After Oleg points to
+Pixel, Sofia should only suggest addressing Pixel and talking to him calmly. She
+should not suggest cat language, purring, meowing, or Pixel's own language until
+Pixel has rejected an ordinary request.
+
 At any stage, the user may ask Sofia for an idea. Her answer does not progress
 state. It should sound like a facilitator who believes a way out will be found:
 calm, positive, non-competitive, and grounded in communication, exchange,

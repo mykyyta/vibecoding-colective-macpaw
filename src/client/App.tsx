@@ -2061,6 +2061,7 @@ function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState {
     case "oleg-name-learned":
       return "guardHintGiven";
     case "no-progress":
+    case "pixel-smalltalk-replied":
     case "sofia-hint-given":
     case "sofia-conversation-replied":
     case "smalltalk-replied":
