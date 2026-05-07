@@ -21,11 +21,18 @@ provider "aws" {
   region = var.aws_region
 }
 
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 locals {
   bucket_name           = "${var.project_slug}-frontend"
   leaderboard_table     = "${var.project_slug}-leaderboard"
   s3_origin_id          = "s3-frontend"
   railway_api_origin_id = "railway-api"
+  custom_domain_enabled = trimspace(var.custom_domain_name) != ""
+  custom_domain_alias   = local.custom_domain_enabled && var.enable_custom_domain_alias
 }
 
 resource "aws_s3_bucket" "frontend" {
@@ -74,11 +81,23 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
   signing_protocol                  = "sigv4"
 }
 
+resource "aws_acm_certificate" "app" {
+  count             = local.custom_domain_enabled ? 1 : 0
+  provider          = aws.us_east_1
+  domain_name       = var.custom_domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_cloudfront_distribution" "app" {
   enabled             = true
   default_root_object = "index.html"
   comment             = "${var.project_slug} app"
   price_class         = "PriceClass_100"
+  aliases             = local.custom_domain_alias ? [var.custom_domain_name] : []
 
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -134,8 +153,17 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
-    minimum_protocol_version       = "TLSv1"
+    cloudfront_default_certificate = local.custom_domain_alias ? null : true
+    acm_certificate_arn            = local.custom_domain_alias ? aws_acm_certificate.app[0].arn : null
+    ssl_support_method             = local.custom_domain_alias ? "sni-only" : null
+    minimum_protocol_version       = local.custom_domain_alias ? "TLSv1.2_2021" : "TLSv1"
+  }
+
+  lifecycle {
+    precondition {
+      condition     = !var.enable_custom_domain_alias || local.custom_domain_enabled
+      error_message = "enable_custom_domain_alias requires custom_domain_name."
+    }
   }
 }
 

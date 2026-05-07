@@ -17,6 +17,12 @@ project needs a stable public URL.
   staging and production stacks for this prototype.
 - **Public request shape:** CloudFront is the browser-facing URL. It serves
   static Vite assets from S3 and routes `/api/*` plus `/health` to Railway.
+- **Custom domain:** when a stable branded URL is needed and the parent Route53
+  hosted zone is owned by another AWS account, keep DNS records in that parent
+  account. This Terraform stack creates the ACM certificate and CloudFront alias
+  configuration only; the parent zone owner manually adds ACM validation and
+  CloudFront alias records. The default CloudFront URL remains live as a
+  fallback after the custom domain alias is added.
 - **Terraform state:** reuse the Pult Terraform state bucket with an isolated
   key: `vibecoding-colective/terraform.tfstate`.
 - **AWS profile:** `thehrdwood` for all privileged AWS and Terraform commands.
@@ -33,7 +39,8 @@ same-origin and avoids adding CORS surface area.
 
 ```text
 Browser
-  -> CloudFront
+  -> optional custom domain
+      -> CloudFront
       -> S3 frontend origin for /* static assets
       -> Railway origin for /api/* and /health
           -> Express server
@@ -47,7 +54,8 @@ provider API keys or AWS credentials.
 
 - `railway.toml` defines the Railway build and start command.
 - `infra/` defines the S3 bucket, CloudFront distribution, S3 origin access
-  control, API origin routing, and outputs.
+  control, API origin routing, optional ACM certificate, optional CloudFront
+  aliases, and outputs for parent-zone DNS records.
 - `scripts/infra/plan.sh` runs a Terraform plan.
 - `scripts/infra/apply.sh` applies the reviewed Terraform plan.
 - `scripts/railway/deploy-web.sh` deploys the web service.
@@ -65,6 +73,30 @@ Current value:
 ```text
 vibecoding-colective-macpaw-production.up.railway.app
 ```
+
+To attach a custom domain whose parent domain is hosted in another Route53
+account, use a two-step parent-zone alias flow:
+
+1. Set `custom_domain_name` in `infra/app.tfvars` to the desired app subdomain,
+   for example `exit-macpaw-space.mykyyta.link`, and keep
+   `enable_custom_domain_alias = false`.
+2. Run `AWS_PROFILE=thehrdwood npm run infra:apply`. Terraform creates the ACM
+   certificate in `us-east-1` and outputs
+   `custom_domain_certificate_validation_records`.
+3. In the parent Route53 hosted zone, add the output `CNAME` record for ACM DNS
+   validation.
+4. Wait until the ACM certificate is `ISSUED`.
+5. Set `enable_custom_domain_alias = true` and run
+   `AWS_PROFILE=thehrdwood npm run infra:apply` again. Terraform attaches the
+   custom domain to CloudFront.
+6. In the parent Route53 hosted zone, add either a `CNAME` record from the
+   subdomain to `cloudfront_alias_target`, or `A` and `AAAA` alias records using
+   `cloudfront_alias_target` as the alias target and
+   `cloudfront_alias_hosted_zone_id` as the CloudFront hosted zone ID. Use
+   `CNAME` only for subdomains, not for a root/apex domain.
+
+The Terraform stack intentionally does not mutate the parent hosted zone. That
+boundary keeps the parent domain owner separate from this app's infrastructure.
 
 Before deploying Railway, set service variables for any providers or storage
 adapters used by the product:
@@ -141,10 +173,15 @@ create or mutate Terraform-managed infrastructure.
 - **Wrong account:** always use `AWS_PROFILE=thehrdwood`.
 - **Broken API origin:** CloudFront needs the exact Railway domain before
   Terraform apply.
+- **Incomplete DNS validation:** CloudFront will reject the custom domain until
+  the ACM certificate is issued. Add the ACM validation `CNAME` in the parent
+  Route53 zone before enabling `enable_custom_domain_alias`.
 - **Secret exposure:** keep provider keys and AWS credentials in Railway
   variables only.
 - **CloudFront propagation:** distribution and invalidations can take minutes;
   keep the local tunnel path as a fallback during development.
+- **Custom domain fallback:** keep the default CloudFront distribution URL
+  available even after the custom domain is attached.
 
 ## Live Resource Outputs
 

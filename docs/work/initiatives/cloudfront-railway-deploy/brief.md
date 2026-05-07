@@ -29,6 +29,8 @@ touches external platforms that can create paid resources.
 
 - Local Railway runtime config.
 - Terraform for S3 + CloudFront.
+- Optional ACM certificate and CloudFront aliases for a custom browser-facing
+  domain whose DNS records stay in the parent Route53 account.
 - Deployment scripts for planning, Railway deploy, S3 upload, and CloudFront
   invalidation.
 - Build-system docs for the cloud deployment contract.
@@ -36,7 +38,8 @@ touches external platforms that can create paid resources.
 
 ## Scope Out
 
-- Route53 custom domain records.
+- Mutating a parent Route53 hosted zone that is owned by another AWS account.
+- Creating a delegated child Route53 hosted zone for the app subdomain.
 - Database, Redis, queues, workers, auth, or observability services.
 - GitHub Actions deployment automation.
 - Committing provider secrets or `.env` values.
@@ -47,6 +50,8 @@ touches external platforms that can create paid resources.
 - Terraform files format successfully.
 - Railway config uses the existing `npm start` server boundary.
 - CloudFront routes frontend assets to S3 and API traffic to Railway.
+- Terraform can create the custom-domain ACM certificate and attach the domain
+  to CloudFront after the parent hosted zone receives the ACM validation CNAME.
 - Docs state account/profile assumptions, command order, secrets boundary, and
   approval gate.
 - No external resources are created without explicit user approval.
@@ -62,5 +67,4 @@ Planner frames the packets. Executor can implement each packet after approval.
 ## Open Questions
 
 - Which Railway public domain should the single cloud environment use?
-- Is a custom `thehrdwood.com` subdomain required, or is the default CloudFront
-  domain acceptable for the demo?
+- Which exact Route53 alias records were added in the parent hosted zone?
