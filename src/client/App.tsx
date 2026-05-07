@@ -2060,11 +2060,8 @@ function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState {
     case "guard-hint-given":
     case "oleg-name-learned":
       return "guardHintGiven";
-    case "no-progress":
-    case "pixel-smalltalk-replied":
+    case "chitchat-replied":
     case "sofia-hint-given":
-    case "sofia-conversation-replied":
-    case "smalltalk-replied":
       return mapQuestStateToRoomState(response.nextQuestState);
   }
 }

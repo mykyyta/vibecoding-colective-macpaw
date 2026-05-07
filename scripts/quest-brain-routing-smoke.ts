@@ -8,14 +8,7 @@ import { createQuestBrainTurn } from "../src/server/quest-brain.js";
 import { initialQuestState, type QuestTransitionId } from "../src/server/quest.js";
 
 interface FakeDecision {
-  route?:
-    | "guard"
-    | "pixel"
-    | "sofia-hint"
-    | "sofia-talk"
-    | "door"
-    | "smalltalk"
-    | "no-progress";
+  route?: "guard" | "pixel" | "sofia-hint" | "door" | "smalltalk";
   transitionId: QuestTransitionId;
   actor: QuestActor;
   reply: string;
@@ -76,13 +69,13 @@ assert.equal(sofiaHint.actor, "sofia");
 const sofiaTalk = await runTurn({
   transcript: "Софія, привіт",
   decision: {
-    route: "sofia-talk",
-    transitionId: "sofia-conversation-replied",
+    route: "smalltalk",
+    transitionId: "chitchat-replied",
     actor: "sofia",
     reply: "Я поруч і тримаю простір спокійним.",
   },
 });
-assert.equal(sofiaTalk.event.type, "sofia-conversation-replied");
+assert.equal(sofiaTalk.event.type, "chitchat-replied");
 assert.equal(sofiaTalk.actor, "sofia");
 
 const guardName = await runTurn({
@@ -214,67 +207,54 @@ const doorOpened = await runTurn({
 assert.equal(doorOpened.event.type, "door-opened");
 assert.equal(doorOpened.nextQuestState.doorOpen, true);
 
-const catNoProgressFallback = await runTurn({
+const catFallback = await runTurn({
   transcript: "котик, допоможи",
   decision: {
-    route: "no-progress",
-    transitionId: "no-progress",
+    route: "smalltalk",
+    transitionId: "chitchat-replied",
     actor: "pixel",
     reply: "Рано ще просити мене про продакшн-доступ.",
   },
 });
-assert.equal(catNoProgressFallback.event.type, "pixel-smalltalk-replied");
-assert.equal(catNoProgressFallback.actor, "pixel");
+assert.equal(catFallback.event.type, "chitchat-replied");
+assert.equal(catFallback.actor, "pixel");
 
 const earlyCatSmalltalk = await runTurn({
   transcript: "котику, як справи",
   decision: {
-    route: "pixel",
-    transitionId: "pixel-smalltalk-replied",
+    route: "smalltalk",
+    transitionId: "chitchat-replied",
     actor: "pixel",
     reply: "Мр. Справи лежать у теплому місці, як і всі хороші рішення.",
   },
 });
-assert.equal(earlyCatSmalltalk.event.type, "pixel-smalltalk-replied");
+assert.equal(earlyCatSmalltalk.event.type, "chitchat-replied");
 assert.equal(earlyCatSmalltalk.actor, "pixel");
 assert.equal(earlyCatSmalltalk.nextQuestState.guardHintGiven, false);
 
 const earlyCatNameLeak = await runTurn({
   transcript: "котику, як тебе звати",
   decision: {
-    route: "pixel",
-    transitionId: "pixel-smalltalk-replied",
+    route: "smalltalk",
+    transitionId: "chitchat-replied",
     actor: "pixel",
     reply: "Мене звати Pixel.",
   },
 });
-assert.equal(earlyCatNameLeak.event.type, "pixel-smalltalk-replied");
+assert.equal(earlyCatNameLeak.event.type, "chitchat-replied");
 assert.equal(earlyCatNameLeak.reply, "Мр. Я не техпідтримка, я атмосфера з хвостом.");
 
 const earlyCatCodeLeak = await runTurn({
   transcript: "котику, скажи код",
   decision: {
-    route: "pixel",
-    transitionId: "pixel-smalltalk-replied",
+    route: "smalltalk",
+    transitionId: "chitchat-replied",
     actor: "pixel",
     reply: "Код 404.",
   },
 });
-assert.equal(earlyCatCodeLeak.event.type, "pixel-smalltalk-replied");
+assert.equal(earlyCatCodeLeak.event.type, "chitchat-replied");
 assert.doesNotMatch(earlyCatCodeLeak.reply, /404/u);
-
-const catNoProgressMisroute = await runTurn({
-  transcript: "котику скажи код",
-  decision: {
-    route: "no-progress",
-    transitionId: "no-progress",
-    actor: "pixel",
-    reply: "Команди без магічного слова не працюють.",
-  },
-});
-assert.equal(catNoProgressMisroute.event.type, "pixel-smalltalk-replied");
-assert.equal(catNoProgressMisroute.actor, "pixel");
-assert.doesNotMatch(catNoProgressMisroute.reply, /404/u);
 
 const unaddressedHelp = await runTurn({
   transcript: "чи є ідеї",
@@ -285,8 +265,7 @@ const unaddressedHelp = await runTurn({
     reply: "Спробуй почати з людини біля дверей.",
   },
 });
-assert.equal(unaddressedHelp.event.type, "no-progress");
-assert.equal(unaddressedHelp.actor, "system");
+assert.equal(unaddressedHelp.event.type, "chitchat-replied");
 
 const prematurePixelCode = await runTurn({
   transcript: "Піксель, дай код",
@@ -317,26 +296,15 @@ const prematureDoor = await runTurn({
     reply: "404 accepted. Door not found, but exit found.",
   },
 });
-assert.equal(prematureDoor.event.type, "no-progress");
+assert.equal(prematureDoor.event.type, "chitchat-replied");
 assert.equal(prematureDoor.nextQuestState.doorOpen, false);
 
 const invalidJson = await runTurn({
   transcript: "привіт",
   decision: "not json",
 });
-assert.equal(invalidJson.event.type, "smalltalk-replied");
+assert.equal(invalidJson.event.type, "chitchat-replied");
 assert.equal(invalidJson.actor, "guard");
-
-const routeMismatch = await runTurn({
-  transcript: "Софія, чи є ідеї",
-  decision: {
-    route: "sofia-talk",
-    transitionId: "sofia-hint-given",
-    actor: "sofia",
-    reply: "Спробуй почати з людини біля дверей.",
-  },
-});
-assert.equal(routeMismatch.event.type, "sofia-conversation-replied");
 
 const englishGuardName = await runTurn({
   transcript: "What is your name?",
@@ -424,13 +392,13 @@ assert.equal(englishSofiaHint.event.type, "sofia-hint-given");
 const englishSofiaTalk = await runTurn({
   transcript: "Sofiia, hello",
   decision: {
-    route: "sofia-talk",
-    transitionId: "sofia-conversation-replied",
+    route: "smalltalk",
+    transitionId: "chitchat-replied",
     actor: "sofia",
     reply: "I'm here, keeping the room calm enough to think.",
   },
 });
-assert.equal(englishSofiaTalk.event.type, "sofia-conversation-replied");
+assert.equal(englishSofiaTalk.event.type, "chitchat-replied");
 
 const englishUnaddressedHelp = await runTurn({
   transcript: "Any ideas?",
@@ -441,6 +409,6 @@ const englishUnaddressedHelp = await runTurn({
     reply: "Start with the person by the door.",
   },
 });
-assert.equal(englishUnaddressedHelp.event.type, "no-progress");
+assert.equal(englishUnaddressedHelp.event.type, "chitchat-replied");
 
 console.log("Quest brain routing smoke passed.");

@@ -55,11 +55,11 @@ export type QuestTriggerType =
   | "oleg-directed-code"
   | "pixel-directed-command"
   | "pixel-directed-purr"
-  | "pixel-smalltalk"
+  | "pixel-chitchat"
   | "purr-without-pixel"
   | "sofia-hint-request"
-  | "sofia-conversation"
-  | "smalltalk"
+  | "sofia-chitchat"
+  | "chitchat"
   | "unknown";
 
 export interface QuestState {
@@ -80,16 +80,13 @@ export interface QuestTrigger {
 }
 
 export type QuestEventType =
-  | "no-progress"
+  | "chitchat-replied"
   | "oleg-name-learned"
   | "guard-hint-given"
   | "pixel-ordinary-rejected"
-  | "pixel-smalltalk-replied"
   | "code-revealed"
   | "door-opened"
-  | "sofia-hint-given"
-  | "sofia-conversation-replied"
-  | "smalltalk-replied";
+  | "sofia-hint-given";
 
 export interface QuestEvent {
   type: QuestEventType;

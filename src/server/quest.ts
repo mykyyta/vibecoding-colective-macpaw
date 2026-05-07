@@ -9,6 +9,11 @@ import type {
   QuestTrigger,
   VoiceAction,
 } from "../shared/voice.js";
+import {
+  CANNED_REPLIES,
+  FINAL_DOOR_LINE,
+  type QuestReplyId,
+} from "./quest-content.js";
 
 export type QuestTransitionId = QuestEventType;
 
@@ -77,152 +82,6 @@ export const initialQuestState: QuestState = {
 const DEFAULT_REPLY_LANGUAGE: QuestLanguage = "uk";
 const HIGH_CONFIDENCE_LANGUAGE_THRESHOLD = 0.75;
 const HEURISTIC_LANGUAGE_THRESHOLD = 0.62;
-const FINAL_DOOR_OPEN_REPLY = "404 accepted. Door not found, but exit found.";
-
-type QuestReplyId =
-  | "guard-name"
-  | "guard-name-needed"
-  | "guard-hint"
-  | "pixel-too-early"
-  | "pixel-ordinary-rejected"
-  | "pixel-smalltalk"
-  | "pixel-purr-too-early"
-  | "code-revealed"
-  | "anonymous-code"
-  | "code-not-revealed"
-  | "door-opened"
-  | "generic-door-known"
-  | "generic-door-unknown"
-  | "purr-without-pixel"
-  | "purr-without-pixel-before-hint"
-  | "sofia-hint-initial"
-  | "sofia-hint-oleg-known"
-  | "sofia-hint-guard-clue"
-  | "sofia-hint-pixel-rejected"
-  | "sofia-hint-code-revealed"
-  | "sofia-hint-after-escape"
-  | "sofia-conversation-vcc"
-  | "sofia-conversation-smalltalk"
-  | "smalltalk-after-escape"
-  | "smalltalk-pixel"
-  | "smalltalk-guard-known"
-  | "smalltalk-guard-unknown"
-  | "unknown";
-
-const QUEST_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
-  "guard-name": {
-    uk: "Я Олег. Після вайбкодінг івенту тут навіть бейдж проходить валідацію краще, ніж сміливий prompt.",
-    en: "I'm Oleg. After the vibecoding event, even my badge validates better than a brave prompt.",
-  },
-  "guard-name-needed": {
-    uk: "Охоронець дивиться крізь команду. Спершу непогано б дізнатися, як його звати.",
-    en: "The guard looks through the command. First it would help to learn his name.",
-  },
-  "guard-hint": {
-    uk: "Олег на місці. Вихід замкнений після вайбкодінг івенту: потрібен код, а не ще один AI-обхід; Pixel крутився біля панелі.",
-    en: "Oleg is here. The exit is locked after the vibecoding event: it needs a code, not another AI workaround; Pixel was circling the panel.",
-  },
-  "pixel-too-early": {
-    uk: "Мр? Пухнастий мешканець дивиться так, ніби ти перескочив потрібний prompt. Спершу з'ясуй у охоронця, чому двері вдають стіну.",
-    en: "Mrr? The furry resident looks like you skipped a required prompt. First ask the guard why the door is pretending to be a wall.",
-  },
-  "pixel-ordinary-rejected": {
-    uk: "Мяу. На людські prompt-и я реагую, як кіт на autocomplete: бачу, зневажаю.",
-    en: "Meow. I treat human prompts like autocomplete: I see them, I judge them.",
-  },
-  "pixel-smalltalk": {
-    uk: "Мр. Я не техпідтримка, я атмосфера з хвостом.",
-    en: "Mrr. I am not support; I am atmosphere with a tail.",
-  },
-  "pixel-purr-too-early": {
-    uk: "Мрр, звук правильний, але секрет ще не має адреси. Спершу розберися з дверима через охоронця.",
-    en: "Mrrr, correct sound, wrong moment. First sort out the door with the guard.",
-  },
-  "code-revealed": {
-    uk: "Мрр-р. Код 404 на моєму бейджику; нарешті не prompt engineering, а нормальне муркотіння.",
-    en: "Mrrr. Code 404 is on my badge; finally, not prompt engineering, proper purring.",
-  },
-  "anonymous-code": {
-    uk: "Охоронець не приймає коди від анонімного голосу, навіть якщо він звучить як дуже впевнений AI. Спершу треба познайомитись.",
-    en: "The guard does not accept codes from an anonymous voice, even one that sounds like very confident AI. Introductions first.",
-  },
-  "code-not-revealed": {
-    uk: "Олег не приймає галюцинації за код. Спершу отримай його від того, хто крутився біля панелі.",
-    en: "Oleg does not accept hallucinations as codes. Get it first from whoever was circling the panel.",
-  },
-  "door-opened": {
-    uk: FINAL_DOOR_OPEN_REPLY,
-    en: FINAL_DOOR_OPEN_REPLY,
-  },
-  "generic-door-known": {
-    uk: "Двері не реагують на загальні побажання. Після AI talks навіть вихід просить точний адресат.",
-    en: "The door ignores general wishes. After the AI talks, even the exit wants a precise addressee.",
-  },
-  "generic-door-unknown": {
-    uk: "Команда розчиняється в просторі. Схоже, двері не довіряють prompt-ам без контексту.",
-    en: "The command dissolves into the room. Looks like the door does not trust prompts without context.",
-  },
-  "purr-without-pixel": {
-    uk: "Мр? Гарний звук, але без адресата це просто аудіо для майбутнього датасету. Скажи Pixel.",
-    en: "Mrr? Good sound, but without an addressee it's just audio for a future dataset. Say Pixel.",
-  },
-  "purr-without-pixel-before-hint": {
-    uk: "Мр? Гарний звук, але без адресата це просто аудіо для майбутнього датасету. Спершу дізнайся, до кого тут варто звертатись.",
-    en: "Mrr? Good sound, but without an addressee it's just audio for a future dataset. First learn who is worth addressing here.",
-  },
-  "sofia-hint-initial": {
-    uk: "Я не знаю готового виходу, але вірю, що він знайдеться. Тут не про перемогу: спробуй почати зі знайомства з людиною біля дверей.",
-    en: "I do not have the answer, but I believe there is a way out. This is not about winning: try starting with the person by the door.",
-  },
-  "sofia-hint-oleg-known": {
-    uk: "Мені здається, двері не люблять загальні бажання. Спробуй звернутися до Олега напряму і попросити його подумати про вихід разом із тобою.",
-    en: "I think the door ignores general wishes. Try addressing Oleg directly and asking him to think about the exit with you.",
-  },
-  "sofia-hint-guard-clue": {
-    uk: "Олег уже дав напрям. Я б просто звернулася до Pixel і спробувала поговорити з ним спокійно, без тиску.",
-    en: "Oleg already gave a direction. I would simply address Pixel and try talking to him calmly, without pressure.",
-  },
-  "sofia-hint-pixel-rejected": {
-    uk: "Схоже, звичайні прохання Pixel не надихають. Може, варто спробувати не людський prompt, а щось ближче до його мови.",
-    en: "Looks like ordinary requests do not inspire Pixel. Maybe try less human prompt and more of his own language.",
-  },
-  "sofia-hint-code-revealed": {
-    uk: "Код уже є, але я б не кидала його в простір. Його має почути той, хто стоїть між нами і дверима.",
-    en: "The code exists now, but I would not throw it into the room. It should be heard by the person standing between us and the door.",
-  },
-  "sofia-hint-after-escape": {
-    uk: "Бачиш, це було не про перемогу, а про спільний вихід. Забирай цей вайб із собою.",
-    en: "See, this was not about winning; it was about finding a way out together. Take that vibe with you.",
-  },
-  "sofia-conversation-vcc": {
-    uk: "Vibe Coding Collective — це спільнота й серія подій про те, як робити AI-білдинг доступним, соціальним і творчим. Тут можна прийти з ідеєю, ноутбуком, навушниками й вайбом, а не з ідеальним планом.",
-    en: "Vibe Coding Collective is a community and event series for making AI-assisted building accessible, social, and creative. You can arrive with an idea, a laptop, headphones, and vibe, not a perfect plan.",
-  },
-  "sofia-conversation-smalltalk": {
-    uk: "Я Софія. Я поруч і тримаю простір спокійним, щоб було легше думати й пробувати.",
-    en: "I'm Sofiia. I'm here, keeping the space calm so it is easier to think and try.",
-  },
-  "smalltalk-after-escape": {
-    uk: "Двері світяться скромно, ніби AI щойно вперше визнав: так, це був вихід.",
-    en: "The door glows modestly, like an AI finally admitting: yes, that was the exit.",
-  },
-  "smalltalk-pixel": {
-    uk: "Мяу. Я бачив дорожчу AI-презентацію, але ця хоча б має правильний запах.",
-    en: "Meow. I've seen pricier AI presentations, but at least this one smells correct.",
-  },
-  "smalltalk-guard-known": {
-    uk: "Олег киває. Розмова йде краще, ніж більшість відповідей без контексту.",
-    en: "Oleg nods. This conversation is going better than most answers without context.",
-  },
-  "smalltalk-guard-unknown": {
-    uk: "Охоронець ледь киває. Ввічливість помітив, доступ поки ні.",
-    en: "The guard barely nods. Courtesy noticed; access still pending.",
-  },
-  unknown: {
-    uk: "Кімната це почула й не зробила висновків. Рідкісний випадок відповідального AI.",
-    en: "The room heard that and drew no conclusions. A rare case of responsible AI.",
-  },
-};
 
 export function normalizeQuestState(
   state: Partial<QuestState> | null | undefined = {},
@@ -230,21 +89,19 @@ export function normalizeQuestState(
   const source = state && typeof state === "object" ? state : {};
   const olegNameKnown = source.olegNameKnown === true;
   const guardHintGiven = source.guardHintGiven === true && olegNameKnown;
-  const pixelAddressed = source.pixelAddressed === true && guardHintGiven;
   const pixelRejectedOrdinaryCommand =
-    source.pixelRejectedOrdinaryCommand === true && pixelAddressed;
-  const codeRevealed = source.codeRevealed === true && pixelAddressed;
-  const doorOpen =
-    source.doorOpen === true && olegNameKnown && codeRevealed;
+    source.pixelRejectedOrdinaryCommand === true && guardHintGiven;
+  const codeRevealed = source.codeRevealed === true && guardHintGiven;
+  const doorOpen = source.doorOpen === true && olegNameKnown && codeRevealed;
 
   return {
     olegNameKnown,
     guardHintGiven,
-    pixelAddressed,
+    pixelAddressed: pixelRejectedOrdinaryCommand || codeRevealed,
     pixelRejectedOrdinaryCommand,
     codeRevealed,
     doorOpen,
-    escaped: source.escaped === true && doorOpen,
+    escaped: doorOpen,
   };
 }
 
@@ -333,7 +190,7 @@ export function createQuestTurn(
   const trigger = classifyQuestTranscript(transcript);
   const nextQuestState = { ...previousQuestState };
   let actor: QuestActor = trigger.actor;
-  let event: QuestEvent = { type: "no-progress", progressed: false };
+  let event: QuestEvent = { type: "chitchat-replied", progressed: false };
   let reply = "";
 
   switch (trigger.type) {
@@ -359,20 +216,17 @@ export function createQuestTurn(
     case "pixel-directed-command":
       actor = "pixel";
       if (!previousQuestState.guardHintGiven) {
-        event = { type: "pixel-smalltalk-replied", progressed: false };
         reply = getQuestReply("pixel-smalltalk", replyLanguage);
         break;
       }
 
-      nextQuestState.pixelAddressed = true;
       nextQuestState.pixelRejectedOrdinaryCommand = true;
       event = { type: "pixel-ordinary-rejected", progressed: true };
       reply = getQuestReply("pixel-ordinary-rejected", replyLanguage);
       break;
 
-    case "pixel-smalltalk":
+    case "pixel-chitchat":
       actor = "pixel";
-      event = { type: "pixel-smalltalk-replied", progressed: false };
       reply = getQuestReply("pixel-smalltalk", replyLanguage);
       break;
 
@@ -383,7 +237,6 @@ export function createQuestTurn(
         break;
       }
 
-      nextQuestState.pixelAddressed = true;
       nextQuestState.codeRevealed = true;
       event = { type: "code-revealed", progressed: true };
       reply = getQuestReply("code-revealed", replyLanguage);
@@ -402,7 +255,6 @@ export function createQuestTurn(
       }
 
       nextQuestState.doorOpen = true;
-      nextQuestState.escaped = true;
       event = { type: "door-opened", progressed: true };
       actor = "door";
       reply = getQuestReply("door-opened", replyLanguage);
@@ -428,19 +280,18 @@ export function createQuestTurn(
       reply = getSofiaHintReply(previousQuestState, replyLanguage);
       break;
 
-    case "sofia-conversation":
+    case "sofia-chitchat":
       actor = "sofia";
-      event = { type: "sofia-conversation-replied", progressed: false };
       reply = getSofiaConversationReply(trigger, replyLanguage);
       break;
 
-    case "smalltalk":
-      actor = getSmalltalkActor(previousQuestState);
-      event = { type: "smalltalk-replied", progressed: false };
-      reply = getSmalltalkFallbackReply(previousQuestState, replyLanguage);
+    case "chitchat":
+      actor = getChitchatActor(previousQuestState);
+      reply = getChitchatFallbackReply(actor, previousQuestState, replyLanguage);
       break;
 
     case "unknown":
+      actor = "system";
       reply = getQuestReply("unknown", replyLanguage);
       break;
   }
@@ -453,8 +304,137 @@ export function createQuestTurn(
     reply,
     trigger,
     previousQuestState,
-    nextQuestState,
+    nextQuestState: normalizeQuestState(nextQuestState),
   };
+}
+
+interface TransitionRecord {
+  id: QuestTransitionId;
+  actor: (state: QuestState) => QuestActor;
+  allowedActors?: (state: QuestState) => QuestActor[];
+  isAvailable: (state: QuestState) => boolean;
+  factsCheck?: (state: QuestState, facts: QuestTranscriptFacts) => boolean;
+  apply: (state: QuestState) => QuestState;
+  describe: (state: QuestState, replyLanguage: QuestLanguage) => string;
+  fallbackReply: (state: QuestState, replyLanguage: QuestLanguage) => string;
+}
+
+const TRANSITIONS: TransitionRecord[] = [
+  {
+    id: "chitchat-replied",
+    actor: getChitchatActor,
+    allowedActors: () => getChitchatActors(),
+    isAvailable: () => true,
+    apply: (state) => state,
+    describe: () =>
+      [
+        "Use for any player turn that should not progress the quest:",
+        "greetings, thanks, jokes, ordinary conversation with any character,",
+        "questions about a character, comments about the room or door,",
+        "questions about Vibe Coding Collective / vibe coding / the event,",
+        "or ambiguous and unintelligible input.",
+        "Pick the actor who is being addressed; if no clear address, pick the",
+        "most relevant visible character (guard early, Pixel once engaged,",
+        "door after escape, sofia for VCC and Sofiia-directed comments).",
+        "Sofiia may answer here from her persona including a brief VCC",
+        "explanation if asked, but she must not give a quest-step hint:",
+        "if the player asks Sofiia for help, choose sofia-hint-given instead.",
+      ].join(" "),
+    fallbackReply: (state, lang) =>
+      getChitchatFallbackReply(getChitchatActor(state), state, lang),
+  },
+  {
+    id: "sofia-hint-given",
+    actor: () => "sofia",
+    isAvailable: () => true,
+    factsCheck: (_state, facts) => facts.hasSofiaAddress,
+    apply: (state) => state,
+    describe: (state) =>
+      [
+        "Use when the player directly addresses Sofiia and semantically asks for a quest idea, hint, help, advice, direction, or next step.",
+        "This requires a direct Sofiia address by name or feminine address; unaddressed help requests are not Sofiia hints.",
+        "Do not use this for ordinary Sofiia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
+        "Sofiia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
+        getSofiaHintStageContext(state),
+      ].join(" "),
+    fallbackReply: getSofiaHintReply,
+  },
+  {
+    id: "oleg-name-learned",
+    actor: () => "guard",
+    isAvailable: (state) => !state.olegNameKnown,
+    factsCheck: (_state, facts) => facts.hasNameQuestion,
+    apply: (state) => ({ ...state, olegNameKnown: true }),
+    describe: () =>
+      "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg. The spoken reply must explicitly include the name Oleg/Олег because name-based address is the core puzzle key.",
+    fallbackReply: (_state, lang) => getQuestReply("guard-name", lang),
+  },
+  {
+    id: "guard-hint-given",
+    actor: () => "guard",
+    isAvailable: (state) => state.olegNameKnown && !state.guardHintGiven,
+    factsCheck: (_state, facts) =>
+      facts.hasOleg && (facts.hasDoor || facts.hasCodeIntent),
+    apply: (state) => ({ ...state, guardHintGiven: true }),
+    describe: (_state, lang) => {
+      const eventPhrase =
+        lang === "en" ? "vibecoding event" : "вайбкодінг івент";
+
+      return `The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. The spoken reply must explicitly include the cat's name Pixel/Піксель because this is the key clue for the next step. This may reveal that the exit is locked after the ${eventPhrase} and Pixel's exit-panel clue, but not the code.`;
+    },
+    fallbackReply: (_state, lang) => getQuestReply("guard-hint", lang),
+  },
+  {
+    id: "pixel-ordinary-rejected",
+    actor: () => "pixel",
+    isAvailable: (state) =>
+      state.guardHintGiven && !state.pixelRejectedOrdinaryCommand,
+    factsCheck: (_state, facts) => facts.hasPixel,
+    apply: (state) => ({ ...state, pixelRejectedOrdinaryCommand: true }),
+    describe: () =>
+      "The player directly addresses Pixel by name with an ordinary command, request, or question, including asking for the code without making a cat sound. Pixel acknowledges the address but refuses ordinary commands.",
+    fallbackReply: (_state, lang) =>
+      getQuestReply("pixel-ordinary-rejected", lang),
+  },
+  {
+    id: "code-revealed",
+    actor: () => "pixel",
+    isAvailable: (state) => state.guardHintGiven && !state.codeRevealed,
+    factsCheck: (_state, facts) => facts.hasPixel && facts.hasPurr,
+    apply: (state) => ({ ...state, codeRevealed: true }),
+    describe: () =>
+      "Use only when the player directly says Pixel's name or a clear Pixel alias and also performs a gentle cat sound in the same transcript, such as mur, mrr, meow, purr, pur, prr, nya/няв/мяу, or similar. Do not use for ordinary commands like asking Pixel for the code without a cat sound. This is the only transition that may reveal code 404.",
+    fallbackReply: (_state, lang) => getQuestReply("code-revealed", lang),
+  },
+  {
+    id: "door-opened",
+    actor: () => "door",
+    isAvailable: (state) =>
+      state.olegNameKnown && state.codeRevealed && !state.doorOpen,
+    factsCheck: (_state, facts) => facts.hasOleg && facts.hasCode404,
+    apply: (state) => ({ ...state, doorOpen: true }),
+    describe: () =>
+      "The player directly addresses Oleg and gives the already revealed code 404. This is the only transition that may open the door or mark escape. The reply should use this exact final line: 404 accepted. Door not found, but exit found.",
+    fallbackReply: (_state, lang) => getQuestReply("door-opened", lang),
+  },
+];
+
+function findTransition(id: QuestTransitionId): TransitionRecord | undefined {
+  return TRANSITIONS.find((record) => record.id === id);
+}
+
+export function isTransitionLegal(
+  id: QuestTransitionId,
+  state: QuestState,
+  facts: QuestTranscriptFacts,
+): boolean {
+  const record = findTransition(id);
+
+  if (!record || !record.isAvailable(state)) {
+    return false;
+  }
+
+  return record.factsCheck?.(state, facts) ?? true;
 }
 
 export function getAllowedQuestTransitions(
@@ -462,109 +442,19 @@ export function getAllowedQuestTransitions(
   replyLanguage: QuestLanguage = DEFAULT_REPLY_LANGUAGE,
 ): AllowedQuestTransition[] {
   const state = normalizeQuestState(questState);
-  const transitions: AllowedQuestTransition[] = [
-    {
-      id: "no-progress",
-      actor: "system",
-      allowedActors: getNoProgressActors(),
-      description:
-        "Use when the player command should not progress the puzzle, including generic door commands, premature code guesses, unclear input, or addressed character turns that should answer without changing state. The actor may be the addressed or most relevant visible character.",
-      fallbackReply: getQuestReply("unknown", replyLanguage),
-    },
-    {
-      id: "smalltalk-replied",
-      actor: getSmalltalkActor(state),
-      allowedActors: getSmalltalkActors(state),
-      description:
-        "Use for harmless greetings, thanks, jokes, or smalltalk that should not progress the puzzle. Let the most relevant visible character answer: guard before Pixel is engaged, Pixel after Pixel is engaged, door after escape.",
-      fallbackReply: getSmalltalkFallbackReply(state, replyLanguage),
-    },
-    {
-      id: "pixel-smalltalk-replied",
-      actor: "pixel",
-      description:
-        "Use for any player turn addressed to the cat before or outside the progress-critical Pixel interactions, when the cat should answer in his lazy, smug style without changing quest state. This route is always available. Do not reveal the cat's name before the guard clue, do not reveal code 404, and do not mention the exit-panel clue before guard-hint-given.",
-      fallbackReply: getQuestReply("pixel-smalltalk", replyLanguage),
-    },
-    {
-      id: "sofia-hint-given",
-      actor: "sofia",
-      description:
-        [
-          "Use when the player directly addresses Sofiia and semantically asks for a quest idea, hint, help, advice, direction, or next step.",
-          "This requires a direct Sofiia address by name or feminine address; unaddressed help requests are not Sofiia hints.",
-          "Do not use this for ordinary Sofiia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
-          "Sofiia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
-          getSofiaHintStageContext(state),
-        ].join(" "),
-      fallbackReply: getSofiaHintReply(state, replyLanguage),
-    },
-    {
-      id: "sofia-conversation-replied",
-      actor: "sofia",
-      description:
-        "Use for every Sofiia-directed turn that is not semantically asking Sofiia for a quest idea or next step: ordinary conversation, questions about Sofiia, door/code comments addressed to Sofiia, and questions about Vibe Coding Collective, VCC, vibe coding, the community, or the event. Sofiia should answer from her character brief and current visible context. She may explain VCC or vibe coding if that is what the player asked. She must not give a quest-step hint unless the player is asking Sofiia for help with the quest.",
-      fallbackReply: getQuestReply("sofia-conversation-smalltalk", replyLanguage),
-    },
-  ];
 
-  if (!state.olegNameKnown) {
-    transitions.push({
-      id: "oleg-name-learned",
-      actor: "guard",
-      description:
-        "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg. The spoken reply must explicitly include the name Oleg/Олег because name-based address is the core puzzle key.",
-      fallbackReply: getQuestReply("guard-name", replyLanguage),
-    });
-  }
-
-  if (state.olegNameKnown && !state.guardHintGiven) {
-    const eventPhrase =
-      replyLanguage === "en" ? "vibecoding event" : "вайбкодінг івент";
-
-    transitions.push({
-      id: "guard-hint-given",
-      actor: "guard",
-      description:
-        `The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. The spoken reply must explicitly include the cat's name Pixel/Піксель because this is the key clue for the next step. This may reveal that the exit is locked after the ${eventPhrase} and Pixel's exit-panel clue, but not the code.`,
-      fallbackReply: getQuestReply("guard-hint", replyLanguage),
-    });
-  }
-
-  if (state.guardHintGiven && !state.pixelRejectedOrdinaryCommand) {
-    transitions.push({
-      id: "pixel-ordinary-rejected",
-      actor: "pixel",
-      description:
-        "The player directly addresses Pixel by name with an ordinary command, request, or question, including asking for the code without making a cat sound. Pixel acknowledges the address but refuses ordinary commands.",
-      fallbackReply: getQuestReply("pixel-ordinary-rejected", replyLanguage),
-    });
-  }
-
-  if (state.guardHintGiven && !state.codeRevealed) {
-    transitions.push({
-      id: "code-revealed",
-      actor: "pixel",
-      description:
-        "Use only when the player directly says Pixel's name or a clear Pixel alias and also performs a gentle cat sound in the same transcript, such as mur, mrr, meow, purr, pur, prr, nya/няв/мяу, or similar. Do not use for ordinary commands like asking Pixel for the code without a cat sound. This is the only transition that may reveal code 404.",
-      fallbackReply: getQuestReply("code-revealed", replyLanguage),
-    });
-  }
-
-  if (state.olegNameKnown && state.codeRevealed && !state.doorOpen) {
-    transitions.push({
-      id: "door-opened",
-      actor: "door",
-      description:
-        "The player directly addresses Oleg and gives the already revealed code 404. This is the only transition that may open the door or mark escape. The reply should use this exact final line: 404 accepted. Door not found, but exit found.",
-      fallbackReply: getQuestReply("door-opened", replyLanguage),
-    });
-  }
-
-  return transitions;
+  return TRANSITIONS.filter((record) => record.isAvailable(state)).map(
+    (record) => ({
+      id: record.id,
+      actor: record.actor(state),
+      allowedActors: record.allowedActors?.(state),
+      description: record.describe(state, replyLanguage),
+      fallbackReply: record.fallbackReply(state, replyLanguage),
+    }),
+  );
 }
 
-function getSmalltalkActor(state: QuestState): QuestActor {
+function getChitchatActor(state: QuestState): QuestActor {
   if (state.doorOpen || state.escaped) {
     return "door";
   }
@@ -576,23 +466,12 @@ function getSmalltalkActor(state: QuestState): QuestActor {
   return "guard";
 }
 
-function getSmalltalkActors(state: QuestState): QuestActor[] {
-  if (state.doorOpen || state.escaped) {
-    return ["door", "guard", "pixel"];
-  }
-
-  if (state.pixelAddressed) {
-    return ["pixel", "guard"];
-  }
-
-  return ["guard"];
+function getChitchatActors(): QuestActor[] {
+  return ["guard", "pixel", "sofia", "door", "system"];
 }
 
-function getNoProgressActors(): QuestActor[] {
-  return ["system", "guard", "pixel", "door", "sofia"];
-}
-
-function getSmalltalkFallbackReply(
+export function getChitchatFallbackReply(
+  actor: QuestActor,
   state: QuestState,
   replyLanguage: QuestLanguage,
 ): string {
@@ -600,8 +479,18 @@ function getSmalltalkFallbackReply(
     return getQuestReply("smalltalk-after-escape", replyLanguage);
   }
 
-  if (state.pixelAddressed) {
-    return getQuestReply("smalltalk-pixel", replyLanguage);
+  if (actor === "sofia") {
+    return getQuestReply("sofia-conversation-smalltalk", replyLanguage);
+  }
+
+  if (actor === "pixel") {
+    return state.pixelAddressed
+      ? getQuestReply("smalltalk-pixel", replyLanguage)
+      : getQuestReply("pixel-smalltalk", replyLanguage);
+  }
+
+  if (actor === "system") {
+    return getQuestReply("unknown", replyLanguage);
   }
 
   return state.olegNameKnown
@@ -702,13 +591,9 @@ export function createQuestTurnFromTransition({
   const previousQuestState = normalizeQuestState(questState);
   const nextQuestState = applyQuestTransition(previousQuestState, transitionId);
   const trigger = classifyQuestTranscript(transcript);
-  const progressed = ![
-    "no-progress",
-    "smalltalk-replied",
-    "pixel-smalltalk-replied",
-    "sofia-hint-given",
-    "sofia-conversation-replied",
-  ].includes(transitionId);
+  const progressed = !["chitchat-replied", "sofia-hint-given"].includes(
+    transitionId,
+  );
 
   return {
     action: { type: "none" },
@@ -726,36 +611,13 @@ function applyQuestTransition(
   previousQuestState: QuestState,
   transitionId: QuestTransitionId,
 ): QuestState {
-  const nextQuestState = { ...previousQuestState };
+  const record = findTransition(transitionId);
 
-  switch (transitionId) {
-    case "oleg-name-learned":
-      nextQuestState.olegNameKnown = true;
-      break;
-    case "guard-hint-given":
-      nextQuestState.guardHintGiven = true;
-      break;
-    case "pixel-ordinary-rejected":
-      nextQuestState.pixelAddressed = true;
-      nextQuestState.pixelRejectedOrdinaryCommand = true;
-      break;
-    case "code-revealed":
-      nextQuestState.pixelAddressed = true;
-      nextQuestState.codeRevealed = true;
-      break;
-    case "door-opened":
-      nextQuestState.doorOpen = true;
-      nextQuestState.escaped = true;
-      break;
-    case "no-progress":
-    case "pixel-smalltalk-replied":
-    case "sofia-hint-given":
-    case "sofia-conversation-replied":
-    case "smalltalk-replied":
-      break;
+  if (!record) {
+    return previousQuestState;
   }
 
-  return nextQuestState;
+  return normalizeQuestState(record.apply(previousQuestState));
 }
 
 export function classifyQuestTranscript(transcript: string): QuestTrigger {
@@ -782,7 +644,7 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
       (hasNameQuestion || text.includes("що таке") || text.includes("what is")))
   ) {
     return {
-      type: "sofia-conversation",
+      type: "sofia-chitchat",
       actor: "sofia",
       directAddress: hasSofiaAddress,
       matched,
@@ -821,7 +683,7 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
       type:
         (hasCodeIntent || hasDoor) && hasPixel
           ? "pixel-directed-command"
-          : "pixel-smalltalk",
+          : "pixel-chitchat",
       actor: "pixel",
       directAddress: true,
       matched,
@@ -857,8 +719,8 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
 
   if (hasSmalltalk) {
     return {
-      type: "smalltalk",
-      actor: "system",
+      type: "chitchat",
+      actor: "guard",
       directAddress: false,
       matched,
     };
@@ -1165,7 +1027,7 @@ function getQuestReply(
   replyId: QuestReplyId,
   replyLanguage: QuestLanguage,
 ): string {
-  return QUEST_REPLIES[replyId][replyLanguage] ?? QUEST_REPLIES[replyId].uk;
+  return CANNED_REPLIES[replyId][replyLanguage] ?? CANNED_REPLIES[replyId].uk;
 }
 
 function parseSupportedLanguageCode(
