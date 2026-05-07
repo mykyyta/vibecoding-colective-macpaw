@@ -1,0 +1,221 @@
+---
+state: active
+last_updated: 2026-05-07
+owner: Planner
+---
+
+# Sofia Quest Guide
+
+## Purpose
+
+Add Sofia as a supporting character in **Exit MacPaw Space**.
+
+Sofia is the co-founder of the Vibecoding Collective initiative and the organizer
+of the event. She should create event vibe and help the player when asked, but
+she must not become a required puzzle participant.
+
+## Outcome Shape
+
+Sofia should be visible in the room and available by voice as an optional guide.
+When the player asks Sofia for help, she gives a stage-appropriate hint for the
+current quest state. The hint must not progress the quest, reveal forbidden
+facts early, or replace the existing happy path through Oleg and Pixel.
+
+Before implementation, Sofia's visual direction should be approved from a
+generated character image.
+
+## Character Reference
+
+Sofia is based on the supplied co-founder reference. The approved direction should
+preserve these traits:
+
+- role: product designer, Vibecoding Collective co-founder, and event organizer;
+- personality: positive, inspiring, warm, and quietly confident;
+- signature traits: glasses and curly hair;
+- outfit: button-up shirt, skirt slightly below the knee, muted non-bright
+  tights, and flat-soled shoes;
+- vibe: approachable event host who creates momentum and helps when asked, not a
+  puzzle gatekeeper.
+
+Generated visual reference for the in-interface character:
+`docs/work/initiatives/sofia-quest-guide/sofia-generated-reference.png`.
+
+## Event Context
+
+Source: `https://luma.com/zxoxma81?tk=1epikD`
+
+Sofia is the Vibe Coding Collective co-founder, product designer, and organizer
+of the first VCC event in Ukraine at MacPaw Space. The event made AI app-building
+accessible to a broad creative and non-technical audience, with ElevenLabs
+voice/audio experimentation, optional demos, safe collaboration, and a "bring
+laptop, headphones, vibe" attitude.
+
+In the quest, Sofia should feel like an encouraging facilitator: she creates
+momentum, lowers pressure, and gives clear stage hints without solving the
+puzzle for the player.
+
+Sofia must not sound like she is the quest organizer, game master, narrator, or
+someone who knows the intended solution. She is inside the situation as a calm
+facilitator who believes a way out will be found. Her hints should sound like
+ideas, reframes, or gentle facilitation prompts, not instructions from someone
+holding the answer key. She does not know exactly how to escape, but she trusts
+the participant to notice the right relationship, address the right character,
+and try the next experiment.
+
+Sofia may also explain Vibe Coding Collective in more detail, but only when the
+player explicitly asks about VCC, Vibe Coding Collective, vibe coding, the
+community, or the event. She should not volunteer this context during ordinary
+quest hints.
+
+Two character beats matter:
+
+- no-winners calm: Sofia said the event is not about winners, but about
+  communication, meeting people, exchange, lightness, and positive shared
+  experience. In the escape-room context, this gives her a calming,
+  de-escalating role: she helps the player breathe, orient, and keep moving
+  without turning the quest into a competition;
+- vibe-coding advocacy: Sofia should actively carry the idea that vibe coding is
+  worth trying and worth making accessible. She can normalize experimentation,
+  encourage non-technical players, and frame voice/audio AI as a creative
+  material rather than a scary technical gate.
+
+## Sofia Hint Rules
+
+- Sofia speaks from uncertainty plus trust: "I do not have the answer, but I
+  believe there is a way through this."
+- Sofia suggests ideas and reframes rather than commands.
+- Sofia should not say she built, prepared, designed, controls, or understands
+  the quest.
+- Sofia should not mention stages, puzzles, mechanics, state, scripts, or hidden
+  logic.
+- Sofia can remind the player that conversation, address, experimentation, and
+  listening matter more than winning.
+- Sofia can encourage vibe-coding values: try, iterate, listen, make the room
+  answer back, and do not fear imperfect experiments.
+- Sofia must still respect reveal gates for Oleg's name, Pixel's clue, code
+  `404`, and the door opening.
+
+## Sofia VCC Context Rules
+
+- Sofia can answer direct questions about Vibe Coding Collective or vibe coding.
+- These answers are optional context, not quest progress.
+- She should explain VCC as a community and event series that makes AI-assisted
+  building accessible, social, experimental, and welcoming to non-technical and
+  creative people.
+- She can mention the MacPaw Space event, ElevenLabs voice/audio experiments,
+  optional demos, safe collaboration, and the "bring laptop, headphones, vibe"
+  attitude.
+- She should keep VCC explanations short enough for spoken dialogue.
+- She should not turn every hint into a VCC explanation.
+- She should not imply that knowing VCC lore is required to escape.
+
+## Why This Is Initiative-Scale
+
+This changes durable product direction by adding a new character and touches the
+voice contract, quest brain prompt, fallback dialogue, frontend scene, and
+product apex. It is still small enough for one implementation packet, but the
+product claim and implementation need to stay coherent.
+
+## Scope In
+
+- Product apex update for Sofia's role.
+- Shared voice actor and trigger contract.
+- Deterministic quest fallback for Sofia hint requests.
+- Claude quest brain prompt context and safety rules for Sofia.
+- Client bubble routing, browser speech behavior, and scene character.
+- Focused validation with typecheck and deterministic quest smoke checks.
+
+## Scope Out
+
+- New quest-state flags or required puzzle steps.
+- New inventory, scoring, map, or visible progress panel.
+- A typed hint UI or command buttons.
+- New ElevenLabs environment variables for Sofia's voice in this slice.
+- Changing the Oleg, Pixel, code, or door-opening happy path.
+
+## Acceptance Criteria
+
+- Product docs say Sofia is the co-founder/event organizer and optional guide.
+- A player can ask Sofia for help in Ukrainian or English.
+- Sofia replies with a hint matched to the current quest stage.
+- Sofia hint replies do not change quest state.
+- Sofia cannot reveal Oleg's name, Pixel's exit-panel clue, code `404`, or door
+  opening before the existing quest state allows those facts.
+- The existing happy path through Oleg, Pixel, and `404` still works.
+- Sofia appears as a lightweight in-room character without adding dashboard UI.
+- `npm run typecheck` passes.
+
+## Execution Packets
+
+### Packet 1: Sofia Visual Direction
+
+Goal: create a Sofia character image for approval before code implementation.
+
+Scope in:
+
+- use the supplied reference as identity/style guidance;
+- create one full-body character image that can guide the later in-room scene
+  rendering;
+- keep the outfit and character traits from the character reference;
+- keep the image positive and inspiring rather than corporate or decorative.
+
+Scope out:
+
+- coding the character into the app;
+- final asset integration;
+- changing the quest state machine or dialogue.
+
+Acceptance criteria:
+
+- image clearly reads as Sofia, product designer and event organizer;
+- glasses, curly hair, shirt, skirt slightly below the knee, muted tights, and
+  flat shoes are visible;
+- character energy is positive and inspiring;
+- user approves or gives targeted revision notes.
+
+Validation:
+
+- visual review by the user.
+
+### Packet 2: Sofia Optional Guide Implementation
+
+Goal: implement the approved Sofia as an optional hint-giving character.
+
+Scope in:
+
+- extend `QuestActor` and trigger classification for Sofia help requests;
+- add optional VCC-context classification for direct questions about Vibe Coding
+  Collective or vibe coding;
+- add stage-aware Sofia fallback replies in Ukrainian and English;
+- allow Claude to choose Sofia for hint requests while keeping backend
+  progression authoritative;
+- render Sofia in the room and route Sofia replies to a Sofia speech bubble;
+- update product apex and initiative status.
+
+Scope out:
+
+- adding a new quest mechanic or state flag;
+- adding persistent hint history;
+- adding a visible hint button or typed command input;
+- changing leaderboard, deployment, or provider infrastructure.
+
+Acceptance criteria:
+
+- direct Sofia hint requests produce `sofia-hint-given` with `progressed:
+  false`;
+- direct questions about Vibe Coding Collective produce optional Sofia context
+  without changing quest state;
+- Sofia hint responses preserve the previous and next quest states;
+- existing Oleg/Pixel happy path still progresses to door opening;
+- typecheck passes.
+
+Validation:
+
+- `npm run typecheck`
+- deterministic direct quest smoke for Sofia hints at several states;
+- deterministic happy-path smoke through door opening.
+
+## Open Questions
+
+- Sofia currently reuses the room ElevenLabs voice role. A dedicated voice ID can
+  be added later if the demo needs stronger character separation.

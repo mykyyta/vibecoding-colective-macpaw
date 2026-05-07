@@ -28,7 +28,7 @@ type RoomState =
   | "doorOpening"
   | "escaped";
 
-type BubbleActor = "guard" | "pixel" | "room";
+type BubbleActor = "guard" | "pixel" | "room" | "sofia";
 
 interface SceneBubbleContent {
   actor: BubbleActor;
@@ -143,6 +143,7 @@ interface VoiceCopy {
   playerName: string;
   guardName: string;
   doorName: string;
+  sofiaName: string;
   listening: string;
   holdLonger: string;
   thinking: string;
@@ -185,6 +186,7 @@ interface VoiceCopy {
   exitKeypadAria: string;
   pixelAria: string;
   guardAria: string;
+  sofiaAria: string;
   relativeJustNow: string;
   relativeMinuteAgo: (minutes: number) => string;
   relativeHourAgo: (hours: number) => string;
@@ -205,6 +207,7 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     playerName: "Ти",
     guardName: "Охоронець",
     doorName: "Двері",
+    sofiaName: "Софія",
     listening: "Слухаю.",
     holdLonger: "Потримай кнопку трохи довше і скажи фразу ще раз.",
     thinking: "Думаю, що ти сказав.",
@@ -253,6 +256,7 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     exitKeypadAria: "Панель виходу",
     pixelAria: "Pixel",
     guardAria: "Охоронець",
+    sofiaAria: "Софія, організаторка Vibecoding Collective",
     relativeJustNow: "щойно",
     relativeMinuteAgo: (minutes) => `${minutes} хв тому`,
     relativeHourAgo: (hours) => `${hours} год тому`,
@@ -271,6 +275,7 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     playerName: "You",
     guardName: "Guard",
     doorName: "Door",
+    sofiaName: "Sofia",
     listening: "Listening.",
     holdLonger: "Hold the button a little longer and say the phrase again.",
     thinking: "Working out what you said.",
@@ -319,6 +324,7 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     exitKeypadAria: "Exit keypad",
     pixelAria: "Pixel the cat",
     guardAria: "Human guard",
+    sofiaAria: "Sofia, Vibecoding Collective organizer",
     relativeJustNow: "just now",
     relativeMinuteAgo: (minutes) => `${minutes} min ago`,
     relativeHourAgo: (hours) => `${hours} hr ago`,
@@ -1202,6 +1208,7 @@ function RoomScene({
         </div>
       </div>
 
+      <Character actor="sofia" roomState={roomState} voiceLanguage={voiceLanguage} />
       <Character actor="guard" roomState={roomState} voiceLanguage={voiceLanguage} />
       <Character
         actor="pixel"
@@ -1262,7 +1269,7 @@ function Character({
   roomState,
   voiceLanguage,
 }: {
-  actor: "guard" | "pixel";
+  actor: "guard" | "pixel" | "sofia";
   mood?: "idle" | "ignored" | "helpful";
   roomState: RoomState;
   voiceLanguage: QuestLanguage;
@@ -1280,6 +1287,30 @@ function Character({
           <i className="pixel-ear pixel-ear--right" />
           <i className="pixel-eye pixel-eye--left" />
           <i className="pixel-eye pixel-eye--right" />
+        </span>
+      </div>
+    );
+  }
+
+  if (actor === "sofia") {
+    return (
+      <div className="sofia" aria-label={copy.sofiaAria}>
+        <span className="sofia-shadow" />
+        <span className="sofia-legs" />
+        <span className="sofia-skirt" />
+        <span className="sofia-shirt" />
+        <span className="sofia-collar" />
+        <span className="sofia-sleeve sofia-sleeve--left" />
+        <span className="sofia-sleeve sofia-sleeve--right" />
+        <span className="sofia-hand sofia-hand--left" />
+        <span className="sofia-hand sofia-hand--right" />
+        <span className="sofia-head">
+          <i className="sofia-hair sofia-hair--back" />
+          <i className="sofia-hair sofia-hair--crown" />
+          <i className="sofia-hair sofia-hair--left" />
+          <i className="sofia-hair sofia-hair--right" />
+          <i className="sofia-face" />
+          <i className="sofia-glasses" />
         </span>
       </div>
     );
@@ -2030,6 +2061,8 @@ function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState {
     case "oleg-name-learned":
       return "guardHintGiven";
     case "no-progress":
+    case "sofia-hint-given":
+    case "sofia-vcc-explained":
     case "smalltalk-replied":
       return mapQuestStateToRoomState(response.nextQuestState);
   }
@@ -2074,6 +2107,12 @@ function getBubbleForVoiceTurn(
       return {
         actor: "pixel",
         name: "Pixel",
+        text: reply,
+      };
+    case "sofia":
+      return {
+        actor: "sofia",
+        name: copy.sofiaName,
         text: reply,
       };
     case "door":
@@ -2521,6 +2560,8 @@ function getBrowserSpeechSettings(actor: QuestActor): {
     case "door":
     case "system":
       return { rate: 0.9, pitch: 0.72 };
+    case "sofia":
+      return { rate: 0.94, pitch: 1.04 };
     case "guard":
       return { rate: 0.98, pitch: 0.9 };
   }

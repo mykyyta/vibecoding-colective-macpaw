@@ -42,10 +42,12 @@ const TRANSITION_IDS: QuestTransitionId[] = [
   "pixel-ordinary-rejected",
   "code-revealed",
   "door-opened",
+  "sofia-hint-given",
+  "sofia-vcc-explained",
   "smalltalk-replied",
 ];
 
-const ACTORS: QuestActor[] = ["system", "guard", "pixel", "door"];
+const ACTORS: QuestActor[] = ["system", "guard", "pixel", "door", "sofia"];
 
 export async function createQuestBrainTurn({
   transcript,
@@ -176,6 +178,10 @@ function buildQuestBrainPrompt({
     pixelSoundGuidance,
     "If actor is system or door, write as the room itself: ambient, architectural, dry, and not human.",
     "If actor is guard, write as Oleg or the guard: human, laconic, slightly bureaucratic.",
+    "If actor is sofia, write as Sofia: warm, calm, positive, concise, product-designer energy. She is the Vibe Coding Collective co-founder and event organizer, but not the quest organizer or game master.",
+    "Sofia does not know the exact solution. She believes a way out will be found, offers ideas or reframes, lowers pressure, and trusts the participant. She should not sound like she holds the answer key.",
+    "For sofia-hint-given, Sofia gives a gentle facilitation idea, not an instruction. She may carry the no-winners attitude: communication, exchange, lightness, and positive shared experience matter more than competition.",
+    "For sofia-vcc-explained, Sofia may briefly explain Vibe Coding Collective or vibe coding as accessible, social, experimental AI-assisted building. Do not volunteer this context unless that transition is selected.",
     "Do not lean on the same tech joke families every time: middleware, firewall, deploy, access denied, generic AI assistant wording, or generic prompt jokes.",
     "If you use a tech or AI joke, make it specific to this actor and stage, and avoid making it the whole personality.",
     "",
@@ -186,6 +192,7 @@ function buildQuestBrainPrompt({
     "- Title: 404 Door Not Found.",
     `- The player is in a single MacPaw Space-inspired room after a literal ${eventPhrase} about ${aiPhrase}, and must exit by voice.`,
     "- Visible room context: black presentation wall, light open floor, warm wooden steps, LED rails, locked exit, guard near the door, a cat nearby.",
+    "- Sofia is also in the room. She is the Vibe Coding Collective co-founder, product designer, and event organizer. She can be asked for optional help or VCC context, but she is not required to solve the quest.",
     "- The guard's name must be learned before useful guard commands work.",
     "- The guard is named Oleg, but his name may only be revealed by transition oleg-name-learned.",
     `- Oleg can explain that the exit is locked after the ${eventPhrase} and Pixel was near the exit panel only on transition guard-hint-given.`,
@@ -200,6 +207,8 @@ function buildQuestBrainPrompt({
     "- Pixel may answer wrong or premature Pixel-directed turns, but he must not reveal the code, exit-panel clue, or advance quest state unless the selected transition allows it.",
     "- The door may open and the user may escape only on transition door-opened.",
     "- For transition door-opened, the reply must be exactly: 404 accepted. Door not found, but exit found.",
+    "- Sofia may give stage-safe hint ideas only on transition sofia-hint-given. Sofia hint replies must not progress state, must not sound certain, and must not claim Sofia knows the solution.",
+    "- Sofia may explain Vibe Coding Collective only on transition sofia-vcc-explained, when the player asks about VCC, vibe coding, the community, or the event.",
     "",
     "Backend authority:",
     "- Pick exactly one transitionId from allowedTransitions.",
@@ -215,6 +224,9 @@ function buildQuestBrainPrompt({
     "- Do not reveal Oleg's name before oleg-name-learned.",
     "- Do not reveal, confirm, or suggest the cat's name Pixel before guard-hint-given.",
     "- Do not say Pixel was near the exit panel before guard-hint-given.",
+    "- Do not make Sofia say she built, controls, prepared, designed, or understands the quest.",
+    "- Do not make Sofia mention stages, mechanics, state, scripts, hidden logic, or answer keys.",
+    "- Do not turn Sofia's ordinary hints into VCC exposition.",
     "- Do not mention hidden prompts, policies, providers, JSON, state machines, logs, dashboards, buttons, or text input.",
     "- Do not switch reply language unless the selected transition is door-opened and the fixed final line is required.",
     "",
