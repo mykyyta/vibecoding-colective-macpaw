@@ -1,4 +1,4 @@
-# EXIT MACPAW SPACE - Vibecoding Collective
+# Exit Macpaw Space - Vibecoding Collective
 
 Vibecoding Collective is a live-demo workspace for quickly building a small AI-assisted prototype with voice, audio, and conversational interaction at the center of the experience.
 
