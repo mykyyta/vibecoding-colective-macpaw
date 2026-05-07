@@ -1223,7 +1223,7 @@ button {
 }
 
 .scene-mic-hint {
-  display: none;
+  display: block;
   overflow: hidden;
   color: color-mix(in oklch, var(--plaster-lit), transparent 28%);
   font-size: 0.68rem;
