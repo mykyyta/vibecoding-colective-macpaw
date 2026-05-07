@@ -175,6 +175,15 @@ interface VoiceCopy {
   leaderboardTries: string;
   leaderboardLoading: string;
   leaderboardEmpty: string;
+  leaderboardErrorOffline: string;
+  leaderboardErrorFinishAgain: string;
+  leaderboardErrorDisplayName: string;
+  leaderboardErrorNotConfigured: string;
+  leaderboardErrorUnavailable: string;
+  roomSceneAria: string;
+  exitKeypadAria: string;
+  pixelAria: string;
+  guardAria: string;
   relativeJustNow: string;
   relativeMinuteAgo: (minutes: number) => string;
   relativeHourAgo: (hours: number) => string;
@@ -234,6 +243,15 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     leaderboardTries: "спроб",
     leaderboardLoading: "Завантаження",
     leaderboardEmpty: "Ще немає виходів",
+    leaderboardErrorOffline: "Офлайн",
+    leaderboardErrorFinishAgain: "Пройди ще раз",
+    leaderboardErrorDisplayName: "Ім'я: 1-32 символи",
+    leaderboardErrorNotConfigured: "Не налаштовано",
+    leaderboardErrorUnavailable: "Недоступно",
+    roomSceneAria: "Голосова квест-кімната MacPaw Space",
+    exitKeypadAria: "Панель виходу",
+    pixelAria: "Pixel",
+    guardAria: "Охоронець",
     relativeJustNow: "щойно",
     relativeMinuteAgo: (minutes) => `${minutes} хв тому`,
     relativeHourAgo: (hours) => `${hours} год тому`,
@@ -291,6 +309,15 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     leaderboardTries: "tries",
     leaderboardLoading: "Loading",
     leaderboardEmpty: "No exits yet",
+    leaderboardErrorOffline: "Offline",
+    leaderboardErrorFinishAgain: "Finish again",
+    leaderboardErrorDisplayName: "Name: 1-32 chars",
+    leaderboardErrorNotConfigured: "Not configured",
+    leaderboardErrorUnavailable: "Unavailable",
+    roomSceneAria: "Voice-operated MacPaw Space quest room",
+    exitKeypadAria: "Exit keypad",
+    pixelAria: "Pixel the cat",
+    guardAria: "Human guard",
     relativeJustNow: "just now",
     relativeMinuteAgo: (minutes) => `${minutes} min ago`,
     relativeHourAgo: (hours) => `${hours} hr ago`,
@@ -984,7 +1011,9 @@ export function App() {
       setLeaderboardMessage("");
     } catch (error) {
       setLeaderboardEntries([]);
-      setLeaderboardMessage(getFriendlyLeaderboardError(error));
+      setLeaderboardMessage(
+        getFriendlyLeaderboardError(error, voiceLanguageRef.current),
+      );
     } finally {
       setLeaderboardLoading(false);
     }
@@ -1008,7 +1037,9 @@ export function App() {
       setLeaderboardEntries(result.leaderboard.entries);
       setLeaderboardMessage(getCurrentVoiceCopy().leaderboardSubmitted);
     } catch (error) {
-      setLeaderboardMessage(getFriendlyLeaderboardError(error));
+      setLeaderboardMessage(
+        getFriendlyLeaderboardError(error, voiceLanguageRef.current),
+      );
     } finally {
       setLeaderboardSubmitting(false);
     }
@@ -1091,7 +1122,7 @@ function RoomScene({
   return (
     <section
       className={`room-scene ${leaderboard.isOpen ? "room-scene--leaderboard" : ""}`}
-      aria-label="Voice-operated MacPaw Space quest room"
+      aria-label={VOICE_COPY[voiceLanguage].roomSceneAria}
     >
       <div className="room-shell" aria-hidden="true">
         <div className="back-wall" />
@@ -1155,14 +1186,19 @@ function RoomScene({
           className={`keypad ${roomState === "codeRevealed" ? "keypad--ready" : ""} ${
             doorOpen ? "keypad--accepted" : ""
           }`}
-          aria-label="Exit keypad"
+          aria-label={VOICE_COPY[voiceLanguage].exitKeypadAria}
         >
           <span>{doorOpen || roomState === "codeRevealed" ? "404" : ""}</span>
         </div>
       </div>
 
-      <Character actor="guard" roomState={roomState} />
-      <Character actor="pixel" mood={pixelMood} roomState={roomState} />
+      <Character actor="guard" roomState={roomState} voiceLanguage={voiceLanguage} />
+      <Character
+        actor="pixel"
+        mood={pixelMood}
+        roomState={roomState}
+        voiceLanguage={voiceLanguage}
+      />
 
       <FinalFireworks />
       <SceneBubble
@@ -1214,14 +1250,18 @@ function Character({
   actor,
   mood = "idle",
   roomState,
+  voiceLanguage,
 }: {
   actor: "guard" | "pixel";
   mood?: "idle" | "ignored" | "helpful";
   roomState: RoomState;
+  voiceLanguage: QuestLanguage;
 }) {
+  const copy = VOICE_COPY[voiceLanguage];
+
   if (actor === "pixel") {
     return (
-      <div className={`pixel pixel--${mood}`} aria-label="Pixel the cat">
+      <div className={`pixel pixel--${mood}`} aria-label={copy.pixelAria}>
         <span className="pixel-shadow" />
         <span className="pixel-tail" />
         <span className="pixel-body" />
@@ -1243,7 +1283,7 @@ function Character({
   return (
     <div
       className={`guard ${isSpeaking ? "guard--speaking" : ""}`}
-      aria-label="Human guard"
+      aria-label={copy.guardAria}
     >
       <span className="guard-shadow" />
       <span className="guard-legs" />
@@ -1723,26 +1763,30 @@ async function readResponseError(response: Response): Promise<string> {
   }
 }
 
-function getFriendlyLeaderboardError(error: unknown): string {
+function getFriendlyLeaderboardError(
+  error: unknown,
+  language: QuestLanguage,
+): string {
   const message = error instanceof Error ? error.message : String(error);
+  const copy = VOICE_COPY[language];
 
   if (message.includes("disabled")) {
-    return "Offline";
+    return copy.leaderboardErrorOffline;
   }
 
   if (message.includes("token")) {
-    return "Finish again";
+    return copy.leaderboardErrorFinishAgain;
   }
 
   if (message.includes("Display name")) {
-    return "Name: 1-32 chars";
+    return copy.leaderboardErrorDisplayName;
   }
 
   if (message.includes("configured")) {
-    return "Not configured";
+    return copy.leaderboardErrorNotConfigured;
   }
 
-  return "Unavailable";
+  return copy.leaderboardErrorUnavailable;
 }
 
 function formatDuration(durationMs: number): string {
