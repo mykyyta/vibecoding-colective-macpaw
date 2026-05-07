@@ -135,6 +135,7 @@ const BROWSER_RECOGNITION_LANGUAGE: Record<QuestLanguage, string> = {
   uk: "uk-UA",
   en: "en-US",
 };
+const EVENT_BANNER_URL = new URL("../../vcc_macpaw.svg", import.meta.url).href;
 
 interface VoiceCopy {
   microphoneName: string;
@@ -1150,11 +1151,20 @@ function RoomScene({
           leaderboard.isOpen ? "presentation-wall--leaderboard" : ""
         }`}
       >
+        <div
+          className="stage-event-banner-frame"
+          aria-hidden={leaderboard.isOpen}
+        >
+          <img
+            className="stage-event-banner"
+            src={EVENT_BANNER_URL}
+            alt="Vibecoding Collective event banner"
+          />
+        </div>
         <div className="screen-sheen" aria-hidden="true" />
         <div className="stage-success" aria-hidden="true">
           <span>EXIT RESOLVED</span>
         </div>
-        <span className="stage-label">MacPaw Space</span>
         <LeaderboardScreen {...leaderboard} voiceLanguage={voiceLanguage} />
       </div>
       <div className="back-signage" aria-hidden="true">
