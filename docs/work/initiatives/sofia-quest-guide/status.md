@@ -47,10 +47,11 @@ changing the required quest path.
   questions and event recap.
 - Sofia hint generation uses explicit current-state hint context so Claude has
   to point to the player's current quest step instead of generic facilitation.
-- Sofia hint routing requires both a Sofia name/feminine address and an explicit
-  help/hint/advice/idea/what-to-do request. Unaddressed help requests do not
-  route to Sofia and do not advance the quest. Ordinary Sofia conversation,
-  door/code comments, and VCC/vibe-coding questions route to the general Sofia
+- Sofia hint routing requires a Sofia name/feminine address, then Claude
+  semantically decides whether the turn asks Sofia for a quest idea, hint, help,
+  advice, direction, or next step. Unaddressed help requests do not route to
+  Sofia and do not advance the quest. Ordinary Sofia conversation, door/code
+  comments, and VCC/vibe-coding questions route to the general Sofia
   conversation route.
 - Sofia should carry the event's no-winners attitude: the point is
   communication, meeting people, exchange, lightness, and positive shared

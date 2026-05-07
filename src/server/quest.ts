@@ -453,7 +453,7 @@ export function getAllowedQuestTransitions(
       actor: "sofia",
       description:
         [
-          "Use only when the player explicitly asks Sofia for help, a hint, an idea, advice, what to do, or what to try next.",
+          "Use when the player directly addresses Sofia and semantically asks for a quest idea, hint, help, advice, direction, or next step.",
           "This requires a direct Sofia address by name or feminine address; unaddressed help requests are not Sofia hints.",
           "Do not use this for ordinary Sofia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
           "Sofia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
@@ -465,7 +465,7 @@ export function getAllowedQuestTransitions(
       id: "sofia-conversation-replied",
       actor: "sofia",
       description:
-        "Use for every Sofia-directed turn that is not an explicit hint request: ordinary conversation, questions about Sofia, door/code comments addressed to Sofia, and questions about Vibe Coding Collective, VCC, vibe coding, the community, or the event. Sofia should answer from her character brief and current visible context. She may explain VCC or vibe coding if that is what the player asked. She must not give a quest-step hint unless the player explicitly asks for a hint, help, advice, an idea, what to do, or what to try next.",
+        "Use for every Sofia-directed turn that is not semantically asking Sofia for a quest idea or next step: ordinary conversation, questions about Sofia, door/code comments addressed to Sofia, and questions about Vibe Coding Collective, VCC, vibe coding, the community, or the event. Sofia should answer from her character brief and current visible context. She may explain VCC or vibe coding if that is what the player asked. She must not give a quest-step hint unless the player is asking Sofia for help with the quest.",
       fallbackReply: getQuestReply("sofia-conversation-smalltalk", replyLanguage),
     },
   ];
@@ -879,28 +879,6 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
     ["код", "code", "парол", "password", "passcode", "pin"],
     matched,
   );
-  const hasSofiaHelpIntent = includesAny(
-    text,
-    [
-      "підкаж",
-      "порад",
-      "ідея",
-      "ідею",
-      "що робити",
-      "що спробувати",
-      "як вийти",
-      "допомож",
-      "help",
-      "hint",
-      "idea",
-      "advice",
-      "suggest",
-      "what should",
-      "what do",
-      "how do i get out",
-    ],
-    matched,
-  );
   const hasVccIntent = includesAny(
     text,
     [
@@ -925,15 +903,6 @@ export function classifyQuestTranscript(transcript: string): QuestTrigger {
   const purrMatches = findPurrMatches(text);
   const hasPurr = purrMatches.length > 0;
   matched.push(...purrMatches);
-
-  if (hasSofiaAddress && hasSofiaHelpIntent) {
-    return {
-      type: "sofia-hint-request",
-      actor: "sofia",
-      directAddress: true,
-      matched,
-    };
-  }
 
   if (
     hasSofiaAddress ||

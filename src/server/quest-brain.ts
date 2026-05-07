@@ -142,7 +142,11 @@ function isAllowedSofiaTransitionForTrigger(
   fallbackTurn: QuestTurn,
 ): boolean {
   if (transitionId === "sofia-hint-given") {
-    return fallbackTurn.trigger.type === "sofia-hint-request";
+    return (
+      fallbackTurn.trigger.type === "sofia-hint-request" ||
+      (fallbackTurn.trigger.type === "sofia-conversation" &&
+        fallbackTurn.trigger.directAddress)
+    );
   }
 
   if (transitionId === "sofia-conversation-replied") {
@@ -247,10 +251,11 @@ function buildQuestBrainPrompt({
     "- For transition door-opened, the reply must be exactly: 404 accepted. Door not found, but exit found.",
     "- Do not omit Oleg's name from oleg-name-learned replies.",
     "- Do not omit Pixel/Піксель from guard-hint-given replies.",
-    "- Sofia has exactly two routes: sofia-hint-given for direct Sofia-addressed hint/help/advice/idea/what-to-do requests, and sofia-conversation-replied for every other Sofia-directed or VCC/vibe-coding context turn.",
-    "- Select sofia-hint-given only when the player explicitly addresses Sofia by name or feminine address and asks her for a hint, help, advice, an idea, what to do, or what to try next.",
+    "- Sofia has exactly two routes: sofia-hint-given and sofia-conversation-replied.",
+    "- For any direct Sofia-addressed turn, decide semantically whether the player is asking Sofia for a quest idea, hint, help, advice, direction, or next step. If yes, select sofia-hint-given.",
+    "- Treat soft direct requests such as 'чи є ідеї', 'що думаєш', 'як бути', 'куди далі', 'я застряг', 'what do you think', or 'any ideas' as sofia-hint-given when addressed to Sofia.",
     "- If the player asks for help or a hint without addressing Sofia, do not select any Sofia route.",
-    "- Select sofia-conversation-replied for ordinary Sofia conversation, door comments, code comments, and VCC/vibe-coding questions unless the transcript clearly asks Sofia for a hint.",
+    "- Select sofia-conversation-replied for ordinary Sofia conversation, door comments, code comments, and VCC/vibe-coding questions when the player is not asking Sofia for a quest idea or next step.",
     "- On sofia-hint-given, the current-step clue is mandatory. Do not answer with only generic encouragement, calm, experimentation, or collaboration.",
     "- On sofia-conversation-replied, Sofia may decide whether to explain Vibe Coding Collective, simply talk, answer about herself, or respond to the player's comment based on the transcript and brief.",
     "- Sofia replies must be short statements, not questions. Do not ask or speculate about the event, the user's feelings, whether the event was enjoyable, or what the user wants next.",

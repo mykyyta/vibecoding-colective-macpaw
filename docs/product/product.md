@@ -80,10 +80,10 @@ experimentation, and vibe-coding accessibility. Sofia should not mention stages,
 mechanics, hidden logic, or answer keys. Sofia hint generation must use the
 current quest-state hint context so the reply points to the player's current
 step instead of generic encouragement.
-Sofia has two voice routes. She gives a quest hint only when the player both
-addresses Sofia by name or feminine address and explicitly asks her for a hint,
-help, advice, an idea, what to do, or what to try next. Unaddressed help
-requests do not route to Sofia and do not advance the quest. Every other
+Sofia has two voice routes. For direct Sofia-addressed turns, Claude decides
+semantically whether the player is asking her for a quest idea, hint, help,
+advice, direction, or next step. If yes, Sofia gives a quest hint. Unaddressed
+help requests do not route to Sofia and do not advance the quest. Every other
 Sofia-directed or VCC/vibe-coding context turn uses one conversation route where
 Claude answers from her brief and the current context.
 The user may also simply talk with Sofia if they address her directly by name or
