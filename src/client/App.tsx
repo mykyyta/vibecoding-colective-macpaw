@@ -167,7 +167,9 @@ interface VoiceCopy {
   leaderboardSceneLabel: string;
   leaderboardBoardLabel: string;
   leaderboardAria: string;
+  leaderboardInvite: string;
   leaderboardNameLabel: string;
+  leaderboardUnavailable: string;
   leaderboardSaving: string;
   leaderboardSave: string;
   leaderboardTries: string;
@@ -224,7 +226,9 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     leaderboardSceneLabel: "Сцена",
     leaderboardBoardLabel: "Дошка",
     leaderboardAria: "Останні проходження",
+    leaderboardInvite: "Додай ім'я, щоб потрапити в лідерборд.",
     leaderboardNameLabel: "Ім'я",
+    leaderboardUnavailable: "Лідерборд ще налаштовується, запис недоступний.",
     leaderboardSaving: "Збереження",
     leaderboardSave: "Зберегти",
     leaderboardTries: "спроб",
@@ -279,7 +283,9 @@ const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     leaderboardSceneLabel: "Scene",
     leaderboardBoardLabel: "Board",
     leaderboardAria: "Recent exits",
+    leaderboardInvite: "Add your name to join the leaderboard.",
     leaderboardNameLabel: "Name",
+    leaderboardUnavailable: "Leaderboard setup is still in progress, so saving is unavailable.",
     leaderboardSaving: "Saving",
     leaderboardSave: "Save",
     leaderboardTries: "tries",
@@ -334,6 +340,7 @@ export function App() {
   const previousLanguageRef = useRef<QuestLanguage | null>(null);
   const voiceLanguageRef = useRef<QuestLanguage>(DEFAULT_QUEST_LANGUAGE);
   const browserFallbackLanguageRef = useRef<QuestLanguage>(DEFAULT_QUEST_LANGUAGE);
+  const leaderboardCompletionOpenedRef = useRef(false);
   const turnIdRef = useRef(0);
   const wantsListeningRef = useRef(false);
   const listenAttemptRef = useRef(0);
@@ -836,6 +843,7 @@ export function App() {
     previousLanguageRef.current = null;
     browserFallbackLanguageRef.current = DEFAULT_QUEST_LANGUAGE;
     setVoiceLanguageSafely(DEFAULT_QUEST_LANGUAGE);
+    leaderboardCompletionOpenedRef.current = false;
     setLeaderboardCompletionToken(null);
     setLeaderboardCompletionMetrics(null);
     setLeaderboardOpen(false);
@@ -898,6 +906,7 @@ export function App() {
       if (response.leaderboardCompletion) {
         setLeaderboardCompletionToken(response.leaderboardCompletion.token);
         setLeaderboardCompletionMetrics(response.leaderboardCompletion.metrics);
+        leaderboardCompletionOpenedRef.current = true;
         setLeaderboardOpen(true);
         void loadLeaderboard();
       }
@@ -953,6 +962,16 @@ export function App() {
 
   const isListening = roomState === "listening";
   const questCompleted = roomState === "doorOpening" || roomState === "escaped";
+
+  useEffect(() => {
+    if (!questCompleted || leaderboardCompletionOpenedRef.current) {
+      return;
+    }
+
+    leaderboardCompletionOpenedRef.current = true;
+    setLeaderboardOpen(true);
+    void loadLeaderboard();
+  }, [questCompleted]);
 
   async function loadLeaderboard() {
     setLeaderboardLoading(true);
@@ -1519,6 +1538,7 @@ function LeaderboardScreen({
                 onSubmit();
               }}
             >
+              <p className="leaderboard-form__invite">{copy.leaderboardInvite}</p>
               <label htmlFor="leaderboard-name">{copy.leaderboardNameLabel}</label>
               <div className="leaderboard-form__row">
                 <input
@@ -1534,6 +1554,11 @@ function LeaderboardScreen({
                   {isSubmitting ? copy.leaderboardSaving : copy.leaderboardSave}
                 </button>
               </div>
+              {!tokenAvailable && !message ? (
+                <p className="leaderboard-form__unavailable">
+                  {copy.leaderboardUnavailable}
+                </p>
+              ) : null}
               {completionMetrics ? (
                 <p>
                   {formatDuration(completionMetrics.durationMs)} ·{" "}
