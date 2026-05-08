@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-07
+last_updated: 2026-05-08
 owner: Architect
 ---
 
@@ -76,6 +76,31 @@ npm start
 - DynamoDB configuration belongs in server-side environment variables when a
   persistent storage adapter is introduced. Do not expose AWS credentials to the
   browser.
+
+## Client Layout
+
+`src/client/` is grouped by concern so that orchestration in `App.tsx` stays
+thin and helpers stay easy to find:
+
+- `App.tsx`, `main.tsx` — top-level orchestration and bootstrap.
+- `components/` — presentational React components.
+- `api/` — `fetch` wrappers around the Express routes plus shared error parsing.
+- `audio/` — reply audio playback, browser speech synthesis, and the small
+  module-level singletons that back them.
+- `speech/` — STT helpers: browser detection and the ElevenLabs realtime
+  recognizer factory.
+- `quest/` — quest state mapping, language input shaping, and bubble copy
+  selection.
+- `leaderboard/` — leaderboard-only formatters.
+- `copy/` — bilingual UI copy as a typed dictionary.
+- `config/` — runtime constants (timing thresholds, supported languages,
+  static asset URLs).
+- `types/` — DOM shim types and small client-only contracts.
+- `styles/` — split CSS modules combined through `styles/index.css`.
+
+Pure helpers and constants live in their feature folder. `App.tsx` keeps the
+React state, refs, and effect orchestration; it imports helpers but does not
+re-implement them.
 
 ## Provider Boundary
 

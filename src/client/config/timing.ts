@@ -1,0 +1,6 @@
+export const MIN_RECORDED_STT_DURATION_MS = 300;
+export const MIN_RECORDED_STT_BYTES = 512;
+export const ESCAPE_REWARD_DELAY_MS = 350;
+export const REPLY_BUSY_GATE_MS = 700;
+export const MAX_REPLY_PLAYBACK_WAIT_MS = 10_000;
+export const REPLY_AUDIO_ARM_MS = 45_000;
