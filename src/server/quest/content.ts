@@ -339,3 +339,10 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "The room heard that and drew no conclusions. A rare case of responsible AI.",
   },
 };
+
+export function getQuestReply(
+  replyId: QuestReplyId,
+  replyLanguage: QuestLanguage,
+): string {
+  return CANNED_REPLIES[replyId][replyLanguage] ?? CANNED_REPLIES[replyId].uk;
+}
