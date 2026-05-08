@@ -20,8 +20,8 @@ import {
   ProviderConfigurationError,
 } from "./providers/config.js";
 import { createProviderRegistry } from "./providers/registry.js";
-import { createQuestBrainTurn } from "./quest-brain.js";
-import { decideQuestLanguage, normalizeQuestState } from "./quest.js";
+import { createQuestBrainTurn } from "./quest/brain.js";
+import { decideQuestLanguage, normalizeQuestState } from "./quest/index.js";
 import {
   createElevenLabsRealtimeSttSession,
   transcribeElevenLabsAudio,

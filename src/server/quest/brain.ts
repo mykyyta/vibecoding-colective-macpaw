@@ -1,5 +1,5 @@
-import type { QuestActor, QuestLanguage, QuestState } from "../shared/voice.js";
-import type { TextGenerationProvider } from "./providers/contracts.js";
+import type { QuestActor, QuestLanguage, QuestState } from "../../shared/voice.js";
+import type { TextGenerationProvider } from "../providers/contracts.js";
 import {
   FINAL_DOOR_LINE,
   getHardRulesBlock,
@@ -9,7 +9,7 @@ import {
   getRoutingContractBlock,
   getSceneBlock,
   getStyleBlock,
-} from "./quest-content.js";
+} from "./content.js";
 import {
   containsCatSoundOrLanguageHint,
   containsCodeReveal,
@@ -18,7 +18,7 @@ import {
   containsPixelKeypadClue,
   containsPixelNameReveal,
   normalizeForGuardrail,
-} from "./quest-guardrails.js";
+} from "./guardrails.js";
 import {
   analyzeQuestTranscript,
   createQuestTurn,
@@ -31,7 +31,7 @@ import {
   type QuestTranscriptFacts,
   type QuestTransitionId,
   type QuestTurn,
-} from "./quest.js";
+} from "./index.js";
 
 interface QuestBrainRequest {
   transcript: string;

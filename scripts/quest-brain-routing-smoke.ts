@@ -4,8 +4,8 @@ import type {
   TextGenerationProvider,
   TextGenerationResponse,
 } from "../src/server/providers/contracts.js";
-import { createQuestBrainTurn } from "../src/server/quest-brain.js";
-import { initialQuestState, type QuestTransitionId } from "../src/server/quest.js";
+import { createQuestBrainTurn } from "../src/server/quest/brain.js";
+import { initialQuestState, type QuestTransitionId } from "../src/server/quest/index.js";
 
 interface FakeDecision {
   route?: "guard" | "pixel" | "sofia-hint" | "door" | "smalltalk";

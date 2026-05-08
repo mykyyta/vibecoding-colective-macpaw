@@ -8,12 +8,12 @@ import type {
   QuestState,
   QuestTrigger,
   VoiceAction,
-} from "../shared/voice.js";
+} from "../../shared/voice.js";
 import {
   CANNED_REPLIES,
   FINAL_DOOR_LINE,
   type QuestReplyId,
-} from "./quest-content.js";
+} from "./content.js";
 
 export type QuestTransitionId = QuestEventType;
 
