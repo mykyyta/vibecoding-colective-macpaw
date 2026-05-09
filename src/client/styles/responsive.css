@@ -102,6 +102,14 @@
     width: 48%;
   }
 
+  .screen-rim-cat {
+    left: 44%;
+    top: -8.5%;
+    width: 86px;
+    min-width: 74px;
+    max-width: 96px;
+  }
+
   .stepped-seating {
     right: -13%;
     width: 58%;
@@ -170,6 +178,18 @@
     top: 13%;
     width: 54%;
     height: 50%;
+  }
+
+  .screen-rim-cat {
+    left: 8%;
+    top: -7.5%;
+    width: 70px;
+    min-width: 58px;
+    max-width: 72px;
+  }
+
+  .screen-rim-cat__tail {
+    border-width: 6px;
   }
 
   .back-signage {

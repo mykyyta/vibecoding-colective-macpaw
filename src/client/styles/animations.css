@@ -73,6 +73,32 @@
   }
 }
 
+@keyframes rim-cat-sleep {
+  from {
+    transform: translateY(0) scaleY(1);
+  }
+
+  to {
+    transform: translateY(-1px) scaleY(1.025);
+  }
+}
+
+@keyframes rim-cat-ear-twitch {
+  0%,
+  76%,
+  100% {
+    transform: rotate(19deg);
+  }
+
+  78% {
+    transform: rotate(10deg);
+  }
+
+  80% {
+    transform: rotate(22deg);
+  }
+}
+
 @keyframes guard-talk {
   from {
     transform: rotate(-18deg);

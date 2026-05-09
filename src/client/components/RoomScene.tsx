@@ -72,6 +72,16 @@ export default function RoomScene({
             alt="Vibecoding Collective event banner"
           />
         </div>
+        <div className="screen-rim-cat" aria-hidden="true">
+          <span className="screen-rim-cat__shadow" />
+          <span className="screen-rim-cat__tail" />
+          <span className="screen-rim-cat__body" />
+          <span className="screen-rim-cat__head">
+            <i className="screen-rim-cat__ear screen-rim-cat__ear--left" />
+            <i className="screen-rim-cat__ear screen-rim-cat__ear--right" />
+            <i className="screen-rim-cat__face" />
+          </span>
+        </div>
         <div className="screen-sheen" aria-hidden="true" />
         <div className="stage-success" aria-hidden="true">
           <span>EXIT RESOLVED</span>
