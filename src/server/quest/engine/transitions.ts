@@ -8,7 +8,7 @@ import type { QuestTranscriptFacts } from "./classifier.js";
 import { MOVE_SCENARIO_DATA } from "../scenario/moves.js";
 import { getSofiaHintReplyId, getSofiaHintStageContext } from "../scenario/hints.js";
 import { getQuestReply } from "../scenario/lines.js";
-import { normalizeQuestState } from "../state.js";
+import { normalizeQuestState } from "./state.js";
 import { getChitchatActor, getChitchatActors, getChitchatFallbackReply } from "./chitchat.js";
 
 export type QuestTransitionId = QuestEventType;

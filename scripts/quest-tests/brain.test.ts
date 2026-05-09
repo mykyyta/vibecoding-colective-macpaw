@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import type { QuestState } from "../../src/shared/voice.js";
-import { createQuestBrainTurn } from "../../src/server/quest/brain.js";
+import { createQuestBrainTurn } from "../../src/server/quest/engine/brain.js";
 import { initialQuestState } from "../../src/server/quest/index.js";
 import { fakeClaudeFromText, fakeClaudeDecision, type FakeDecision } from "./fake-claude.js";
 

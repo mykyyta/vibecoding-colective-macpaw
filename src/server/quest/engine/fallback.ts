@@ -4,15 +4,15 @@ import type {
   QuestState,
   VoiceAction,
   QuestEvent,
-} from "../../shared/voice.js";
-import { analyzeQuestTranscript } from "./engine/classifier.js";
+} from "../../../shared/voice.js";
+import { analyzeQuestTranscript } from "./classifier.js";
 import { normalizeQuestState } from "./state.js";
-import type { QuestTransitionId } from "./engine/transitions.js";
+import type { QuestTransitionId } from "./transitions.js";
 import {
   applyQuestTransition,
   findFirstLegalProgressingTransition,
-} from "./engine/transitions.js";
-import { getChitchatActor, getChitchatFallbackReply } from "./engine/chitchat.js";
+} from "./transitions.js";
+import { getChitchatActor, getChitchatFallbackReply } from "./chitchat.js";
 
 // QuestTurn is structurally reproduced here to avoid a circular value import
 // (index.ts imports createHeuristicFallbackTurn; fallback.ts must not import

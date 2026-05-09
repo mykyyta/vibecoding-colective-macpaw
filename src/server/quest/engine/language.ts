@@ -2,8 +2,8 @@ import type {
   QuestLanguage,
   QuestLanguageDecision,
   QuestLanguageInput,
-} from "../../shared/voice.js";
-import { findPurrMatches, normalizeTranscript } from "./engine/classifier.js";
+} from "../../../shared/voice.js";
+import { findPurrMatches, normalizeTranscript } from "./classifier.js";
 
 export interface QuestLanguageDecisionRequest {
   transcript: string;

@@ -1,4 +1,4 @@
-import type { QuestState } from "../../shared/voice.js";
+import type { QuestState } from "../../../shared/voice.js";
 
 export type { QuestState };
 

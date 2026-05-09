@@ -18,6 +18,7 @@
     "test:quest:classifier": "tsx scripts/quest-tests/classifier.test.ts",
     "test:quest:language": "tsx scripts/quest-tests/language.test.ts",
     "test:quest:brain": "tsx scripts/quest-tests/brain.test.ts",
+    "check:scenario-purity": "tsx scripts/check-scenario-purity.ts",
     "test:leaderboard-api": "tsx scripts/leaderboard-api-proof.ts",
     "test:leaderboard-storage": "tsx scripts/leaderboard-storage-proof.ts",
     "start": "node dist/server/index.js",

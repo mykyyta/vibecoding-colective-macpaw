@@ -9,9 +9,9 @@ import {
   analyzeQuestTranscript,
   type QuestTranscriptFacts,
 } from "./engine/classifier.js";
-import { createHeuristicFallbackTurn } from "./fallback.js";
-import { decideQuestLanguage, type QuestLanguageDecisionRequest } from "./language.js";
-import { initialQuestState, normalizeQuestState } from "./state.js";
+import { createHeuristicFallbackTurn } from "./engine/fallback.js";
+import { decideQuestLanguage, type QuestLanguageDecisionRequest } from "./engine/language.js";
+import { initialQuestState, normalizeQuestState } from "./engine/state.js";
 import {
   applyQuestTransition,
   getAllowedQuestTransitions,
