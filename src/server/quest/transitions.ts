@@ -6,7 +6,7 @@ import type {
 } from "../../shared/voice.js";
 import type { QuestTranscriptFacts } from "./classifier.js";
 import { PERSONAS } from "./personas.js";
-import { getQuestReply } from "./replies.js";
+import { getQuestReply } from "./scenario/lines.js";
 import { normalizeQuestState } from "./state.js";
 
 export type QuestTransitionId = QuestEventType;

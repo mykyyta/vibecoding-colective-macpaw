@@ -1,4 +1,4 @@
-import type { QuestLanguage } from "../../shared/voice.js";
+import type { QuestLanguage } from "../../../shared/voice.js";
 
 export const FINAL_DOOR_LINE = "404 accepted. Door not found, but exit found.";
 

@@ -1,6 +1,6 @@
 import type { QuestActor, QuestState } from "../../shared/voice.js";
-import type { QuestReplyId } from "./replies.js";
-import { FINAL_DOOR_LINE } from "./replies.js";
+import type { QuestReplyId } from "./scenario/lines.js";
+import { FINAL_DOOR_LINE } from "./scenario/lines.js";
 
 type ElevenLabsVoiceRole = "guard" | "pixel" | "room" | "sofia";
 
