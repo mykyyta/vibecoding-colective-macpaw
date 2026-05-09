@@ -1,15 +1,7 @@
 import type { QuestActor, QuestLanguage, QuestState } from "../../shared/voice.js";
 import type { TextGenerationProvider } from "../providers/contracts.js";
-import {
-  FINAL_DOOR_LINE,
-  getHardRulesBlock,
-  getOutputFormatBlock,
-  getPersonasBlock,
-  getPromptHeader,
-  getRoutingContractBlock,
-  getSceneBlock,
-  getStyleBlock,
-} from "./content.js";
+import { FINAL_DOOR_LINE } from "./replies.js";
+import { buildQuestBrainPrompt } from "./prompt.js";
 import {
   containsCatSoundOrLanguageHint,
   containsCodeReveal,
@@ -45,13 +37,6 @@ interface ClaudeQuestDecision {
   actor: QuestActor;
   reply: string;
   confidence?: number;
-}
-
-interface QuestPromptTransition {
-  id: QuestTransitionId;
-  actor: QuestActor;
-  allowedActors?: QuestActor[];
-  stageContext: string;
 }
 
 const CLAUDE_QUEST_TIMEOUT_MS = 7000;
@@ -231,104 +216,6 @@ function generateWithTimeout(
       }
     },
   );
-}
-
-function buildQuestBrainPrompt({
-  transcript,
-  questState,
-  allowedTransitions,
-  replyLanguage,
-}: {
-  transcript: string;
-  questState: QuestState;
-  allowedTransitions: AllowedQuestTransition[];
-  replyLanguage: QuestLanguage;
-}): string {
-  const replyLanguageLabel = getReplyLanguageLabel(replyLanguage);
-  const eventPhrase =
-    replyLanguage === "en" ? "vibecoding event" : "вайбкодінг івент";
-  const aiPhrase =
-    replyLanguage === "en" ? "AI" : "AI, штучний інтелект";
-
-  return [
-    getPromptHeader(eventPhrase, aiPhrase),
-    getOutputFormatBlock(replyLanguageLabel),
-    getSceneBlock({
-      replyLanguageLabel,
-      visibleCharacterSummary: getVisibleCharacterSummary(questState),
-      stageSummary: getQuestStageSummary(questState),
-    }),
-    getPersonasBlock(eventPhrase),
-    getHardRulesBlock(),
-    getStyleBlock(aiPhrase, eventPhrase),
-    getRoutingContractBlock(),
-    `[Current state]\n${JSON.stringify(questState)}`,
-    [
-      "[Allowed transitions]",
-      "Each card carries the stage-specific guidance you must follow when",
-      "selecting it. Do not imitate any example wording inside a description.",
-      JSON.stringify(buildQuestPromptTransitions(allowedTransitions), null, 2),
-    ].join("\n"),
-    `[Player transcript]\n${JSON.stringify(transcript)}`,
-  ].join("\n\n");
-}
-
-function buildQuestPromptTransitions(
-  allowedTransitions: AllowedQuestTransition[],
-): QuestPromptTransition[] {
-  return allowedTransitions.map((transition) => ({
-    id: transition.id,
-    actor: transition.actor,
-    allowedActors: transition.allowedActors,
-    stageContext: transition.description,
-  }));
-}
-
-function getReplyLanguageLabel(replyLanguage: QuestLanguage): string {
-  return replyLanguage === "en" ? "English" : "Ukrainian";
-}
-
-function getQuestStageSummary(state: QuestState): string {
-  if (state.doorOpen || state.escaped) {
-    return "the player has escaped; only celebratory or ambient follow-up should remain";
-  }
-
-  if (state.codeRevealed) {
-    return "the code is known; the next useful move is giving code 404 to Oleg";
-  }
-
-  if (state.pixelRejectedOrdinaryCommand) {
-    return "Pixel rejected ordinary human requests; the next useful move is addressing Pixel with a cat-like sound";
-  }
-
-  if (state.guardHintGiven) {
-    return "Oleg revealed Pixel as the clue near the exit panel; the next useful move is engaging Pixel";
-  }
-
-  if (state.olegNameKnown) {
-    return "the guard is known as Oleg; the next useful move is directly asking Oleg about the exit";
-  }
-
-  return "the guard's name is not known; the next useful move is learning who the person by the door is";
-}
-
-function getVisibleCharacterSummary(state: QuestState): string {
-  const visible = [
-    "guard near the door",
-    "cat nearby",
-    "locked door/room",
-    "Sofiia in the room",
-  ];
-
-  if (state.olegNameKnown) {
-    visible[0] = "Oleg, the guard near the door";
-  }
-
-  if (state.guardHintGiven) {
-    visible[1] = "Pixel, the cat near the exit panel";
-  }
-
-  return visible.join("; ");
 }
 
 function isValidQuestBrainDecision({

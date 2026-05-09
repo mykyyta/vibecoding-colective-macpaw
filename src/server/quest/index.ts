@@ -10,7 +10,7 @@ import {
   analyzeQuestTranscript,
   type QuestTranscriptFacts,
 } from "./classifier.js";
-import { getQuestReply } from "./content.js";
+import { getQuestReply } from "./replies.js";
 import { decideQuestLanguage, type QuestLanguageDecisionRequest } from "./language.js";
 import { initialQuestState, normalizeQuestState } from "./state.js";
 import {
