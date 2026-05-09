@@ -341,7 +341,9 @@ const prematureDoor = await runTurn({
     reply: "404 accepted. Door not found, but exit found.",
   },
 });
-assert.equal(prematureDoor.event.type, "chitchat-replied");
+// Brain rejects door-opened (codeRevealed is false); heuristic fallback picks
+// guard-hint-given because hasOleg + hasCodeIntent both match.
+assert.equal(prematureDoor.event.type, "guard-hint-given");
 assert.equal(prematureDoor.nextQuestState.doorOpen, false);
 
 const invalidJson = await runTurn({

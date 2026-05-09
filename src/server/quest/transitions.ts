@@ -19,6 +19,12 @@ export interface AllowedQuestTransition {
   fallbackReply: string;
 }
 
+export interface ProgressingTransition {
+  id: QuestTransitionId;
+  actor: (state: QuestState) => QuestActor;
+  fallbackReply: (state: QuestState, replyLanguage: QuestLanguage) => string;
+}
+
 interface TransitionRecord {
   id: QuestTransitionId;
   actor: (state: QuestState) => QuestActor;
@@ -208,6 +214,26 @@ const TRANSITIONS: TransitionRecord[] = [
     fallbackReply: (_state, lang) => getQuestReply("door-opened", lang),
   },
 ];
+
+const PROGRESSING_TRANSITIONS = [
+  "oleg-name-learned",
+  "guard-hint-given",
+  "pixel-ordinary-rejected",
+  "code-revealed",
+  "door-opened",
+] as const;
+
+export function findFirstLegalProgressingTransition(
+  state: QuestState,
+  facts: QuestTranscriptFacts,
+): ProgressingTransition | undefined {
+  return TRANSITIONS.find(
+    (t) =>
+      (PROGRESSING_TRANSITIONS as readonly string[]).includes(t.id) &&
+      t.isAvailable(state) &&
+      (t.factsCheck?.(state, facts) ?? false),
+  );
+}
 
 function findTransition(id: QuestTransitionId): TransitionRecord | undefined {
   return TRANSITIONS.find((record) => record.id === id);
