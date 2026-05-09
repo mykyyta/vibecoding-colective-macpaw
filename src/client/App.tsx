@@ -36,6 +36,7 @@ import {
 } from "./config/languages";
 import {
   ESCAPE_REWARD_DELAY_MS,
+  MICROPHONE_PERMISSION_TIMEOUT_MS,
   MIN_RECORDED_STT_BYTES,
   MIN_RECORDED_STT_DURATION_MS,
 } from "./config/timing";
@@ -284,13 +285,7 @@ export function App() {
       throw new Error("Recorded microphone capture is unavailable.");
     }
 
-    const mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
-      },
-    });
+    const mediaStream = await getRecordedMediaStream();
     const chunks: Blob[] = [];
     const recordingMimeType = getSupportedRecordingMimeType();
     const recorder = new MediaRecorder(
@@ -425,6 +420,42 @@ export function App() {
         void finish(true);
       },
     };
+  }
+
+  async function getRecordedMediaStream(): Promise<MediaStream> {
+    let timeoutId: number | null = null;
+    let timedOut = false;
+
+    const mediaStreamPromise = navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true,
+      },
+    });
+
+    try {
+      return await Promise.race([
+        mediaStreamPromise.then((mediaStream) => {
+          if (timedOut) {
+            mediaStream.getTracks().forEach((track) => track.stop());
+            throw new Error("Microphone permission timed out.");
+          }
+
+          return mediaStream;
+        }),
+        new Promise<never>((_, reject) => {
+          timeoutId = window.setTimeout(() => {
+            timedOut = true;
+            reject(new Error("Microphone permission timed out."));
+          }, MICROPHONE_PERMISSION_TIMEOUT_MS);
+        }),
+      ]);
+    } finally {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    }
   }
 
   function startBrowserSpeechRecognition() {
@@ -593,6 +624,11 @@ export function App() {
       recordedRecognitionRef.current !== null ||
       realtimeRecognitionRef.current !== null ||
       recognitionRef.current !== null;
+    const stopBeforeRecognizerReady =
+      wantsListeningRef.current &&
+      recordedRecognitionRef.current === null &&
+      realtimeRecognitionRef.current === null &&
+      recognitionRef.current === null;
 
     if (!hasActiveRecognizer) {
       return;
@@ -610,6 +646,16 @@ export function App() {
     setRoomState((current) =>
       current === "listening" ? previousStateRef.current : current,
     );
+
+    if (stopBeforeRecognizerReady) {
+      const copy = getCurrentVoiceCopy();
+
+      setBubble({
+        actor: "room",
+        name: copy.microphoneName,
+        text: copy.holdLonger,
+      });
+    }
   }
 
   function restartQuest() {

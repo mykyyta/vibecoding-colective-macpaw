@@ -34,14 +34,20 @@ export default function SceneMic({
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
     if (
       (event.pointerType === "mouse" && event.button !== 0) ||
-      isListening ||
-      isBusy
+      (isBusy && !isListening)
     ) {
       return;
     }
 
     event.preventDefault();
     unlockReplyAudio();
+
+    if (isListening) {
+      activePointerIdRef.current = null;
+      onStop();
+      return;
+    }
+
     activePointerIdRef.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
     onStart();
@@ -74,6 +80,15 @@ export default function SceneMic({
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
 
+    onStop();
+  }
+
+  function handleClick() {
+    if (!isListening) {
+      return;
+    }
+
+    activePointerIdRef.current = null;
     onStop();
   }
 
@@ -118,6 +133,7 @@ export default function SceneMic({
       className={`scene-mic ${isListening ? "scene-mic--active" : ""}`}
       type="button"
       onBlur={handleBlur}
+      onClick={handleClick}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       onPointerCancel={handlePointerCancel}
