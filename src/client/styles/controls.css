@@ -1,0 +1,89 @@
+
+.restart-quest {
+  position: absolute;
+  right: 1.3rem;
+  top: 1.1rem;
+  z-index: 30;
+  min-height: 30px;
+  border: 1px solid color-mix(in oklch, var(--ink), transparent 82%);
+  border-radius: 999px;
+  padding: 0.35rem 0.72rem;
+  background: color-mix(in oklch, var(--plaster-lit), transparent 18%);
+  color: var(--ink-soft);
+  box-shadow: 0 8px 20px color-mix(in oklch, var(--ink), transparent 88%);
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 760;
+  letter-spacing: 0;
+}
+
+.restart-quest:focus-visible {
+  outline: 3px solid color-mix(in oklch, var(--green), transparent 28%);
+  outline-offset: 3px;
+}
+
+.restart-quest:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.screen-board-toggle,
+.screen-leaderboard button {
+  font: inherit;
+}
+
+.screen-board-toggle {
+  position: absolute;
+  right: 10%;
+  top: 12%;
+  z-index: 7;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, auto);
+  gap: 0.36rem;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid color-mix(in oklch, var(--green), transparent 48%);
+  border-radius: 4px;
+  padding: 0.16rem 0.46rem 0.16rem 0.18rem;
+  background: oklch(16% 0.018 86);
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 18%);
+  box-shadow:
+    0 0 18px color-mix(in oklch, var(--green), transparent 78%),
+    0 10px 24px color-mix(in oklch, var(--stage), transparent 52%);
+  cursor: pointer;
+}
+
+.screen-board-toggle:focus-visible {
+  outline: 3px solid color-mix(in oklch, var(--amber), transparent 24%);
+  outline-offset: 3px;
+}
+
+.screen-board-toggle span {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.5rem;
+  border-radius: 3px;
+  background: color-mix(in oklch, var(--green), transparent 80%);
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 26%);
+  font-size: 0.54rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.screen-board-toggle strong {
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.presentation-wall--leaderboard .screen-board-toggle {
+  border-color: color-mix(in oklch, var(--amber), transparent 36%);
+  color: color-mix(in oklch, var(--amber), var(--plaster-lit) 8%);
+}
+
+.presentation-wall--leaderboard .screen-board-toggle span {
+  background: color-mix(in oklch, var(--amber), transparent 80%);
+  color: color-mix(in oklch, var(--amber), var(--plaster-lit) 14%);
+}

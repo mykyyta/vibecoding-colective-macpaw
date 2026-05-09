@@ -1,0 +1,307 @@
+
+@keyframes led-breathe {
+  from {
+    opacity: 0.72;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mic-pulse {
+  0%,
+  100% {
+    transform: translateX(-50%) scaleY(1);
+  }
+
+  50% {
+    transform: translateX(-50%) scaleY(0.68);
+  }
+}
+
+@keyframes pixel-blink {
+  0%,
+  88%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  90% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes tail-swish {
+  from {
+    transform: rotate(-12deg);
+  }
+
+  to {
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes pixel-idle-prowl {
+  0%,
+  100% {
+    transform: var(--pixel-scale) translateX(0) rotate(-1deg);
+  }
+
+  44% {
+    transform: var(--pixel-scale) translateX(-10px) translateY(-3px) rotate(2.5deg);
+  }
+}
+
+@keyframes pixel-breathe {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes pixel-head-look {
+  from {
+    transform: translateX(0) rotate(-2deg);
+  }
+
+  to {
+    transform: translateX(-3px) rotate(4deg);
+  }
+}
+
+@keyframes guard-talk {
+  from {
+    transform: rotate(-18deg);
+  }
+
+  to {
+    transform: rotate(-32deg) translateY(-3px);
+  }
+}
+
+@keyframes led-success-sweep {
+  0% {
+    background-position: 115% 0, 0 0;
+    opacity: 0.82;
+  }
+
+  52% {
+    opacity: 1;
+  }
+
+  100% {
+    background-position: -85% 0, 0 0;
+    opacity: 0.96;
+  }
+}
+
+@keyframes door-beam-open {
+  0% {
+    filter: saturate(0.9);
+    opacity: 0.28;
+    transform: translateX(-12px) scaleX(0.74);
+  }
+
+  58% {
+    filter: saturate(1.16);
+    opacity: 1;
+    transform: translateX(-58px) scaleX(1.22);
+  }
+
+  100% {
+    filter: saturate(1.04);
+    opacity: 0.96;
+    transform: translateX(-50px) scaleX(1.14);
+  }
+}
+
+@keyframes stage-success-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 0.92;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stage-success-scan {
+  from {
+    transform: translateX(-120%);
+  }
+
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes keypad-accepted-pop {
+  0% {
+    transform: scale(0.96);
+  }
+
+  42% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes final-firework-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  52% {
+    opacity: 0.94;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.38);
+  }
+}
+
+@keyframes guard-success-shift {
+  0%,
+  100% {
+    transform: var(--guard-scale) translateX(0);
+  }
+
+  48% {
+    transform: var(--guard-scale) translateX(-5px);
+  }
+}
+
+@keyframes guard-success-wave {
+  0% {
+    transform: rotate(-18deg);
+  }
+
+  46% {
+    transform: rotate(-44deg) translateY(-5px);
+  }
+
+  100% {
+    transform: rotate(-26deg) translateY(-2px);
+  }
+}
+
+@keyframes pixel-success-hop {
+  0%,
+  100% {
+    transform: var(--pixel-scale) translateY(-4px);
+  }
+
+  42% {
+    transform: var(--pixel-scale) translateY(-13px) rotate(-2deg);
+  }
+}
+
+@keyframes pixel-success-tail {
+  from {
+    transform: rotate(-2deg);
+  }
+
+  to {
+    transform: rotate(18deg);
+  }
+}
+
+@keyframes pixel-idle-prowl-desktop {
+  0%,
+  100% {
+    transform: var(--pixel-scale) translateX(0) translateY(0) rotate(-1.5deg);
+  }
+
+  42% {
+    transform: var(--pixel-scale) translateX(-10px) translateY(-3px) rotate(2.5deg);
+  }
+}
+
+@keyframes pixel-breathe-desktop {
+  from {
+    transform: translateY(0) scaleY(1);
+  }
+
+  to {
+    transform: translateY(-2px) scaleY(1.02);
+  }
+}
+
+@keyframes pixel-head-look-desktop {
+  from {
+    transform: translateX(1px) rotate(-4deg);
+  }
+
+  to {
+    transform: translateX(-4px) rotate(5deg);
+  }
+}
+
+@keyframes tail-swish-desktop {
+  from {
+    transform: rotate(-13deg);
+  }
+
+  to {
+    transform: rotate(17deg) translateY(-1px);
+  }
+}
+
+@keyframes pixel-success-hop-desktop {
+  0%,
+  100% {
+    transform: var(--pixel-scale) translateY(-8px) rotate(-1deg);
+  }
+
+  42% {
+    transform: var(--pixel-scale) translateY(-15px) rotate(-2.5deg);
+  }
+}
+
+@keyframes pixel-success-tail-desktop {
+  from {
+    transform: rotate(-8deg);
+  }
+
+  to {
+    transform: rotate(21deg) translateY(-2px);
+  }
+}
+
+@keyframes pixel-helpful-sway-desktop {
+  0%,
+  100% {
+    transform: var(--pixel-scale) translateX(0) translateY(-5px) rotate(-0.5deg);
+  }
+
+  45% {
+    transform: var(--pixel-scale) translateX(-6px) translateY(-9px) rotate(2.5deg);
+  }
+}
+
+@keyframes pixel-ignored-fidget-desktop {
+  0%,
+  100% {
+    transform: var(--pixel-scale) translateX(8px) translateY(-1px) rotate(3deg);
+  }
+
+  50% {
+    transform: var(--pixel-scale) translateX(2px) translateY(1px) rotate(-1.5deg);
+  }
+}

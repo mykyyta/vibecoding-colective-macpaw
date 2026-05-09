@@ -1,0 +1,695 @@
+
+.quest-app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 52% 83%, color-mix(in oklch, var(--amber-soft), transparent 35%), transparent 42%),
+    linear-gradient(118deg, color-mix(in oklch, var(--stage-soft), transparent 8%) 0 35%, var(--plaster) 35% 100%);
+  color: var(--ink);
+}
+
+.room-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, color-mix(in oklch, var(--plaster-lit), transparent 5%) 0 47%, transparent 47%),
+    linear-gradient(112deg, color-mix(in oklch, var(--stage), transparent 18%) 0 33%, transparent 33%),
+    var(--plaster);
+}
+
+.room-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 35% 18%, color-mix(in oklch, var(--plaster-lit), transparent 15%), transparent 34%),
+    radial-gradient(ellipse at 76% 18%, color-mix(in oklch, var(--amber-soft), transparent 40%), transparent 31%),
+    linear-gradient(180deg, transparent 0 63%, color-mix(in oklch, var(--floor-shadow), transparent 65%) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.room-scene::after {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 2%;
+  bottom: -22%;
+  height: 58%;
+  transform: perspective(900px) rotateX(63deg);
+  transform-origin: bottom center;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 48% 42%, color-mix(in oklch, var(--plaster-lit), transparent 12%), transparent 48%),
+    linear-gradient(90deg, color-mix(in oklch, var(--line), transparent 70%) 1px, transparent 1px),
+    linear-gradient(color-mix(in oklch, var(--line), transparent 75%) 1px, transparent 1px),
+    var(--floor);
+  background-size: auto, 86px 86px, 86px 86px, auto;
+  box-shadow:
+    inset 0 38px 80px color-mix(in oklch, var(--plaster-lit), transparent 18%),
+    0 -34px 64px color-mix(in oklch, var(--ink), transparent 84%);
+  z-index: 2;
+}
+
+.room-shell,
+.room-shell > div {
+  position: absolute;
+  inset: 0;
+}
+
+.back-wall {
+  background:
+    linear-gradient(90deg, transparent 0 30%, color-mix(in oklch, var(--line), transparent 65%) 30% 30.2%, transparent 30.2%),
+    linear-gradient(180deg, var(--plaster-lit) 0 65%, color-mix(in oklch, var(--plaster), var(--floor-shadow) 12%) 100%);
+  clip-path: polygon(25% 7%, 88% 4%, 96% 61%, 21% 65%);
+  z-index: 0;
+}
+
+.left-presentation-wall {
+  background: linear-gradient(100deg, var(--stage) 0 72%, var(--stage-soft) 100%);
+  clip-path: polygon(0 6%, 35% 10%, 31% 65%, 0 71%);
+  box-shadow: inset -2px 0 0 color-mix(in oklch, var(--plaster-lit), transparent 86%);
+  z-index: 1;
+}
+
+.right-wood-wall {
+  right: -10%;
+  left: auto;
+  width: 42%;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--wood-dark), transparent 25%) 0 1px, transparent 1px),
+    linear-gradient(105deg, color-mix(in oklch, var(--wood), var(--plaster-lit) 8%), var(--wood-dark));
+  background-size: 36px 100%, auto;
+  clip-path: polygon(15% 8%, 100% 0, 100% 76%, 0 66%);
+  z-index: 1;
+}
+
+.ceiling-plane {
+  height: 28%;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--line), transparent 62%) 1px, transparent 1px),
+    linear-gradient(color-mix(in oklch, var(--line), transparent 66%) 1px, transparent 1px),
+    color-mix(in oklch, var(--plaster-lit), var(--plaster) 20%);
+  background-size: 96px 70px;
+  clip-path: polygon(5% 0, 100% 0, 88% 17%, 28% 21%);
+  opacity: 0.72;
+  z-index: 3;
+}
+
+.floor-plane {
+  top: auto;
+  height: 47%;
+  bottom: 0;
+  background:
+    linear-gradient(104deg, color-mix(in oklch, var(--floor-shadow), transparent 54%) 0 1px, transparent 1px),
+    linear-gradient(77deg, color-mix(in oklch, var(--floor-shadow), transparent 68%) 0 1px, transparent 1px),
+    var(--floor);
+  background-size: 112px 100%, 120px 100%, auto;
+  clip-path: polygon(22% 0, 93% 0, 100% 100%, 0 100%);
+  z-index: 1;
+}
+
+.presentation-wall {
+  position: absolute;
+  left: -2%;
+  top: 10%;
+  width: 43%;
+  height: 56%;
+  transform: perspective(980px) rotateY(7deg) skewY(-1.5deg);
+  transform-origin: left center;
+  border-radius: 0 8px 8px 0;
+  background:
+    radial-gradient(ellipse at 62% 36%, color-mix(in oklch, var(--blue), transparent 82%), transparent 40%),
+    linear-gradient(110deg, var(--stage) 0 64%, var(--stage-soft) 100%);
+  box-shadow:
+    inset -1px 0 0 color-mix(in oklch, var(--plaster-lit), transparent 82%),
+    26px 34px 70px color-mix(in oklch, var(--ink), transparent 70%);
+  z-index: 8;
+}
+
+.presentation-wall::before {
+  content: "";
+  position: absolute;
+  inset: 10% 9% 12% 8%;
+  border: 1px solid color-mix(in oklch, var(--plaster-lit), transparent 86%);
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--green), transparent 92%) 1px, transparent 1px),
+    linear-gradient(color-mix(in oklch, var(--green), transparent 93%) 1px, transparent 1px),
+    color-mix(in oklch, var(--stage), transparent 4%);
+  background-size: 28px 28px;
+}
+
+.presentation-wall::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -4%;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--amber), transparent 5%);
+  box-shadow: 0 0 22px color-mix(in oklch, var(--amber), transparent 20%);
+  animation: led-breathe 4.4s var(--ease-out) infinite alternate;
+}
+
+.screen-sheen {
+  position: absolute;
+  inset: 10% 9% 12% 8%;
+  background: linear-gradient(118deg, transparent 0 44%, color-mix(in oklch, var(--plaster-lit), transparent 94%) 44% 47%, transparent 47%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.stage-event-banner-frame {
+  position: absolute;
+  inset: 10% 9% 12% 8%;
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0.96;
+  pointer-events: none;
+}
+
+.stage-event-banner {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: -24%;
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+}
+
+.presentation-wall--leaderboard::before {
+  border-color: color-mix(in oklch, var(--green), transparent 70%);
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--green), transparent 88%) 1px, transparent 1px),
+    linear-gradient(color-mix(in oklch, var(--green), transparent 90%) 1px, transparent 1px),
+    oklch(13% 0.016 84);
+  background-size: 28px 28px;
+}
+
+.presentation-wall--leaderboard .stage-success,
+.presentation-wall--leaderboard .stage-label,
+.presentation-wall--leaderboard .stage-event-banner-frame {
+  opacity: 0;
+}
+
+.stage-success {
+  position: absolute;
+  left: 12%;
+  top: 37%;
+  width: 66%;
+  height: 30px;
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  color: color-mix(in oklch, var(--green), var(--plaster-lit) 18%);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  opacity: 0;
+  text-shadow: 0 0 18px color-mix(in oklch, var(--green), transparent 30%);
+  transform: translateY(5px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.stage-success::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--green), transparent 72%), transparent);
+  transform: translateX(-120%);
+}
+
+.stage-success span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quest-app--doorOpening .stage-success,
+.quest-app--escaped .stage-success {
+  opacity: 0.92;
+  transform: translateY(0);
+}
+
+.quest-app--doorOpening .stage-success {
+  animation: stage-success-arrive 720ms var(--ease-out) both;
+}
+
+.quest-app--doorOpening .stage-success::before {
+  animation: stage-success-scan 860ms 160ms var(--ease-out) both;
+}
+
+.stage-label {
+  position: absolute;
+  left: 12%;
+  bottom: 17%;
+  color: oklch(82% 0.03 92);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.back-signage {
+  position: absolute;
+  left: 45%;
+  top: 29%;
+  padding: 0.45rem 0.7rem;
+  transform: perspective(700px) rotateY(-12deg);
+  border: 1px solid color-mix(in oklch, var(--line), transparent 40%);
+  border-radius: 3px;
+  background: color-mix(in oklch, var(--plaster-lit), transparent 18%);
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  z-index: 6;
+}
+
+.ambient-hint {
+  position: absolute;
+  left: max(1rem, env(safe-area-inset-left));
+  top: max(1rem, env(safe-area-inset-top));
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  max-width: min(360px, calc(100vw - 2rem));
+  min-height: 36px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--ink), transparent 82%);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--plaster-lit), transparent 18%);
+  box-shadow: 0 10px 24px color-mix(in oklch, var(--ink), transparent 88%);
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  font-weight: 740;
+  letter-spacing: 0;
+  line-height: 1.15;
+  pointer-events: auto;
+}
+
+.ambient-hint__button {
+  min-width: 40px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 0.82rem;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+  list-style: none;
+}
+
+.ambient-hint__button:hover,
+.ambient-hint__button:focus-visible,
+.ambient-hint[open] .ambient-hint__button {
+  background: color-mix(in oklch, var(--amber-soft), transparent 34%);
+}
+
+.ambient-hint__button::-webkit-details-marker {
+  display: none;
+}
+
+.ambient-hint__button:active {
+  transform: scale(0.94);
+}
+
+.ambient-hint__text {
+  display: block;
+  padding: 0 0.78rem 0 0.1rem;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  transition:
+    max-width 180ms var(--ease-out),
+    opacity 140ms var(--ease-out);
+}
+
+.ambient-hint[open] .ambient-hint__text {
+  max-width: 19rem;
+  opacity: 0.9;
+}
+
+.quest-app--listening .ambient-hint,
+.quest-app--codeRevealed .ambient-hint,
+.quest-app--doorOpening .ambient-hint,
+.quest-app--escaped .ambient-hint {
+  border-color: color-mix(in oklch, var(--green), transparent 68%);
+}
+
+.quest-app--listening .ambient-hint[open] .ambient-hint__text,
+.quest-app--codeRevealed .ambient-hint[open] .ambient-hint__text,
+.quest-app--doorOpening .ambient-hint[open] .ambient-hint__text,
+.quest-app--escaped .ambient-hint[open] .ambient-hint__text {
+  opacity: 0.92;
+}
+
+.wood-columns {
+  position: absolute;
+  top: 8%;
+  right: 3%;
+  width: 35%;
+  height: 59%;
+  transform: perspective(840px) rotateY(-11deg);
+  transform-origin: right center;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.wood-columns span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8%;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--wood-lit), transparent 6%), var(--wood), var(--wood-dark)),
+    var(--wood);
+  box-shadow:
+    inset -8px 0 0 color-mix(in oklch, var(--wood-dark), transparent 35%),
+    10px 18px 26px color-mix(in oklch, var(--ink), transparent 84%);
+}
+
+.wood-columns span:nth-child(1) {
+  left: 4%;
+}
+
+.wood-columns span:nth-child(2) {
+  left: 29%;
+}
+
+.wood-columns span:nth-child(3) {
+  left: 54%;
+}
+
+.wood-columns span:nth-child(4) {
+  left: 79%;
+}
+
+.ceiling-fixtures {
+  position: absolute;
+  left: 24%;
+  top: 5%;
+  width: 60%;
+  height: 15%;
+  transform: perspective(800px) rotateX(30deg);
+  z-index: 9;
+  pointer-events: none;
+}
+
+.ceiling-fixtures span {
+  position: absolute;
+  top: 0;
+  width: 20%;
+  height: 7px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--plaster-lit), var(--amber) 18%);
+  box-shadow: 0 18px 46px color-mix(in oklch, var(--amber), transparent 48%);
+}
+
+.ceiling-fixtures span:nth-child(1) {
+  left: 4%;
+  width: 15%;
+}
+
+.ceiling-fixtures span:nth-child(2) {
+  left: 33%;
+}
+
+.ceiling-fixtures span:nth-child(3) {
+  right: 6%;
+  width: 24%;
+}
+
+.led-rails {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.led-rail {
+  position: absolute;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--green), var(--plaster-lit) 18%);
+  box-shadow: 0 0 18px color-mix(in oklch, var(--green), transparent 38%);
+  animation: led-breathe 3.8s var(--ease-out) infinite alternate;
+}
+
+.led-rail--ceiling {
+  left: 30%;
+  top: 18%;
+  width: 34%;
+  transform: rotate(-2deg);
+}
+
+.led-rail--wall {
+  right: 8%;
+  top: 20%;
+  width: 18%;
+  background: color-mix(in oklch, var(--amber), var(--plaster-lit) 8%);
+  box-shadow: 0 0 20px color-mix(in oklch, var(--amber), transparent 32%);
+}
+
+.led-rail--steps {
+  right: 3%;
+  bottom: 26%;
+  width: 34%;
+  transform: rotate(-6deg);
+  background: color-mix(in oklch, var(--amber), var(--plaster-lit) 8%);
+}
+
+.quest-app--doorOpening .led-rail {
+  background:
+    linear-gradient(90deg, transparent 0 15%, color-mix(in oklch, var(--plaster-lit), var(--green) 28%) 46% 56%, transparent 82%),
+    color-mix(in oklch, var(--green), var(--plaster-lit) 16%);
+  background-size: 230% 100%, auto;
+  box-shadow:
+    0 0 24px color-mix(in oklch, var(--green), transparent 22%),
+    0 0 54px color-mix(in oklch, var(--green), transparent 58%);
+  animation: led-success-sweep 900ms var(--ease-out) both;
+}
+
+.quest-app--doorOpening .led-rail--wall,
+.quest-app--doorOpening .led-rail--steps {
+  animation-delay: 110ms;
+}
+
+.stepped-seating {
+  position: absolute;
+  right: -1%;
+  bottom: 11%;
+  width: 45%;
+  height: 44%;
+  transform: perspective(980px) rotateY(-13deg) skewY(-5deg);
+  transform-origin: right bottom;
+  z-index: 11;
+  pointer-events: none;
+}
+
+.seat-row,
+.seat-face {
+  position: absolute;
+  right: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.seat-row {
+  height: 18%;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--wood-lit), transparent 5%), var(--wood) 58%, var(--wood-dark)),
+    var(--wood);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--amber-soft), transparent 30%),
+    0 18px 34px color-mix(in oklch, var(--ink), transparent 80%);
+}
+
+.seat-row--top {
+  top: 0;
+  width: 62%;
+}
+
+.seat-row--middle {
+  top: 27%;
+  width: 81%;
+}
+
+.seat-row--front {
+  top: 56%;
+  width: 100%;
+}
+
+.seat-face {
+  height: 16%;
+  background:
+    linear-gradient(180deg, var(--wood-dark), color-mix(in oklch, var(--wood-dark), var(--stage) 18%)),
+    var(--wood-dark);
+}
+
+.seat-face--top {
+  top: 17%;
+  width: 62%;
+}
+
+.seat-face--middle {
+  top: 44%;
+  width: 81%;
+}
+
+.seat-face--front {
+  top: 73%;
+  width: 100%;
+}
+
+.exit-zone {
+  position: absolute;
+  right: 18%;
+  bottom: 28%;
+  width: 150px;
+  height: 240px;
+  transform: perspective(800px) rotateY(-12deg);
+  transform-origin: bottom center;
+  z-index: 13;
+}
+
+.door-light {
+  position: absolute;
+  inset: 20px 18px 0 18px;
+  border-radius: 5px 5px 0 0;
+  background: color-mix(in oklch, var(--amber), var(--plaster-lit) 13%);
+  opacity: 0;
+  transform: translateX(-18px) scaleX(0.68);
+  transform-origin: right center;
+  transition:
+    opacity 280ms var(--ease-out),
+    transform 520ms var(--ease-out);
+}
+
+.door-light--open {
+  opacity: 0.96;
+  transform: translateX(-50px) scaleX(1.14);
+  box-shadow:
+    0 0 78px color-mix(in oklch, var(--amber), transparent 10%),
+    0 0 132px color-mix(in oklch, var(--amber-soft), transparent 34%);
+}
+
+.quest-app--doorOpening .door-light--open {
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--amber-soft), transparent 12%), color-mix(in oklch, var(--amber), var(--plaster-lit) 20%) 58%, transparent 100%);
+  animation: door-beam-open 940ms var(--ease-out) both;
+}
+
+.exit-door {
+  position: absolute;
+  inset: 15px 30px 0 26px;
+  border-radius: 5px 5px 0 0;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--stage-soft), var(--blue) 8%), var(--stage)),
+    var(--stage);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 78%),
+    0 20px 32px color-mix(in oklch, var(--ink), transparent 74%);
+  transform-origin: left center;
+  transition: transform 620ms var(--ease-out);
+}
+
+.exit-door--open {
+  transform: perspective(660px) rotateY(-58deg);
+}
+
+.door-sign {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  background: var(--green);
+  color: oklch(17% 0.03 150);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.door-handle {
+  position: absolute;
+  right: 17px;
+  top: 52%;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--amber);
+}
+
+.keypad {
+  position: absolute;
+  right: 0;
+  top: 45%;
+  width: 42px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in oklch, var(--plaster-lit), transparent 78%);
+  border-radius: 4px;
+  background: oklch(18% 0.02 78);
+  color: color-mix(in oklch, var(--green), transparent 16%);
+  box-shadow: 0 10px 18px color-mix(in oklch, var(--ink), transparent 76%);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.keypad::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, currentColor 2px, transparent 2px),
+    linear-gradient(currentColor 2px, transparent 2px);
+  background-size: 7px 7px;
+  opacity: 0.52;
+}
+
+.keypad span {
+  position: absolute;
+}
+
+.keypad--ready,
+.keypad--accepted {
+  color: var(--amber);
+}
+
+.keypad--accepted {
+  color: var(--green);
+  box-shadow:
+    0 0 24px color-mix(in oklch, var(--green), transparent 30%),
+    0 10px 18px color-mix(in oklch, var(--ink), transparent 74%);
+}
+
+.quest-app--doorOpening .keypad--accepted {
+  animation: keypad-accepted-pop 700ms var(--ease-out) both;
+}

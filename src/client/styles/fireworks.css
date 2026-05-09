@@ -1,0 +1,104 @@
+
+.final-fireworks {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms var(--ease-out);
+}
+
+.quest-app--doorOpening .final-fireworks,
+.quest-app--escaped .final-fireworks {
+  opacity: 1;
+}
+
+.final-firework {
+  position: absolute;
+  left: var(--firework-left);
+  top: var(--firework-top);
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  color: var(--firework-color);
+  background: currentColor;
+  filter: drop-shadow(0 0 12px currentColor);
+  opacity: 0;
+  transform: scale(0.16);
+}
+
+.final-firework::before,
+.final-firework::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+}
+
+.final-firework::before {
+  box-shadow:
+    0 -44px 0 -1px currentColor,
+    31px -31px 0 -1px currentColor,
+    44px 0 0 -1px currentColor,
+    31px 31px 0 -1px currentColor,
+    0 44px 0 -1px currentColor,
+    -31px 31px 0 -1px currentColor,
+    -44px 0 0 -1px currentColor,
+    -31px -31px 0 -1px currentColor;
+}
+
+.final-firework::after {
+  transform: rotate(22deg);
+  box-shadow:
+    0 -31px 0 -2px currentColor,
+    22px -22px 0 -2px currentColor,
+    31px 0 0 -2px currentColor,
+    22px 22px 0 -2px currentColor,
+    0 31px 0 -2px currentColor,
+    -22px 22px 0 -2px currentColor,
+    -31px 0 0 -2px currentColor,
+    -22px -22px 0 -2px currentColor;
+}
+
+.quest-app--doorOpening .final-firework,
+.quest-app--escaped .final-firework {
+  animation: final-firework-bloom 1500ms var(--ease-out) infinite;
+  animation-delay: var(--firework-delay);
+}
+
+.final-firework--one {
+  --firework-left: 36%;
+  --firework-top: 22%;
+  --firework-color: color-mix(in oklch, var(--green), var(--plaster-lit) 12%);
+  --firework-delay: 90ms;
+}
+
+.final-firework--two {
+  --firework-left: 62%;
+  --firework-top: 18%;
+  --firework-color: color-mix(in oklch, var(--amber), var(--plaster-lit) 6%);
+  --firework-delay: 310ms;
+}
+
+.final-firework--three {
+  --firework-left: 76%;
+  --firework-top: 34%;
+  --firework-color: oklch(67% 0.12 230);
+  --firework-delay: 560ms;
+}
+
+.final-firework--four {
+  --firework-left: 48%;
+  --firework-top: 38%;
+  --firework-color: oklch(72% 0.16 24);
+  --firework-delay: 820ms;
+}
+
+.final-firework--five {
+  --firework-left: 22%;
+  --firework-top: 34%;
+  --firework-color: color-mix(in oklch, var(--amber-soft), var(--green) 18%);
+  --firework-delay: 1060ms;
+}
