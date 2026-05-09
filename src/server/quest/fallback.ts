@@ -2,7 +2,6 @@ import type {
   QuestActor,
   QuestLanguage,
   QuestState,
-  QuestTrigger,
   VoiceAction,
   QuestEvent,
 } from "../../shared/voice.js";
@@ -25,7 +24,6 @@ interface QuestTurnShape {
   event: QuestEvent;
   replyLanguage: QuestLanguage;
   reply: string;
-  trigger: QuestTrigger;
   previousQuestState: QuestState;
   nextQuestState: QuestState;
 }
@@ -46,8 +44,6 @@ function buildTurn(
     event: { type: transitionId, progressed },
     replyLanguage,
     reply,
-    // trigger will be removed in the next commit; stub for now.
-    trigger: { type: "unknown", actor, directAddress: false, matched: [] },
     previousQuestState,
     nextQuestState,
   };

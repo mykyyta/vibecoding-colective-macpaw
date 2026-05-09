@@ -3,7 +3,6 @@ import type {
   QuestEvent,
   QuestLanguage,
   QuestState,
-  QuestTrigger,
   VoiceAction,
 } from "../../shared/voice.js";
 import {
@@ -47,7 +46,6 @@ export interface QuestTurn {
   event: QuestEvent;
   replyLanguage: QuestLanguage;
   reply: string;
-  trigger: QuestTrigger;
   previousQuestState: QuestState;
   nextQuestState: QuestState;
 }
@@ -84,13 +82,6 @@ export function createQuestTurnFromTransition({
   const progressed = !["chitchat-replied", "sofia-hint-given"].includes(
     transitionId,
   );
-  // trigger field will be removed in the next commit; stub it for now.
-  const trigger: QuestTrigger = {
-    type: "unknown",
-    actor,
-    directAddress: false,
-    matched: [],
-  };
 
   return {
     action: { type: "none" },
@@ -98,7 +89,6 @@ export function createQuestTurnFromTransition({
     event: { type: transitionId, progressed },
     replyLanguage,
     reply,
-    trigger,
     previousQuestState,
     nextQuestState,
   };

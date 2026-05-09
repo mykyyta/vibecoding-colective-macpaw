@@ -216,7 +216,6 @@ app.post("/api/voice-turn", async (request, response) => {
     reply,
     action: turn.action,
     actor: turn.actor,
-    trigger: turn.trigger,
     event: turn.event,
     previousQuestState: turn.previousQuestState,
     nextQuestState: turn.nextQuestState,
