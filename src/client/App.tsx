@@ -98,11 +98,9 @@ interface RecordedSpeechRecognizer {
 const initialQuestState: QuestState = {
   olegNameKnown: false,
   guardHintGiven: false,
-  pixelAddressed: false,
   pixelRejectedOrdinaryCommand: false,
   codeRevealed: false,
   doorOpen: false,
-  escaped: false,
 };
 
 interface ActiveReplyPlayback {
@@ -2067,7 +2065,7 @@ function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState {
 }
 
 function mapQuestStateToRoomState(questState: QuestState): RoomState {
-  if (questState.escaped || questState.doorOpen) {
+  if (questState.doorOpen) {
     return "escaped";
   }
 
@@ -2160,7 +2158,7 @@ function getAmbientHint(
     return copy.ambientDoorOpening;
   }
 
-  if (questState.escaped || questState.doorOpen) {
+  if (questState.doorOpen) {
     return copy.ambientEscaped;
   }
 
@@ -2168,7 +2166,7 @@ function getAmbientHint(
     return copy.ambientCodeRevealed;
   }
 
-  if (questState.pixelAddressed) {
+  if (questState.pixelRejectedOrdinaryCommand) {
     return copy.ambientPixelAddressed;
   }
 

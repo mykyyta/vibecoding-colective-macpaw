@@ -37,11 +37,11 @@ interface TransitionRecord {
 }
 
 export function getChitchatActor(state: QuestState): QuestActor {
-  if (state.doorOpen || state.escaped) {
+  if (state.doorOpen) {
     return "door";
   }
 
-  if (state.pixelAddressed) {
+  if (state.pixelRejectedOrdinaryCommand || state.codeRevealed) {
     return "pixel";
   }
 
@@ -57,7 +57,7 @@ export function getChitchatFallbackReply(
   state: QuestState,
   replyLanguage: QuestLanguage,
 ): string {
-  if (state.doorOpen || state.escaped) {
+  if (state.doorOpen) {
     return getQuestReply("smalltalk-after-escape", replyLanguage);
   }
 
@@ -65,7 +65,7 @@ export function getChitchatFallbackReply(
 }
 
 function getSofiaHintStageContext(state: QuestState): string {
-  if (state.doorOpen || state.escaped) {
+  if (state.doorOpen) {
     return "Current Sofiia hint stage: the player has already escaped. Reflect on the shared exit and keep it celebratory, not instructional.";
   }
 
@@ -92,7 +92,7 @@ export function getSofiaHintReply(
   state: QuestState,
   replyLanguage: QuestLanguage,
 ): string {
-  if (state.doorOpen || state.escaped) {
+  if (state.doorOpen) {
     return getQuestReply("sofia-hint-after-escape", replyLanguage);
   }
 

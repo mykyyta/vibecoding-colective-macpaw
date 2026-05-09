@@ -51,11 +51,9 @@ export function mapProviderLanguageCodeToQuestLanguage(
 export interface QuestState {
   olegNameKnown: boolean;
   guardHintGiven: boolean;
-  pixelAddressed: boolean;
   pixelRejectedOrdinaryCommand: boolean;
   codeRevealed: boolean;
   doorOpen: boolean;
-  escaped: boolean;
 }
 
 export type QuestEventType =

@@ -65,7 +65,7 @@ function getReplyLanguageLabel(replyLanguage: QuestLanguage): string {
 }
 
 function getQuestStageSummary(state: QuestState): string {
-  if (state.doorOpen || state.escaped) {
+  if (state.doorOpen) {
     return "the player has escaped; only celebratory or ambient follow-up should remain";
   }
 

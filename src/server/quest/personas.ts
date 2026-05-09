@@ -106,7 +106,7 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       ],
     },
     chitchatFallback: (state) =>
-      state.pixelAddressed ? "smalltalk-pixel" : "pixel-smalltalk",
+      state.pixelRejectedOrdinaryCommand || state.codeRevealed ? "smalltalk-pixel" : "pixel-smalltalk",
     voice: {
       elevenLabsRole: "pixel",
       settings: {

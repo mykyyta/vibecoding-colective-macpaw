@@ -161,7 +161,6 @@ const sofiaCatLanguageHintAfterRejection = await runTurn({
   questState: {
     olegNameKnown: true,
     guardHintGiven: true,
-    pixelAddressed: true,
     pixelRejectedOrdinaryCommand: true,
   },
   decision: {
@@ -239,7 +238,6 @@ const doorOpened = await runTurn({
   questState: {
     olegNameKnown: true,
     guardHintGiven: true,
-    pixelAddressed: true,
     codeRevealed: true,
   },
   decision: {
@@ -413,7 +411,6 @@ const englishDoorOpened = await runTurn({
   questState: {
     olegNameKnown: true,
     guardHintGiven: true,
-    pixelAddressed: true,
     codeRevealed: true,
   },
   decision: {

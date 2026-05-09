@@ -5,11 +5,9 @@ export type { QuestState };
 export const initialQuestState: QuestState = {
   olegNameKnown: false,
   guardHintGiven: false,
-  pixelAddressed: false,
   pixelRejectedOrdinaryCommand: false,
   codeRevealed: false,
   doorOpen: false,
-  escaped: false,
 };
 
 export function normalizeQuestState(
@@ -26,10 +24,8 @@ export function normalizeQuestState(
   return {
     olegNameKnown,
     guardHintGiven,
-    pixelAddressed: pixelRejectedOrdinaryCommand || codeRevealed,
     pixelRejectedOrdinaryCommand,
     codeRevealed,
     doorOpen,
-    escaped: doorOpen,
   };
 }
