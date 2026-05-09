@@ -132,10 +132,12 @@ function isLanguageAmbiguousTranscript(transcript: string): boolean {
   const compact = text.replace(/\s+/g, "");
   const ambiguousTokens = new Set([
     "404",
-    "pixel",
-    "pix",
-    "oleg",
-    "oleh",
+    "hoover",
+    "fixel",
+    "dan",
+    "хувер",
+    "фіксель",
+    "ден",
     "мур",
     "мр",
     "мрр",
@@ -188,7 +190,7 @@ function inferQuestLanguageFromTranscript(
   }
 
   if (
-    /\b(what|who|your|name|open|door|exit|unlock|code|hello|thanks|please|let|out|guard)\b/u.test(
+    /\b(what|who|your|name|open|door|exit|unlock|code|hello|thanks|please|let|out|dan)\b/u.test(
       text,
     )
   ) {

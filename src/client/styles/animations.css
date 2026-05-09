@@ -20,7 +20,7 @@
   }
 }
 
-@keyframes pixel-blink {
+@keyframes hoover-cat-blink {
   0%,
   88%,
   100% {
@@ -42,18 +42,18 @@
   }
 }
 
-@keyframes pixel-idle-prowl {
+@keyframes hoover-cat-idle-prowl {
   0%,
   100% {
-    transform: var(--pixel-scale) translateX(0) rotate(-1deg);
+    transform: var(--hoover-cat-scale) translateX(0) rotate(-1deg);
   }
 
   44% {
-    transform: var(--pixel-scale) translateX(-10px) translateY(-3px) rotate(2.5deg);
+    transform: var(--hoover-cat-scale) translateX(-10px) translateY(-3px) rotate(2.5deg);
   }
 }
 
-@keyframes pixel-breathe {
+@keyframes hoover-cat-breathe {
   from {
     transform: translateY(0);
   }
@@ -63,7 +63,7 @@
   }
 }
 
-@keyframes pixel-head-look {
+@keyframes hoover-cat-head-look {
   from {
     transform: translateY(0) rotate(-1deg);
   }
@@ -99,7 +99,7 @@
   }
 }
 
-@keyframes guard-talk {
+@keyframes dan-figure-talk {
   from {
     transform: rotate(-18deg);
   }
@@ -202,18 +202,18 @@
   }
 }
 
-@keyframes guard-success-shift {
+@keyframes dan-figure-success-shift {
   0%,
   100% {
-    transform: var(--guard-scale) translateX(0);
+    transform: var(--dan-figure-scale) translateX(0);
   }
 
   48% {
-    transform: var(--guard-scale) translateX(-5px);
+    transform: var(--dan-figure-scale) translateX(-5px);
   }
 }
 
-@keyframes guard-success-wave {
+@keyframes dan-figure-success-wave {
   0% {
     transform: rotate(-18deg);
   }
@@ -227,18 +227,18 @@
   }
 }
 
-@keyframes pixel-success-hop {
+@keyframes hoover-cat-success-hop {
   0%,
   100% {
-    transform: var(--pixel-scale) translateY(-4px);
+    transform: var(--hoover-cat-scale) translateY(-4px);
   }
 
   42% {
-    transform: var(--pixel-scale) translateY(-13px) rotate(-2deg);
+    transform: var(--hoover-cat-scale) translateY(-13px) rotate(-2deg);
   }
 }
 
-@keyframes pixel-success-tail {
+@keyframes hoover-cat-success-tail {
   from {
     transform: rotate(-2deg);
   }
@@ -248,18 +248,18 @@
   }
 }
 
-@keyframes pixel-idle-prowl-desktop {
+@keyframes hoover-cat-idle-prowl-desktop {
   0%,
   100% {
-    transform: var(--pixel-scale) translateX(0) translateY(0) rotate(-1.5deg);
+    transform: var(--hoover-cat-scale) translateX(0) translateY(0) rotate(-1.5deg);
   }
 
   42% {
-    transform: var(--pixel-scale) translateX(-10px) translateY(-3px) rotate(2.5deg);
+    transform: var(--hoover-cat-scale) translateX(-10px) translateY(-3px) rotate(2.5deg);
   }
 }
 
-@keyframes pixel-breathe-desktop {
+@keyframes hoover-cat-breathe-desktop {
   from {
     transform: translateY(0) scaleY(1);
   }
@@ -269,7 +269,7 @@
   }
 }
 
-@keyframes pixel-head-look-desktop {
+@keyframes hoover-cat-head-look-desktop {
   from {
     transform: translateY(0) rotate(-1deg);
   }
@@ -289,18 +289,18 @@
   }
 }
 
-@keyframes pixel-success-hop-desktop {
+@keyframes hoover-cat-success-hop-desktop {
   0%,
   100% {
-    transform: var(--pixel-scale) translateY(-8px) rotate(-1deg);
+    transform: var(--hoover-cat-scale) translateY(-8px) rotate(-1deg);
   }
 
   42% {
-    transform: var(--pixel-scale) translateY(-15px) rotate(-2.5deg);
+    transform: var(--hoover-cat-scale) translateY(-15px) rotate(-2.5deg);
   }
 }
 
-@keyframes pixel-success-tail-desktop {
+@keyframes hoover-cat-success-tail-desktop {
   from {
     transform: rotate(-8deg);
   }
@@ -310,24 +310,24 @@
   }
 }
 
-@keyframes pixel-helpful-sway-desktop {
+@keyframes hoover-cat-helpful-sway-desktop {
   0%,
   100% {
-    transform: var(--pixel-scale) translateX(0) translateY(-5px) rotate(-0.5deg);
+    transform: var(--hoover-cat-scale) translateX(0) translateY(-5px) rotate(-0.5deg);
   }
 
   45% {
-    transform: var(--pixel-scale) translateX(-6px) translateY(-9px) rotate(2.5deg);
+    transform: var(--hoover-cat-scale) translateX(-6px) translateY(-9px) rotate(2.5deg);
   }
 }
 
-@keyframes pixel-ignored-fidget-desktop {
+@keyframes hoover-cat-ignored-fidget-desktop {
   0%,
   100% {
-    transform: var(--pixel-scale) translateX(8px) translateY(-1px) rotate(3deg);
+    transform: var(--hoover-cat-scale) translateX(8px) translateY(-1px) rotate(3deg);
   }
 
   50% {
-    transform: var(--pixel-scale) translateX(2px) translateY(1px) rotate(-1.5deg);
+    transform: var(--hoover-cat-scale) translateX(2px) translateY(1px) rotate(-1.5deg);
   }
 }

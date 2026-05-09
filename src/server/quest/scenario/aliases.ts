@@ -25,39 +25,6 @@ export const DOOR_ALIASES: string[] = [
   "lockdown",
 ];
 
-export const NAME_QUESTION_ALIASES: string[] = [
-  "як тебе звати",
-  "як вас звати",
-  "як звати",
-  "як тебе звуть",
-  "як вас звуть",
-  "як тебе зовуть",
-  "як вас зовуть",
-  "як звуть",
-  "как тебя зовут",
-  "как вас зовут",
-  "звати тебе",
-  "зовуть тебе",
-  "твоє ім",
-  "ваше ім",
-  "твоє імя",
-  "ваше імя",
-  "твоє імʼя",
-  "ваше імʼя",
-  "хто ти",
-  "хто ви",
-  "представ",
-  "your name",
-  "what is your name",
-  "who are you",
-  "what are you called",
-  "tell me your name",
-  "say your name",
-  "introduce yourself",
-  "identify yourself",
-  "name",
-];
-
 export const CODE_ALIASES: string[] = [
   "404",
   "чотири нуль чотири",
@@ -80,6 +47,73 @@ export const CODE_INTENT_ALIASES: string[] = [
   "password",
   "passcode",
   "pin",
+];
+
+export const HINT_INTENT_ALIASES: string[] = [
+  "підказ",
+  "порад",
+  "іде",
+  "допомож",
+  "допомог",
+  "що робити",
+  "що далі",
+  "як бути",
+  "куди далі",
+  "далі",
+  "я застряг",
+  "я застрягла",
+  "help",
+  "hint",
+  "idea",
+  "ideas",
+  "advice",
+  "next step",
+  "what should",
+  "what do you think",
+  "stuck",
+];
+
+export const GENTLE_ALIASES: string[] = [
+  "будь ласка",
+  "будь-ласка",
+  "прошу",
+  "лагід",
+  "ніжн",
+  "хорош",
+  "милий",
+  "мила",
+  "котик",
+  "котику",
+  "хороший",
+  "хорошенький",
+  "пухнаст",
+  "please",
+  "sweet",
+  "gentle",
+  "kindly",
+  "good cat",
+  "good kitty",
+  "dear",
+  "nice cat",
+];
+
+export const WAKE_ALIASES: string[] = [
+  "прокидай",
+  "прокинь",
+  "вставай",
+  "встань",
+  "розбуд",
+  "буди",
+  "гей",
+  "ей",
+  "агов",
+  "бу",
+  "wake",
+  "wake up",
+  "get up",
+  "hey",
+  "boo",
+  "rise",
 ];
 
 export const VCC_ALIASES: string[] = [
@@ -116,4 +150,3 @@ export const SMALLTALK_ALIASES: string[] = [
   "please",
   "nice to meet you",
 ];
-

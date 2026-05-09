@@ -1,13 +1,13 @@
-export const PURR_MARKER_PATTERN =
+export const NONVERBAL_MARKER_PATTERN =
   /(?:^|\s)(мур+|мурк\w*|м(?:[\s-]?р)+|мр+|мяу+|мяв+|м[\s-]?я[\s-]?у+|няу+|няв+|н[\s-]?я[\s-]?у+|пур+|пурр+|пр+|purr+|pur+|mur+|meow+|mew+|m(?:[\s-]?r)+|m[\s-]?e[\s-]?o[\s-]?w+|prr+)(?=\s|$)/giu;
 
-export function observePurrMarkers(
+export function observeNonverbalMarkers(
   provider: "browser-speech" | "elevenlabs" | "elevenlabs-recorded" | "voice-turn",
   stage: "partial" | "committed" | "submitted",
   transcript: string,
 ): void {
-  PURR_MARKER_PATTERN.lastIndex = 0;
-  const markers = Array.from(transcript.matchAll(PURR_MARKER_PATTERN)).map(
+  NONVERBAL_MARKER_PATTERN.lastIndex = 0;
+  const markers = Array.from(transcript.matchAll(NONVERBAL_MARKER_PATTERN)).map(
     ([marker]) => marker.trim(),
   );
 
@@ -16,7 +16,7 @@ export function observePurrMarkers(
   }
 
   if (markers.length > 0) {
-    console.info("[purr-marker]", {
+    console.info("[nonverbal-marker]", {
       provider,
       stage,
       markers,

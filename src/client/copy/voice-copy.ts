@@ -4,7 +4,6 @@ export interface VoiceCopy {
   microphoneName: string;
   roomName: string;
   playerName: string;
-  guardName: string;
   doorName: string;
   sofiaName: string;
   listening: string;
@@ -47,8 +46,9 @@ export interface VoiceCopy {
   leaderboardErrorUnavailable: string;
   roomSceneAria: string;
   exitKeypadAria: string;
-  pixelAria: string;
-  guardAria: string;
+  hooverAria: string;
+  fixelAria: string;
+  danAria: string;
   sofiaAria: string;
   relativeJustNow: string;
   relativeMinuteAgo: (minutes: number) => string;
@@ -57,9 +57,8 @@ export interface VoiceCopy {
   ambientDoorOpening: string;
   ambientEscaped: string;
   ambientCodeRevealed: string;
-  ambientPixelAddressed: string;
-  ambientGuardHintGiven: string;
-  ambientOlegKnown: string;
+  ambientFixelStage: string;
+  ambientHooverClue: string;
   ambientInitial: string;
 }
 
@@ -68,7 +67,6 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     microphoneName: "Мікрофон",
     roomName: "Кімната",
     playerName: "Ти",
-    guardName: "Охоронець",
     doorName: "Двері",
     sofiaName: "Софія",
     listening: "Слухаю.",
@@ -117,8 +115,9 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     leaderboardErrorUnavailable: "Недоступно",
     roomSceneAria: "Голосова квест-кімната MacPaw Space",
     exitKeypadAria: "Панель виходу",
-    pixelAria: "Pixel",
-    guardAria: "Охоронець",
+    hooverAria: "Hoover, білий кіт біля дверей",
+    fixelAria: "Fixel, коричневий кіт над сценою",
+    danAria: "Dan, організатор біля дверної панелі",
     sofiaAria: "Софія, організаторка Vibecoding Collective",
     relativeJustNow: "щойно",
     relativeMinuteAgo: (minutes) => `${minutes} хв тому`,
@@ -126,17 +125,15 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     ambientListening: "утримуй, говори, відпусти",
     ambientDoorOpening: "EXIT resolved",
     ambientEscaped: "EXIT accepted",
-    ambientCodeRevealed: "Олег чекає код",
-    ambientPixelAddressed: "Pixel любить лагідне мур-мур",
-    ambientGuardHintGiven: "Pixel сидів біля keypad",
-    ambientOlegKnown: "Олег реагує на своє ім'я",
-    ambientInitial: "спитай, як звуть охоронця",
+    ambientCodeRevealed: "код видно на бейджі",
+    ambientFixelStage: "розбуди Fixel",
+    ambientHooverClue: "поговори з Hoover лагідно",
+    ambientInitial: "попроси Dan перевірити двері",
   },
   en: {
     microphoneName: "Microphone",
     roomName: "Room",
     playerName: "You",
-    guardName: "Guard",
     doorName: "Door",
     sofiaName: "Sofiia",
     listening: "Listening.",
@@ -185,8 +182,9 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     leaderboardErrorUnavailable: "Unavailable",
     roomSceneAria: "Voice-operated MacPaw Space quest room",
     exitKeypadAria: "Exit keypad",
-    pixelAria: "Pixel the cat",
-    guardAria: "Human guard",
+    hooverAria: "Hoover, white cat by the door",
+    fixelAria: "Fixel, brown cat above the stage",
+    danAria: "Dan, event organizer by the door panel",
     sofiaAria: "Sofiia, Vibecoding Collective organizer",
     relativeJustNow: "just now",
     relativeMinuteAgo: (minutes) => `${minutes} min ago`,
@@ -194,10 +192,9 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     ambientListening: "hold, speak, release",
     ambientDoorOpening: "EXIT resolved",
     ambientEscaped: "EXIT accepted",
-    ambientCodeRevealed: "Oleg is waiting for the code",
-    ambientPixelAddressed: "Pixel likes a gentle purr",
-    ambientGuardHintGiven: "Pixel sat near the keypad",
-    ambientOlegKnown: "Oleg responds to his name",
-    ambientInitial: "ask the guard for his name",
+    ambientCodeRevealed: "badge code visible",
+    ambientFixelStage: "wake Fixel",
+    ambientHooverClue: "talk gently to Hoover",
+    ambientInitial: "ask Dan to check the door",
   },
 };

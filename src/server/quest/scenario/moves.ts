@@ -12,55 +12,51 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
     id: "chitchat-replied",
     describe: () =>
       [
-        "Use for any player turn that should not progress the quest:",
-        "greetings, thanks, jokes, ordinary conversation with any character,",
-        "questions about a character, comments about the room or door,",
-        "questions about Vibe Coding Collective / vibe coding / the event,",
-        "or ambiguous and unintelligible input.",
-        "Pick the actor who is being addressed; if no clear address, pick the",
-        "most relevant visible character (guard early, Pixel once engaged,",
-        "door after escape, sofia for VCC and Sofiia-directed comments).",
-        "Sofiia may answer here from her persona including a brief VCC",
-        "explanation if asked, but she must not give a quest-step hint:",
-        "if the player asks Sofiia for help, choose sofia-hint-given instead.",
+        "Use when no progression transition is legal. If no clear addressee is",
+        "present, actor must be Sofiia and the reply should be short general",
+        "context. If a visible character is clearly addressed, that character",
+        "may answer without revealing gated facts.",
       ].join(" "),
   },
   "sofia-hint-given": {
     id: "sofia-hint-given",
-    describe: () => "",
-  },
-  "oleg-name-learned": {
-    id: "oleg-name-learned",
     describe: () =>
-      "The player asks the guard's name or who he is. This is the only transition that may reveal the guard is Oleg. The spoken reply must explicitly include the name Oleg/Олег because name-based address is the core puzzle key.",
-    fallbackLineId: "guard-name",
+      "Use only when the player directly addresses Sofiia and asks for a hint, idea, help, advice, direction, or next step. This never advances quest state.",
   },
-  "guard-hint-given": {
-    id: "guard-hint-given",
-    describe: (_state, lang) => {
-      const eventPhrase =
-        lang === "en" ? "vibecoding event" : "вайбкодінг івент";
-
-      return `The player directly addresses Oleg and asks him to open/unlock the door or help with the exit/code. The spoken reply must explicitly include the cat's name Pixel/Піксель because this is the key clue for the next step. This may reveal that the exit is locked after the ${eventPhrase} and Pixel's exit-panel clue, but not the code.`;
-    },
-    fallbackLineId: "guard-hint",
-  },
-  "pixel-ordinary-rejected": {
-    id: "pixel-ordinary-rejected",
+  "dan-door-checked": {
+    id: "dan-door-checked",
     describe: () =>
-      "The player directly addresses Pixel by name with an ordinary command, request, or question, including asking for the code without making a cat sound. Pixel acknowledges the address but refuses ordinary commands.",
-    fallbackLineId: "pixel-ordinary-rejected",
+      "Use when the player directly addresses Dan and asks him to open, check, inspect, unlock, or enter something into the door/code panel. Dan may reveal that it looks like a code lock and that Hoover was near the door, but not Fixel, the badge, or the code.",
+    fallbackLineId: "dan-door-checked",
+  },
+  "hoover-ordinary-rejected": {
+    id: "hoover-ordinary-rejected",
+    describe: () =>
+      "Use after Dan has pointed toward Hoover when the player addresses Hoover directly, but the wording is not gentle enough. Hoover refuses ordinary commands and reveals no Fixel, badge, or code facts.",
+    fallbackLineId: "hoover-ordinary-rejected",
+  },
+  "hoover-clue-given": {
+    id: "hoover-clue-given",
+    describe: () =>
+      "Use after Dan has pointed toward Hoover when the player addresses Hoover directly and gently. This is the only transition that may reveal Fixel took the badge.",
+    fallbackLineId: "hoover-clue-given",
+  },
+  "fixel-sleeping-rejected": {
+    id: "fixel-sleeping-rejected",
+    describe: () =>
+      "Use after Hoover's clue when the player addresses Fixel but does not plausibly try to wake him. Fixel remains asleep, the code is not revealed, and Fixel's reply must be a nonverbal purr or sleepy grumble only.",
+    fallbackLineId: "fixel-sleeping-rejected",
   },
   "code-revealed": {
     id: "code-revealed",
     describe: () =>
-      "Use only when the player directly says Pixel's name or a clear Pixel alias and also performs a gentle cat sound in the same transcript, such as mur, mrr, meow, purr, pur, prr, nya/няв/мяу, or similar. Do not use for ordinary commands like asking Pixel for the code without a cat sound. This is the only transition that may reveal code 404.",
+      "Use after Hoover's clue when the player addresses Fixel and makes a plausible waking attempt such as wake up, hey, boo, гей, бу, прокидайся, or similar. This is the only transition that may reveal code 404, but Fixel's reply must still be a nonverbal waking sound only.",
     fallbackLineId: "code-revealed",
   },
   "door-opened": {
     id: "door-opened",
     describe: () =>
-      "The player directly addresses Oleg and gives the already revealed code 404. This is the only transition that may open the door or mark escape. The reply should use this exact final line: 404 accepted. Door not found, but exit found.",
+      "Use only after the code has been revealed and the player directly gives code 404 to Dan. Actor must be Dan. The backend will force the exact final line.",
     fallbackLineId: "door-opened",
   },
 };

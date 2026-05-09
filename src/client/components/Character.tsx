@@ -7,26 +7,53 @@ export default function Character({
   mood = "idle",
   roomState,
   voiceLanguage,
+  badgeEdgeVisible = false,
+  badgeCodeVisible = false,
 }: {
-  actor: "guard" | "pixel" | "sofia";
+  actor: "dan" | "hoover" | "fixel" | "sofia";
   mood?: "idle" | "ignored" | "helpful";
   roomState: RoomState;
   voiceLanguage: QuestLanguage;
+  badgeEdgeVisible?: boolean;
+  badgeCodeVisible?: boolean;
 }) {
   const copy = VOICE_COPY[voiceLanguage];
 
-  if (actor === "pixel") {
+  if (actor === "hoover") {
     return (
-      <div className={`pixel pixel--${mood}`} aria-label={copy.pixelAria}>
-        <span className="pixel-shadow" />
-        <span className="pixel-tail" />
-        <span className="pixel-body" />
-        <span className="pixel-head">
-          <i className="pixel-ear pixel-ear--left" />
-          <i className="pixel-ear pixel-ear--right" />
-          <i className="pixel-eye pixel-eye--left" />
-          <i className="pixel-eye pixel-eye--right" />
-          <i className="pixel-nose" />
+      <div className={`hoover hoover-cat hoover-cat--${mood}`} aria-label={copy.hooverAria}>
+        <span className="hoover-cat-shadow" />
+        <span className="hoover-cat-tail" />
+        <span className="hoover-cat-body" />
+        <span className="hoover-cat-head">
+          <i className="hoover-cat-ear hoover-cat-ear--left" />
+          <i className="hoover-cat-ear hoover-cat-ear--right" />
+          <i className="hoover-cat-eye hoover-cat-eye--left" />
+          <i className="hoover-cat-eye hoover-cat-eye--right" />
+          <i className="hoover-cat-nose" />
+        </span>
+      </div>
+    );
+  }
+
+  if (actor === "fixel") {
+    return (
+      <div
+        className={`fixel screen-rim-cat ${
+          badgeEdgeVisible ? "fixel--badge-edge" : ""
+        } ${badgeCodeVisible ? "fixel--badge-code" : ""}`}
+        aria-label={copy.fixelAria}
+      >
+        <span className="fixel-badge" aria-hidden="true">
+          <i>{badgeCodeVisible ? "404" : ""}</i>
+        </span>
+        <span className="screen-rim-cat__shadow" />
+        <span className="screen-rim-cat__tail" />
+        <span className="screen-rim-cat__body" />
+        <span className="screen-rim-cat__head">
+          <i className="screen-rim-cat__ear screen-rim-cat__ear--left" />
+          <i className="screen-rim-cat__ear screen-rim-cat__ear--right" />
+          <i className="screen-rim-cat__face" />
         </span>
       </div>
     );
@@ -57,29 +84,29 @@ export default function Character({
   }
 
   const isSpeaking =
-    roomState === "guardHintGiven" ||
+    roomState === "danDoorChecked" ||
     roomState === "doorOpening" ||
     roomState === "escaped";
 
   return (
     <div
-      className={`guard ${isSpeaking ? "guard--speaking" : ""}`}
-      aria-label={copy.guardAria}
+      className={`dan dan-figure ${isSpeaking ? "dan-figure--speaking" : ""}`}
+      aria-label={copy.danAria}
     >
-      <span className="guard-shadow" />
-      <span className="guard-legs" />
-      <span className="guard-body">
-        <i className="guard-shirt" />
+      <span className="dan-figure-shadow" />
+      <span className="dan-figure-legs" />
+      <span className="dan-figure-body">
+        <i className="dan-figure-shirt" />
       </span>
-      <span className="guard-head">
-        <i className="guard-hair guard-hair--back" />
-        <i className="guard-beard" />
-        <i className="guard-face" />
-        <i className="guard-hair guard-hair--left" />
-        <i className="guard-hair guard-hair--right" />
-        <i className="guard-hair guard-hair--crown" />
+      <span className="dan-figure-head">
+        <i className="dan-figure-hair dan-figure-hair--back" />
+        <i className="dan-figure-beard" />
+        <i className="dan-figure-face" />
+        <i className="dan-figure-hair dan-figure-hair--left" />
+        <i className="dan-figure-hair dan-figure-hair--right" />
+        <i className="dan-figure-hair dan-figure-hair--crown" />
       </span>
-      <span className="guard-arm" />
+      <span className="dan-figure-arm" />
     </div>
   );
 }

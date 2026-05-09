@@ -2,9 +2,8 @@ import type { QuestState, VoiceTurnResponse } from "../../shared/voice";
 import type { RoomState } from "../types/scene";
 
 export const initialQuestState: QuestState = {
-  olegNameKnown: false,
-  guardHintGiven: false,
-  pixelRejectedOrdinaryCommand: false,
+  danDoorChecked: false,
+  hooverClueGiven: false,
   codeRevealed: false,
   doorOpen: false,
 };
@@ -15,11 +14,12 @@ export function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState
       return "doorOpening";
     case "code-revealed":
       return "codeRevealed";
-    case "pixel-ordinary-rejected":
-      return "catIgnored";
-    case "guard-hint-given":
-    case "oleg-name-learned":
-      return "guardHintGiven";
+    case "hoover-ordinary-rejected":
+    case "fixel-sleeping-rejected":
+      return "catRejected";
+    case "hoover-clue-given":
+    case "dan-door-checked":
+      return "danDoorChecked";
     case "chitchat-replied":
     case "sofia-hint-given":
       return mapQuestStateToRoomState(response.nextQuestState);
@@ -35,12 +35,12 @@ export function mapQuestStateToRoomState(questState: QuestState): RoomState {
     return "codeRevealed";
   }
 
-  if (questState.pixelRejectedOrdinaryCommand) {
-    return "catIgnored";
+  if (questState.hooverClueGiven) {
+    return "catRejected";
   }
 
-  if (questState.guardHintGiven || questState.olegNameKnown) {
-    return "guardHintGiven";
+  if (questState.danDoorChecked) {
+    return "danDoorChecked";
   }
 
   return "idle";

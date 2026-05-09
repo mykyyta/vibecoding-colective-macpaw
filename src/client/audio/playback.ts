@@ -14,6 +14,20 @@ import {
 import { stopReplyAudioArm } from "./unlock";
 
 export async function playTurnReply(response: VoiceTurnResponse): Promise<void> {
+  if (response.soundEffect) {
+    try {
+      await playAssetAudio(response.soundEffect.assetUrl);
+      return;
+    } catch {
+      await speakWithBrowser(
+        response.soundEffect.fallbackText,
+        response.actor,
+        response.languageDecision.language,
+      );
+      return;
+    }
+  }
+
   if (!response.audio) {
     await speakWithBrowser(
       response.reply,
@@ -32,6 +46,31 @@ export async function playTurnReply(response: VoiceTurnResponse): Promise<void> 
       response.languageDecision.language,
     );
   }
+}
+
+export async function playAssetAudio(assetUrl: string): Promise<void> {
+  const response = await fetch(assetUrl);
+
+  if (!response.ok) {
+    throw new Error(`Sound effect asset failed with ${response.status}.`);
+  }
+
+  const contentType = response.headers.get("content-type") ?? "audio/mpeg";
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const audioContext = getReplyAudioContext();
+
+  if (audioContext) {
+    try {
+      await playDecodedAudio(bytes, audioContext);
+      return;
+    } catch (error) {
+      console.info("[audio] Web Audio sound effect playback failed; falling back.", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  await playBytesWithAudioElement(bytes, contentType);
 }
 
 export async function playBase64Audio(base64: string, contentType: string): Promise<void> {
@@ -55,9 +94,18 @@ export async function playBase64Audio(base64: string, contentType: string): Prom
     }
   }
 
+  await playBytesWithAudioElement(bytes, contentType);
+}
+
+async function playBytesWithAudioElement(
+  bytes: Uint8Array,
+  contentType: string,
+): Promise<void> {
   stopActiveAudio();
   audioState.replyAudioUnlockId += 1;
-  const audioUrl = URL.createObjectURL(new Blob([bytes], { type: contentType }));
+  const audioData = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(audioData).set(bytes);
+  const audioUrl = URL.createObjectURL(new Blob([audioData], { type: contentType }));
   const audio = getReplyAudioElement();
 
   return new Promise((resolve, reject) => {

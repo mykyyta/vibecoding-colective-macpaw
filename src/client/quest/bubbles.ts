@@ -11,28 +11,28 @@ export function getBubbleForVoiceTurn(
   const copy = VOICE_COPY[language];
 
   switch (actor) {
-    case "guard":
+    case "dan":
       return {
-        actor: "guard",
-        name: questState.olegNameKnown ? "Олег" : copy.guardName,
+        actor: "dan",
+        name: "Dan",
         text: reply,
       };
-    case "pixel":
+    case "hoover":
       return {
-        actor: "pixel",
-        name: "Pixel",
+        actor: "hoover",
+        name: "Hoover",
+        text: reply,
+      };
+    case "fixel":
+      return {
+        actor: "fixel",
+        name: "Fixel",
         text: reply,
       };
     case "sofia":
       return {
         actor: "sofia",
         name: copy.sofiaName,
-        text: reply,
-      };
-    case "door":
-      return {
-        actor: "guard",
-        name: copy.doorName,
         text: reply,
       };
     case "system":
@@ -84,16 +84,12 @@ export function getAmbientHint(
     return copy.ambientCodeRevealed;
   }
 
-  if (questState.pixelRejectedOrdinaryCommand || questState.codeRevealed) {
-    return copy.ambientPixelAddressed;
+  if (questState.hooverClueGiven || questState.codeRevealed) {
+    return copy.ambientFixelStage;
   }
 
-  if (questState.guardHintGiven) {
-    return copy.ambientGuardHintGiven;
-  }
-
-  if (questState.olegNameKnown) {
-    return copy.ambientOlegKnown;
+  if (questState.danDoorChecked) {
+    return copy.ambientHooverClue;
   }
 
   return copy.ambientInitial;

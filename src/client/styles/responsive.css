@@ -1,46 +1,46 @@
 
 @media (min-width: 621px) {
-  .pixel--idle {
-    animation-name: pixel-idle-prowl-desktop;
+  .hoover-cat--idle {
+    animation-name: hoover-cat-idle-prowl-desktop;
     animation-duration: 4.4s;
   }
 
-  .pixel--ignored {
-    animation: pixel-ignored-fidget-desktop 3.7s var(--ease-out) infinite alternate;
+  .hoover-cat--ignored {
+    animation: hoover-cat-ignored-fidget-desktop 3.7s var(--ease-out) infinite alternate;
     filter: saturate(0.75);
   }
 
-  .pixel--helpful {
-    animation: pixel-helpful-sway-desktop 3.8s var(--ease-out) infinite alternate;
+  .hoover-cat--helpful {
+    animation: hoover-cat-helpful-sway-desktop 3.8s var(--ease-out) infinite alternate;
   }
 
-  .pixel-body {
-    animation-name: pixel-breathe-desktop;
+  .hoover-cat-body {
+    animation-name: hoover-cat-breathe-desktop;
     animation-duration: 2.9s;
   }
 
-  .pixel-head {
-    animation-name: pixel-head-look-desktop;
+  .hoover-cat-head {
+    animation-name: hoover-cat-head-look-desktop;
     animation-duration: 3.4s;
   }
 
-  .pixel-tail {
+  .hoover-cat-tail {
     animation-name: tail-swish-desktop;
     animation-duration: 2.3s;
   }
 
-  .pixel--ignored .pixel-tail {
+  .hoover-cat--ignored .hoover-cat-tail {
     animation-duration: 1.8s;
     transform: rotate(17deg);
   }
 
-  .quest-app--doorOpening .pixel--helpful {
-    animation-name: pixel-success-hop-desktop;
+  .quest-app--doorOpening .hoover-cat--helpful {
+    animation-name: hoover-cat-success-hop-desktop;
     animation-duration: 1.25s;
   }
 
-  .quest-app--doorOpening .pixel--helpful .pixel-tail {
-    animation-name: pixel-success-tail-desktop;
+  .quest-app--doorOpening .hoover-cat--helpful .hoover-cat-tail {
+    animation-name: hoover-cat-success-tail-desktop;
     animation-duration: 1.05s;
   }
 }
@@ -62,27 +62,27 @@
     transform: scale(0.82);
   }
 
-  .pixel--idle {
-    animation: pixel-idle-prowl 4.4s var(--ease-out) infinite alternate !important;
+  .hoover-cat--idle {
+    animation: hoover-cat-idle-prowl 4.4s var(--ease-out) infinite alternate !important;
   }
 
-  .pixel--ignored {
-    animation: pixel-ignored-fidget-desktop 3.7s var(--ease-out) infinite alternate !important;
+  .hoover-cat--ignored {
+    animation: hoover-cat-ignored-fidget-desktop 3.7s var(--ease-out) infinite alternate !important;
   }
 
-  .pixel--helpful {
-    animation: pixel-helpful-sway-desktop 3.8s var(--ease-out) infinite alternate !important;
+  .hoover-cat--helpful {
+    animation: hoover-cat-helpful-sway-desktop 3.8s var(--ease-out) infinite alternate !important;
   }
 
-  .pixel-body {
-    animation: pixel-breathe-desktop 2.9s var(--ease-out) infinite alternate !important;
+  .hoover-cat-body {
+    animation: hoover-cat-breathe-desktop 2.9s var(--ease-out) infinite alternate !important;
   }
 
-  .pixel-head {
-    animation: pixel-head-look-desktop 3.4s var(--ease-out) infinite alternate !important;
+  .hoover-cat-head {
+    animation: hoover-cat-head-look-desktop 3.4s var(--ease-out) infinite alternate !important;
   }
 
-  .pixel-tail {
+  .hoover-cat-tail {
     animation: tail-swish-desktop 2.3s var(--ease-out) infinite alternate !important;
   }
 }
@@ -126,10 +126,10 @@
     transform-origin: bottom center;
   }
 
-  .guard {
+  .dan-figure {
     right: 27%;
-    --guard-scale: scale(0.88);
-    transform: var(--guard-scale);
+    --dan-figure-scale: scale(0.88);
+    transform: var(--dan-figure-scale);
     transform-origin: bottom center;
   }
 
@@ -138,27 +138,32 @@
     --sofia-scale: scale(0.88);
   }
 
-  .pixel {
+  .hoover-cat {
     right: 9%;
-    --pixel-scale: scale(0.9);
-    transform: var(--pixel-scale);
+    --hoover-cat-scale: scale(0.9);
+    transform: var(--hoover-cat-scale);
     transform-origin: bottom center;
   }
 
-  .pixel--ignored {
-    transform: var(--pixel-scale) translateX(8px) rotate(3deg);
+  .hoover-cat--ignored {
+    transform: var(--hoover-cat-scale) translateX(8px) rotate(3deg);
   }
 
-  .pixel--helpful {
-    transform: var(--pixel-scale) translateY(-4px);
+  .hoover-cat--helpful {
+    transform: var(--hoover-cat-scale) translateY(-4px);
   }
 
   .speech-bubble {
     max-width: 34vw;
   }
 
-  .speech-bubble--pixel {
+  .speech-bubble--hoover {
     right: 3%;
+  }
+
+  .speech-bubble--fixel {
+    left: 20%;
+    top: 14%;
   }
 
   .speech-bubble--sofia {
@@ -232,11 +237,11 @@
     transform: perspective(800px) rotateY(-12deg) scale(0.72);
   }
 
-  .guard {
+  .dan-figure {
     right: 27%;
     bottom: 24%;
-    --guard-scale: scale(0.72);
-    transform: var(--guard-scale);
+    --dan-figure-scale: scale(0.72);
+    transform: var(--dan-figure-scale);
   }
 
   .sofia {
@@ -245,19 +250,19 @@
     --sofia-scale: scale(0.68);
   }
 
-  .pixel {
+  .hoover-cat {
     right: 29%;
     bottom: 20%;
-    --pixel-scale: scale(0.76);
-    transform: var(--pixel-scale);
+    --hoover-cat-scale: scale(0.76);
+    transform: var(--hoover-cat-scale);
   }
 
-  .pixel--ignored {
-    transform: var(--pixel-scale) translateX(8px) rotate(3deg);
+  .hoover-cat--ignored {
+    transform: var(--hoover-cat-scale) translateX(8px) rotate(3deg);
   }
 
-  .pixel--helpful {
-    transform: var(--pixel-scale) translateY(-4px);
+  .hoover-cat--helpful {
+    transform: var(--hoover-cat-scale) translateY(-4px);
   }
 
   .speech-bubble {
@@ -269,14 +274,16 @@
     padding: 8px 9px;
   }
 
-  .speech-bubble--guard {
+  .speech-bubble--dan {
     left: calc(13vw + 0.85rem);
     right: auto;
     bottom: 60%;
   }
 
-  .speech-bubble--pixel {
+  .speech-bubble--hoover,
+  .speech-bubble--fixel {
     left: calc(13vw + 0.85rem);
+    top: auto;
     right: auto;
     bottom: 60%;
   }

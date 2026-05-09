@@ -3,9 +3,8 @@ import type { QuestState } from "../../../shared/voice.js";
 export type { QuestState };
 
 export const initialQuestState: QuestState = {
-  olegNameKnown: false,
-  guardHintGiven: false,
-  pixelRejectedOrdinaryCommand: false,
+  danDoorChecked: false,
+  hooverClueGiven: false,
   codeRevealed: false,
   doorOpen: false,
 };
@@ -14,17 +13,14 @@ export function normalizeQuestState(
   state: Partial<QuestState> | null | undefined = {},
 ): QuestState {
   const source = state && typeof state === "object" ? state : {};
-  const olegNameKnown = source.olegNameKnown === true;
-  const guardHintGiven = source.guardHintGiven === true && olegNameKnown;
-  const pixelRejectedOrdinaryCommand =
-    source.pixelRejectedOrdinaryCommand === true && guardHintGiven;
-  const codeRevealed = source.codeRevealed === true && guardHintGiven;
-  const doorOpen = source.doorOpen === true && olegNameKnown && codeRevealed;
+  const danDoorChecked = source.danDoorChecked === true;
+  const hooverClueGiven = source.hooverClueGiven === true && danDoorChecked;
+  const codeRevealed = source.codeRevealed === true && hooverClueGiven;
+  const doorOpen = source.doorOpen === true && codeRevealed;
 
   return {
-    olegNameKnown,
-    guardHintGiven,
-    pixelRejectedOrdinaryCommand,
+    danDoorChecked,
+    hooverClueGiven,
     codeRevealed,
     doorOpen,
   };

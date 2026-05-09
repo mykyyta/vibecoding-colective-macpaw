@@ -79,9 +79,12 @@ export function createQuestTurnFromTransition({
 }: QuestTransitionTurnInput): QuestTurn {
   const previousQuestState = normalizeQuestState(questState);
   const nextQuestState = applyQuestTransition(previousQuestState, transitionId);
-  const progressed = !["chitchat-replied", "sofia-hint-given"].includes(
-    transitionId,
-  );
+  const progressed = ![
+    "chitchat-replied",
+    "sofia-hint-given",
+    "hoover-ordinary-rejected",
+    "fixel-sleeping-rejected",
+  ].includes(transitionId);
 
   return {
     action: { type: "none" },
@@ -93,4 +96,3 @@ export function createQuestTurnFromTransition({
     nextQuestState,
   };
 }
-

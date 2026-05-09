@@ -54,7 +54,7 @@ import {
   getSupportedRecordingMimeType,
 } from "./speech/detection";
 import { startElevenLabsRealtimeRecognition } from "./speech/elevenlabs-realtime";
-import { observePurrMarkers } from "./speech/purr";
+import { observeNonverbalMarkers } from "./speech/nonverbal";
 import type {
   BrowserSpeechRecognition,
 } from "./types/speech-recognition";
@@ -353,7 +353,7 @@ export function App() {
           return;
         }
 
-        observePurrMarkers("elevenlabs-recorded", "committed", transcription.text);
+        observeNonverbalMarkers("elevenlabs-recorded", "committed", transcription.text);
         await applyTranscript(transcription.text, transcription.language);
       } catch (error) {
         console.info("[elevenlabs-stt] Recorded transcription failed.", {
@@ -451,7 +451,7 @@ export function App() {
 
       if (finalTranscript) {
         submittedFinalTranscript = true;
-        observePurrMarkers("browser-speech", "committed", finalTranscript);
+        observeNonverbalMarkers("browser-speech", "committed", finalTranscript);
         void applyTranscript(finalTranscript, browserLanguage);
       }
     };
@@ -519,7 +519,7 @@ export function App() {
         }
 
         setInterimTranscript(transcript);
-        observePurrMarkers("elevenlabs", "partial", transcript);
+        observeNonverbalMarkers("elevenlabs", "partial", transcript);
       },
       onCommittedTranscript(transcript, language) {
         if (!wantsListeningRef.current) {
@@ -527,7 +527,7 @@ export function App() {
         }
 
         setInterimTranscript(transcript);
-        observePurrMarkers("elevenlabs", "committed", transcript);
+        observeNonverbalMarkers("elevenlabs", "committed", transcript);
         void applyTranscript(transcript, language);
       },
       onError(error) {
@@ -629,7 +629,7 @@ export function App() {
 
     turnIdRef.current = turnId;
     setVoiceBusy(true);
-    observePurrMarkers("voice-turn", "submitted", cleanedTranscript);
+    observeNonverbalMarkers("voice-turn", "submitted", cleanedTranscript);
     setReadout(cleanedTranscript);
     setBubble({
       actor: "room",

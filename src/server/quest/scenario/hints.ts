@@ -3,9 +3,8 @@ import type { QuestReplyId } from "./lines.js";
 
 export type SofiaHintStage =
   | "initial"
-  | "oleg-known"
-  | "guard-hint"
-  | "pixel-rejected"
+  | "dan-checked"
+  | "hoover-clue"
   | "code-revealed"
   | "after-escape";
 
@@ -18,41 +17,35 @@ export const SOFIA_HINT_STAGES: Record<SofiaHintStage, SofiaHintStageData> = {
   "after-escape": {
     replyId: "sofia-hint-after-escape",
     contextText:
-      "Current Sofiia hint stage: the player has already escaped. Reflect on the shared exit and keep it celebratory, not instructional.",
+      "Current Sofiia hint stage: the door is open. Keep the reply celebratory and organizer-like.",
   },
   "code-revealed": {
     replyId: "sofia-hint-code-revealed",
     contextText:
-      "Current Sofiia hint stage: the code is already known. Nudge the player to give the code to the person standing between them and the door, without saying this is a mechanic.",
+      "Current Sofiia hint stage: the code is visible. Nudge the player to tell Dan, because Dan works with the door panel.",
   },
-  "pixel-rejected": {
-    replyId: "sofia-hint-pixel-rejected",
+  "hoover-clue": {
+    replyId: "sofia-hint-after-hoover",
     contextText:
-      "Current Sofiia hint stage: Pixel rejected ordinary human requests. Nudge the player to try Pixel's own language or a cat-like sound, without revealing the code.",
+      "Current Sofiia hint stage: Hoover revealed that Fixel took the badge. Nudge the player to look at Fixel and wake him, without saying the code.",
   },
-  "guard-hint": {
-    replyId: "sofia-hint-guard-clue",
+  "dan-checked": {
+    replyId: "sofia-hint-after-dan",
     contextText:
-      "Current Sofiia hint stage: Oleg already pointed toward Pixel. Nudge the player only to address Pixel directly and try talking to him calmly. Do not suggest cat language, cat sounds, purring, meowing, or Pixel's own language yet.",
-  },
-  "oleg-known": {
-    replyId: "sofia-hint-oleg-known",
-    contextText:
-      "Current Sofiia hint stage: the player knows the guard is Oleg. Nudge the player to address Oleg directly about the exit, not to speak to the room in general.",
+      "Current Sofiia hint stage: Dan checked the door and pointed toward Hoover. Nudge the player to address Hoover calmly. Do not mention Fixel, the badge, or the code.",
   },
   initial: {
     replyId: "sofia-hint-initial",
     contextText:
-      "Current Sofiia hint stage: the player has not learned the guard's name. Nudge the player to start with a human introduction or ask the person near the door who he is.",
+      "Current Sofiia hint stage: the door has not been checked. Nudge the player to start with Dan and the door panel.",
   },
 };
 
 export function getSofiaHintStageForState(state: QuestState): SofiaHintStage {
   if (state.doorOpen) return "after-escape";
   if (state.codeRevealed) return "code-revealed";
-  if (state.pixelRejectedOrdinaryCommand) return "pixel-rejected";
-  if (state.guardHintGiven) return "guard-hint";
-  if (state.olegNameKnown) return "oleg-known";
+  if (state.hooverClueGiven) return "hoover-clue";
+  if (state.danDoorChecked) return "dan-checked";
 
   return "initial";
 }

@@ -1,6 +1,8 @@
 export {
+  canSynthesizeActorSpeech,
   getElevenLabsVoiceRole,
   getElevenLabsVoiceSettings,
+  type ElevenLabsSpeechActor,
   type ElevenLabsVoiceRole,
   type ElevenLabsVoiceSettings,
 } from "./voice-adapter.js";
@@ -35,12 +37,8 @@ export {
   replyPassesGuardrails,
   isAllowedQuestBrainReply,
   isAllowedSofiaReply,
-  isPrematureSofiaCatLanguageHint,
-  requiresOlegNameInReply,
-  containsOlegReveal,
-  containsPixelNameReveal,
-  containsPixelKeypadClue,
-  containsCatSoundOrLanguageHint,
+  containsHooverReveal,
+  containsFixelOrBadgeReveal,
   containsCodeReveal,
   containsDoorOpenClaim,
   normalizeForGuardrail,

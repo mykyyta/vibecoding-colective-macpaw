@@ -22,7 +22,12 @@ import {
 import { createProviderRegistry } from "./providers/registry.js";
 import { createQuestBrainTurn } from "./quest/engine/brain.js";
 import { decideQuestLanguage, normalizeQuestState } from "./quest/index.js";
-import { getElevenLabsVoiceRole, getElevenLabsVoiceSettings } from "./quest/engine/voice-adapter.js";
+import {
+  canSynthesizeActorSpeech,
+  getElevenLabsVoiceRole,
+  getElevenLabsVoiceSettings,
+} from "./quest/engine/voice-adapter.js";
+import { getQuestSoundEffect } from "./quest/engine/sound-effects.js";
 import {
   createElevenLabsRealtimeSttSession,
   transcribeElevenLabsAudio,
@@ -222,6 +227,23 @@ app.post("/api/voice-turn", async (request, response) => {
     questSessionId: session.sessionId,
     leaderboardCompletion: session.completion,
   };
+  const soundEffect = getQuestSoundEffect({
+    actor: turn.actor,
+    eventType: turn.event.type,
+    language: languageDecision.language,
+  });
+
+  if (soundEffect) {
+    payload.soundEffect = soundEffect;
+    response.json(payload);
+    return;
+  }
+
+  if (!canSynthesizeActorSpeech(turn.actor)) {
+    payload.audioError = "Fixel is nonverbal and has no ElevenLabs TTS voice.";
+    response.json(payload);
+    return;
+  }
 
   try {
     const tts = providerRegistry.getTextToSpeechProvider("elevenlabs");
@@ -365,4 +387,3 @@ function getElevenLabsRealtimeSttConfigIfAvailable() {
     throw error;
   }
 }
-

@@ -23,13 +23,13 @@ export interface AllowedQuestTransition {
 
 export interface ProgressingTransition {
   id: QuestTransitionId;
-  actor: (state: QuestState) => QuestActor;
+  actor: (state: QuestState, facts: QuestTranscriptFacts) => QuestActor;
   fallbackReply: (state: QuestState, replyLanguage: QuestLanguage) => string;
 }
 
 interface TransitionRecord {
   id: QuestTransitionId;
-  actor: (state: QuestState) => QuestActor;
+  actor: (state: QuestState, facts: QuestTranscriptFacts) => QuestActor;
   allowedActors?: (state: QuestState) => QuestActor[];
   isAvailable: (state: QuestState) => boolean;
   factsCheck?: (state: QuestState, facts: QuestTranscriptFacts) => boolean;
@@ -41,69 +41,78 @@ interface TransitionRecord {
 const TRANSITIONS: TransitionRecord[] = [
   {
     id: "chitchat-replied",
-    actor: getChitchatActor,
+    actor: (_state, facts) => getChitchatActor(facts),
     allowedActors: () => getChitchatActors(),
     isAvailable: () => true,
     apply: (state) => state,
     describe: (state, lang) => MOVE_SCENARIO_DATA["chitchat-replied"].describe(state, lang),
     fallbackReply: (state, lang) =>
-      getChitchatFallbackReply(getChitchatActor(state), state, lang),
+      getChitchatFallbackReply("sofia", state, lang),
   },
   {
     id: "sofia-hint-given",
     actor: () => "sofia",
     isAvailable: () => true,
-    factsCheck: (_state, facts) => facts.hasSofiaAddress,
+    factsCheck: (_state, facts) => facts.hasSofiaAddress && facts.hasHintIntent,
     apply: (state) => state,
     describe: (state, _lang) =>
       [
-        "Use when the player directly addresses Sofiia and semantically asks for a quest idea, hint, help, advice, direction, or next step.",
-        "This requires a direct Sofiia address by name or feminine address; unaddressed help requests are not Sofiia hints.",
-        "Do not use this for ordinary Sofiia conversation, door comments, code comments, or VCC/vibe-coding questions unless the player clearly asks for a hint.",
-        "Sofiia is not the quest organizer or answer holder: she gives a calming facilitation idea, does not sound certain, does not mention stages or mechanics, and does not advance state.",
+        MOVE_SCENARIO_DATA["sofia-hint-given"].describe(state, _lang),
         getSofiaHintStageContext(state),
       ].join(" "),
     fallbackReply: (state, lang) =>
       getQuestReply(getSofiaHintReplyId(state), lang),
   },
   {
-    id: "oleg-name-learned",
-    actor: () => "guard",
-    isAvailable: (state) => !state.olegNameKnown,
-    factsCheck: (_state, facts) => facts.hasNameQuestion,
-    apply: (state) => ({ ...state, olegNameKnown: true }),
-    describe: (state, lang) => MOVE_SCENARIO_DATA["oleg-name-learned"].describe(state, lang),
-    fallbackReply: (_state, lang) =>
-      getQuestReply(MOVE_SCENARIO_DATA["oleg-name-learned"].fallbackLineId!, lang),
-  },
-  {
-    id: "guard-hint-given",
-    actor: () => "guard",
-    isAvailable: (state) => state.olegNameKnown && !state.guardHintGiven,
+    id: "dan-door-checked",
+    actor: () => "dan",
+    isAvailable: (state) => !state.danDoorChecked,
     factsCheck: (_state, facts) =>
-      facts.hasOleg && (facts.hasDoor || facts.hasCodeIntent),
-    apply: (state) => ({ ...state, guardHintGiven: true }),
-    describe: (state, lang) => MOVE_SCENARIO_DATA["guard-hint-given"].describe(state, lang),
+      facts.hasDan && (facts.hasDoor || facts.hasCodeIntent),
+    apply: (state) => ({ ...state, danDoorChecked: true }),
+    describe: (state, lang) => MOVE_SCENARIO_DATA["dan-door-checked"].describe(state, lang),
     fallbackReply: (_state, lang) =>
-      getQuestReply(MOVE_SCENARIO_DATA["guard-hint-given"].fallbackLineId!, lang),
+      getQuestReply(MOVE_SCENARIO_DATA["dan-door-checked"].fallbackLineId!, lang),
   },
   {
-    id: "pixel-ordinary-rejected",
-    actor: () => "pixel",
-    isAvailable: (state) =>
-      state.guardHintGiven && !state.pixelRejectedOrdinaryCommand,
-    factsCheck: (_state, facts) => facts.hasPixel,
-    apply: (state) => ({ ...state, pixelRejectedOrdinaryCommand: true }),
+    id: "hoover-ordinary-rejected",
+    actor: () => "hoover",
+    isAvailable: (state) => state.danDoorChecked && !state.hooverClueGiven,
+    factsCheck: (_state, facts) =>
+      facts.hasHoover && !facts.hasGentleHooverAddress,
+    apply: (state) => state,
     describe: (state, lang) =>
-      MOVE_SCENARIO_DATA["pixel-ordinary-rejected"].describe(state, lang),
+      MOVE_SCENARIO_DATA["hoover-ordinary-rejected"].describe(state, lang),
     fallbackReply: (_state, lang) =>
-      getQuestReply(MOVE_SCENARIO_DATA["pixel-ordinary-rejected"].fallbackLineId!, lang),
+      getQuestReply(MOVE_SCENARIO_DATA["hoover-ordinary-rejected"].fallbackLineId!, lang),
+  },
+  {
+    id: "hoover-clue-given",
+    actor: () => "hoover",
+    isAvailable: (state) => state.danDoorChecked && !state.hooverClueGiven,
+    factsCheck: (_state, facts) =>
+      facts.hasHoover && facts.hasGentleHooverAddress,
+    apply: (state) => ({ ...state, hooverClueGiven: true }),
+    describe: (state, lang) => MOVE_SCENARIO_DATA["hoover-clue-given"].describe(state, lang),
+    fallbackReply: (_state, lang) =>
+      getQuestReply(MOVE_SCENARIO_DATA["hoover-clue-given"].fallbackLineId!, lang),
+  },
+  {
+    id: "fixel-sleeping-rejected",
+    actor: () => "fixel",
+    isAvailable: (state) => state.hooverClueGiven && !state.codeRevealed,
+    factsCheck: (_state, facts) => facts.hasFixel && !facts.hasWakeAttempt,
+    apply: (state) => state,
+    describe: (state, lang) =>
+      MOVE_SCENARIO_DATA["fixel-sleeping-rejected"].describe(state, lang),
+    fallbackReply: (_state, lang) =>
+      getQuestReply(MOVE_SCENARIO_DATA["fixel-sleeping-rejected"].fallbackLineId!, lang),
   },
   {
     id: "code-revealed",
-    actor: () => "pixel",
-    isAvailable: (state) => state.guardHintGiven && !state.codeRevealed,
-    factsCheck: (_state, facts) => facts.hasPixel && facts.hasPurr,
+    actor: () => "fixel",
+    isAvailable: (state) => state.hooverClueGiven && !state.codeRevealed,
+    factsCheck: (_state, facts) => facts.hasFixel && facts.hasWakeAttempt,
     apply: (state) => ({ ...state, codeRevealed: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["code-revealed"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -111,10 +120,9 @@ const TRANSITIONS: TransitionRecord[] = [
   },
   {
     id: "door-opened",
-    actor: () => "door",
-    isAvailable: (state) =>
-      state.olegNameKnown && state.codeRevealed && !state.doorOpen,
-    factsCheck: (_state, facts) => facts.hasOleg && facts.hasCode404,
+    actor: () => "dan",
+    isAvailable: (state) => state.codeRevealed && !state.doorOpen,
+    factsCheck: (_state, facts) => facts.hasDan && facts.hasCode404,
     apply: (state) => ({ ...state, doorOpen: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["door-opened"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -122,11 +130,12 @@ const TRANSITIONS: TransitionRecord[] = [
   },
 ];
 
-const PROGRESSING_TRANSITIONS = [
-  "oleg-name-learned",
-  "guard-hint-given",
-  "pixel-ordinary-rejected",
+const FALLBACK_CANDIDATE_TRANSITIONS = [
+  "dan-door-checked",
+  "hoover-clue-given",
+  "hoover-ordinary-rejected",
   "code-revealed",
+  "fixel-sleeping-rejected",
   "door-opened",
 ] as const;
 
@@ -136,7 +145,7 @@ export function findFirstLegalProgressingTransition(
 ): ProgressingTransition | undefined {
   return TRANSITIONS.find(
     (t) =>
-      (PROGRESSING_TRANSITIONS as readonly string[]).includes(t.id) &&
+      (FALLBACK_CANDIDATE_TRANSITIONS as readonly string[]).includes(t.id) &&
       t.isAvailable(state) &&
       (t.factsCheck?.(state, facts) ?? false),
   );
@@ -169,7 +178,25 @@ export function getAllowedQuestTransitions(
   return TRANSITIONS.filter((record) => record.isAvailable(state)).map(
     (record) => ({
       id: record.id,
-      actor: record.actor(state),
+      actor: record.actor(state, {
+        text: "",
+        matched: [],
+        hasDan: false,
+        hasHoover: false,
+        hasFixel: false,
+        hasCatAddress: false,
+        hasSofia: false,
+        hasFeminineAddress: false,
+        hasSofiaAddress: false,
+        hasDoor: false,
+        hasCode404: false,
+        hasCodeIntent: false,
+        hasHintIntent: false,
+        hasVccIntent: false,
+        hasGentleHooverAddress: false,
+        hasWakeAttempt: false,
+        hasSmalltalk: false,
+      }),
       allowedActors: record.allowedActors?.(state),
       description: record.describe(state, replyLanguage),
       fallbackReply: record.fallbackReply(state, replyLanguage),

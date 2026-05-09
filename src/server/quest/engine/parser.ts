@@ -10,15 +10,16 @@ export interface ClaudeQuestDecision {
 
 const TRANSITION_IDS: QuestTransitionId[] = [
   "chitchat-replied",
-  "oleg-name-learned",
-  "guard-hint-given",
-  "pixel-ordinary-rejected",
+  "dan-door-checked",
+  "hoover-ordinary-rejected",
+  "hoover-clue-given",
+  "fixel-sleeping-rejected",
   "code-revealed",
   "door-opened",
   "sofia-hint-given",
 ];
 
-const ACTORS: QuestActor[] = ["system", "guard", "pixel", "door", "sofia"];
+const ACTORS: QuestActor[] = ["system", "sofia", "dan", "hoover", "fixel"];
 
 export function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
   const parsed = JSON.parse(stripJsonEnvelope(text)) as unknown;

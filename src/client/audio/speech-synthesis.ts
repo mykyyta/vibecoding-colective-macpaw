@@ -45,14 +45,15 @@ export function getBrowserSpeechSettings(actor: QuestActor): {
   pitch: number;
 } {
   switch (actor) {
-    case "pixel":
+    case "hoover":
+      return { rate: 0.84, pitch: 1.1 };
+    case "fixel":
       return { rate: 0.82, pitch: 1.08 };
-    case "door":
     case "system":
       return { rate: 0.9, pitch: 0.72 };
     case "sofia":
       return { rate: 0.94, pitch: 1.04 };
-    case "guard":
+    case "dan":
       return { rate: 0.98, pitch: 0.9 };
   }
 }

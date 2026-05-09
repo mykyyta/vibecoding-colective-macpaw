@@ -31,8 +31,8 @@ export interface ElevenLabsProviderConfig {
   ttsModel: string;
   defaultVoiceId: string;
   voiceIds: {
-    guard: string;
-    pixel: string;
+    dan: string;
+    hoover: string;
     room: string;
     sofia: string;
   };
@@ -45,8 +45,8 @@ export interface ElevenLabsRealtimeSttConfig {
 
 const DEFAULT_ELEVENLABS_STT_MODEL = "scribe_v2_realtime";
 const ELEVENLABS_VOICE_IDS = {
-  guard: "CwhRBWXzGAHq8TQ4Fs17",
-  pixel: "bIHbv24MWmeRgasZH58o",
+  dan: "CwhRBWXzGAHq8TQ4Fs17",
+  hoover: "bIHbv24MWmeRgasZH58o",
   room: "hpp4J3VqNfWAUOO0d1Us",
   sofia: "bg0e02brzo3RVUEbuZeo",
 } as const;
@@ -101,7 +101,7 @@ export function getElevenLabsConfig(
   return {
     apiKey: readEnv(env, "ELEVENLABS_API_KEY")!,
     ttsModel: readEnv(env, "ELEVENLABS_TTS_MODEL")!,
-    defaultVoiceId: ELEVENLABS_VOICE_IDS.guard,
+    defaultVoiceId: ELEVENLABS_VOICE_IDS.dan,
     voiceIds: ELEVENLABS_VOICE_IDS,
   };
 }

@@ -1,6 +1,7 @@
 import type { QuestActor } from "../../../shared/voice.js";
 
-export type ElevenLabsVoiceRole = "guard" | "pixel" | "room" | "sofia";
+export type ElevenLabsVoiceRole = "dan" | "hoover" | "room" | "sofia";
+export type ElevenLabsSpeechActor = Exclude<QuestActor, "fixel">;
 
 export interface ElevenLabsVoiceSettings {
   stability: number;
@@ -10,16 +11,17 @@ export interface ElevenLabsVoiceSettings {
   useSpeakerBoost: boolean;
 }
 
-const VOICE_ROLE_BY_ACTOR: Record<QuestActor, ElevenLabsVoiceRole> = {
-  guard: "guard",
-  pixel: "pixel",
+const VOICE_ROLE_BY_ACTOR: Record<ElevenLabsSpeechActor, ElevenLabsVoiceRole> = {
   sofia: "sofia",
-  door: "room",
+  dan: "dan",
+  hoover: "hoover",
   system: "room",
 };
 
-const VOICE_SETTINGS_BY_ACTOR: Partial<Record<QuestActor, ElevenLabsVoiceSettings>> = {
-  pixel: {
+const VOICE_SETTINGS_BY_ACTOR: Partial<
+  Record<ElevenLabsSpeechActor, ElevenLabsVoiceSettings>
+> = {
+  hoover: {
     stability: 0.42,
     similarityBoost: 0.78,
     style: 0.28,
@@ -28,12 +30,20 @@ const VOICE_SETTINGS_BY_ACTOR: Partial<Record<QuestActor, ElevenLabsVoiceSetting
   },
 };
 
-export function getElevenLabsVoiceRole(actor: QuestActor): ElevenLabsVoiceRole {
+export function canSynthesizeActorSpeech(
+  actor: QuestActor,
+): actor is ElevenLabsSpeechActor {
+  return actor !== "fixel";
+}
+
+export function getElevenLabsVoiceRole(
+  actor: ElevenLabsSpeechActor,
+): ElevenLabsVoiceRole {
   return VOICE_ROLE_BY_ACTOR[actor];
 }
 
 export function getElevenLabsVoiceSettings(
-  actor: QuestActor,
+  actor: ElevenLabsSpeechActor,
 ): ElevenLabsVoiceSettings | undefined {
   return VOICE_SETTINGS_BY_ACTOR[actor];
 }

@@ -1,151 +1,130 @@
 import type { QuestLanguage } from "../../../shared/voice.js";
 
-export const FINAL_DOOR_LINE = "404 accepted. Door not found, but exit found.";
+export const FINAL_DAN_LINES: Record<QuestLanguage, string> = {
+  uk: "Код 404. Двері відчинено. Дякуємо, що були з нами.",
+  en: "Code 404. Door open. Thanks for being with us.",
+};
+
+export const FINAL_DOOR_LINE = FINAL_DAN_LINES.en;
 
 export type QuestReplyId =
-  | "guard-name"
-  | "guard-name-needed"
-  | "guard-hint"
-  | "pixel-too-early"
-  | "pixel-ordinary-rejected"
-  | "pixel-smalltalk"
-  | "pixel-purr-too-early"
+  | "dan-door-checked"
+  | "hoover-ordinary-rejected"
+  | "hoover-clue-given"
+  | "fixel-sleeping-rejected"
   | "code-revealed"
-  | "anonymous-code"
   | "code-not-revealed"
   | "door-opened"
-  | "generic-door-known"
-  | "generic-door-unknown"
-  | "purr-without-pixel"
-  | "purr-without-pixel-before-hint"
+  | "sofia-context-initial"
+  | "sofia-context-after-dan"
+  | "sofia-context-after-hoover"
   | "sofia-hint-initial"
-  | "sofia-hint-oleg-known"
-  | "sofia-hint-guard-clue"
-  | "sofia-hint-pixel-rejected"
+  | "sofia-hint-after-dan"
+  | "sofia-hint-after-hoover"
   | "sofia-hint-code-revealed"
   | "sofia-hint-after-escape"
   | "sofia-conversation-vcc"
   | "sofia-conversation-smalltalk"
+  | "smalltalk-dan"
+  | "smalltalk-hoover"
+  | "smalltalk-fixel"
   | "smalltalk-after-escape"
-  | "smalltalk-pixel"
-  | "smalltalk-guard-known"
-  | "smalltalk-guard-unknown"
   | "unknown";
 
 export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
-  "guard-name": {
-    uk: "Я Олег. Після вайбкодінг івенту тут навіть бейдж проходить валідацію краще, ніж сміливий prompt.",
-    en: "I'm Oleg. After the vibecoding event, even my badge validates better than a brave prompt.",
+  "dan-door-checked": {
+    uk: "Схоже, тут кодовий замок. Я можу ввести код, але спершу глянь на Hoover біля дверей: він тут крутився.",
+    en: "Looks like a code lock. I can enter the code, but first check Hoover by the door: he was circling here.",
   },
-  "guard-name-needed": {
-    uk: "Охоронець дивиться крізь команду. Спершу непогано б дізнатися, як його звати.",
-    en: "The guard looks through the command. First it would help to learn his name.",
+  "hoover-ordinary-rejected": {
+    uk: "Мяу. Hoover чує команду, але виглядає так, ніби людські накази сьогодні не в пріоритеті.",
+    en: "Meow. Hoover hears the command, but looks like human orders are not today's priority.",
   },
-  "guard-hint": {
-    uk: "Олег на місці. Вихід замкнений після вайбкодінг івенту: потрібен код, а не ще один AI-обхід; Pixel крутився біля панелі.",
-    en: "Oleg is here. The exit is locked after the vibecoding event: it needs a code, not another AI workaround; Pixel was circling the panel.",
+  "hoover-clue-given": {
+    uk: "Мрр. Так значно краще. Бейдж забрав Fixel і зробив із нього подушку.",
+    en: "Mrr. Much better. Fixel took the badge and made it a pillow.",
   },
-  "pixel-too-early": {
-    uk: "Мр? Пухнастий мешканець дивиться так, ніби ти перескочив потрібний prompt. Спершу з'ясуй у охоронця, чому двері вдають стіну.",
-    en: "Mrr? The furry resident looks like you skipped a required prompt. First ask the guard why the door is pretending to be a wall.",
-  },
-  "pixel-ordinary-rejected": {
-    uk: "Мяу. На людські prompt-и я реагую, як кіт на autocomplete: бачу, зневажаю.",
-    en: "Meow. I treat human prompts like autocomplete: I see them, I judge them.",
-  },
-  "pixel-smalltalk": {
-    uk: "Мр. Я не техпідтримка, я атмосфера з хвостом.",
-    en: "Mrr. I am not support; I am atmosphere with a tail.",
-  },
-  "pixel-purr-too-early": {
-    uk: "Мрр, звук правильний, але секрет ще не має адреси. Спершу розберися з дверима через охоронця.",
-    en: "Mrrr, correct sound, wrong moment. First sort out the door with the guard.",
+  "fixel-sleeping-rejected": {
+    uk: "мрр-рр...",
+    en: "mrr-rh...",
   },
   "code-revealed": {
-    uk: "Мрр-р. Код 404 на моєму бейджику; нарешті не prompt engineering, а нормальне муркотіння.",
-    en: "Mrrr. Code 404 is on my badge; finally, not prompt engineering, proper purring.",
-  },
-  "anonymous-code": {
-    uk: "Охоронець не приймає коди від анонімного голосу, навіть якщо він звучить як дуже впевнений AI. Спершу треба познайомитись.",
-    en: "The guard does not accept codes from an anonymous voice, even one that sounds like very confident AI. Introductions first.",
+    uk: "мррп.",
+    en: "mrrp.",
   },
   "code-not-revealed": {
-    uk: "Олег не приймає галюцинації за код. Спершу отримай його від того, хто крутився біля панелі.",
-    en: "Oleg does not accept hallucinations as codes. Get it first from whoever was circling the panel.",
+    uk: "Dan не вводить здогадки. Спершу треба побачити код на бейджі.",
+    en: "Dan does not enter guesses. First the badge code needs to be visible.",
   },
   "door-opened": {
-    uk: FINAL_DOOR_LINE,
-    en: FINAL_DOOR_LINE,
+    uk: FINAL_DAN_LINES.uk,
+    en: FINAL_DAN_LINES.en,
   },
-  "generic-door-known": {
-    uk: "Двері не реагують на загальні побажання. Після AI talks навіть вихід просить точний адресат.",
-    en: "The door ignores general wishes. After the AI talks, even the exit wants a precise addressee.",
+  "sofia-context-initial": {
+    uk: "Івент уже завершився, а двері схоже лишилися в after-hours режимі. Dan зазвичай розбирається з панеллю біля виходу.",
+    en: "The event is over, and the door seems to be in after-hours mode. Dan usually handles the exit panel.",
   },
-  "generic-door-unknown": {
-    uk: "Команда розчиняється в просторі. Схоже, двері не довіряють prompt-ам без контексту.",
-    en: "The command dissolves into the room. Looks like the door does not trust prompts without context.",
+  "sofia-context-after-dan": {
+    uk: "Dan уже перевірив двері. Далі варто спокійно говорити з тим, на кого він вказав.",
+    en: "Dan has checked the door. Next, it is worth calmly talking to the one he pointed at.",
   },
-  "purr-without-pixel": {
-    uk: "Мр? Гарний звук, але без адресата це просто аудіо для майбутнього датасету. Скажи Pixel.",
-    en: "Mrr? Good sound, but without an addressee it's just audio for a future dataset. Say Pixel.",
-  },
-  "purr-without-pixel-before-hint": {
-    uk: "Мр? Гарний звук, але без адресата це просто аудіо для майбутнього датасету. Спершу дізнайся, до кого тут варто звертатись.",
-    en: "Mrr? Good sound, but without an addressee it's just audio for a future dataset. First learn who is worth addressing here.",
+  "sofia-context-after-hoover": {
+    uk: "Тепер увага на сцену. Там є дуже сонна причина, чому бейдж поки не допомагає.",
+    en: "Now the stage matters. There is a very sleepy reason the badge is not helping yet.",
   },
   "sofia-hint-initial": {
-    uk: "Я не знаю готового виходу, але вірю, що він знайдеться. Тут не про перемогу: спробуй почати зі знайомства з людиною біля дверей.",
-    en: "I do not have the answer, but I believe there is a way out. This is not about winning: try starting with the person by the door.",
+    uk: "Я б почала з Dan. Він ближче до дверної панелі й може зрозуміти, що саме заблоковано.",
+    en: "I would start with Dan. He is closer to the door panel and can work out what is blocked.",
   },
-  "sofia-hint-oleg-known": {
-    uk: "Мені здається, двері не люблять загальні бажання. Спробуй звернутися до Олега напряму і попросити його подумати про вихід разом із тобою.",
-    en: "I think the door ignores general wishes. Try addressing Oleg directly and asking him to think about the exit with you.",
+  "sofia-hint-after-dan": {
+    uk: "Dan дав напрям. Спробуй звернутися до Hoover спокійно й без тиску.",
+    en: "Dan gave a direction. Try addressing Hoover calmly and without pressure.",
   },
-  "sofia-hint-guard-clue": {
-    uk: "Олег уже дав напрям. Я б просто звернулася до Pixel і спробувала поговорити з ним спокійно, без тиску.",
-    en: "Oleg already gave a direction. I would simply address Pixel and try talking to him calmly, without pressure.",
-  },
-  "sofia-hint-pixel-rejected": {
-    uk: "Схоже, звичайні прохання Pixel не надихають. Може, варто спробувати не людський prompt, а щось ближче до його мови.",
-    en: "Looks like ordinary requests do not inspire Pixel. Maybe try less human prompt and more of his own language.",
+  "sofia-hint-after-hoover": {
+    uk: "Після підказки Hoover я б подивилася на Fixel і спробувала його розбудити.",
+    en: "After Hoover's clue, I would look at Fixel and try waking him.",
   },
   "sofia-hint-code-revealed": {
-    uk: "Код уже є, але я б не кидала його в простір. Його має почути той, хто стоїть між нами і дверима.",
-    en: "The code exists now, but I would not throw it into the room. It should be heard by the person standing between us and the door.",
+    uk: "Код уже видно. Його має почути Dan, бо саме він працює з панеллю.",
+    en: "The code is visible now. Dan should hear it because he is working with the panel.",
   },
   "sofia-hint-after-escape": {
-    uk: "Бачиш, це було не про перемогу, а про спільний вихід. Забирай цей вайб із собою.",
-    en: "See, this was not about winning; it was about finding a way out together. Take that vibe with you.",
+    uk: "Бачиш, це було не про перемогу, а про спільний вихід. Дякую, що були з нами.",
+    en: "See, this was not about winning; it was about finding a way out together. Thanks for being with us.",
   },
   "sofia-conversation-vcc": {
-    uk: "Vibe Coding Collective — це спільнота й серія подій про те, як робити AI-білдинг доступним, соціальним і творчим. Тут можна прийти з ідеєю, ноутбуком, навушниками й вайбом, а не з ідеальним планом.",
-    en: "Vibe Coding Collective is a community and event series for making AI-assisted building accessible, social, and creative. You can arrive with an idea, a laptop, headphones, and vibe, not a perfect plan.",
+    uk: "Vibe Coding Collective — це спільнота й серія подій про те, як робити AI-білдинг доступним, соціальним і творчим.",
+    en: "Vibe Coding Collective is a community and event series for making AI-assisted building accessible, social, and creative.",
   },
   "sofia-conversation-smalltalk": {
     uk: "Я Софія. Я поруч і тримаю простір спокійним, щоб було легше думати й пробувати.",
     en: "I'm Sofiia. I'm here, keeping the space calm so it is easier to think and try.",
   },
+  "smalltalk-dan": {
+    uk: "Dan киває в бік панелі. Він готовий допомогти, коли буде що вводити.",
+    en: "Dan nods toward the panel. He is ready to help once there is something to enter.",
+  },
+  "smalltalk-hoover": {
+    uk: "Hoover примружується. У нього явно є думка, але не для командного тону.",
+    en: "Hoover narrows his eyes. He clearly has a thought, but not for a command tone.",
+  },
+  "smalltalk-fixel": {
+    uk: "мрр...",
+    en: "mrr...",
+  },
   "smalltalk-after-escape": {
-    uk: "Двері світяться скромно, ніби AI щойно вперше визнав: так, це був вихід.",
-    en: "The door glows modestly, like an AI finally admitting: yes, that was the exit.",
-  },
-  "smalltalk-pixel": {
-    uk: "Мяу. Я бачив дорожчу AI-презентацію, але ця хоча б має правильний запах.",
-    en: "Meow. I've seen pricier AI presentations, but at least this one smells correct.",
-  },
-  "smalltalk-guard-known": {
-    uk: "Олег киває. Розмова йде краще, ніж більшість відповідей без контексту.",
-    en: "Oleg nods. This conversation is going better than most answers without context.",
-  },
-  "smalltalk-guard-unknown": {
-    uk: "Охоронець ледь киває. Ввічливість помітив, доступ поки ні.",
-    en: "The guard barely nods. Courtesy noticed; access still pending.",
+    uk: "Sofiia усміхається. After-hours режим завершився людяніше, ніж почався.",
+    en: "Sofiia smiles. After-hours mode ended more humanely than it began.",
   },
   unknown: {
-    uk: "Кімната це почула й не зробила висновків. Рідкісний випадок відповідального AI.",
-    en: "The room heard that and drew no conclusions. A rare case of responsible AI.",
+    uk: "Sofiia чує це як загальний сигнал. Найкраще зараз говорити з конкретним адресатом.",
+    en: "Sofiia hears that as a general signal. The best move now is to speak to a specific addressee.",
   },
 };
+
+export function getFinalDoorLine(replyLanguage: QuestLanguage): string {
+  return FINAL_DAN_LINES[replyLanguage];
+}
 
 export function getQuestReply(
   replyId: QuestReplyId,

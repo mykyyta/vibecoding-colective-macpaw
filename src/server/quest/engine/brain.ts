@@ -1,6 +1,6 @@
 import type { QuestLanguage, QuestState } from "../../../shared/voice.js";
 import type { TextGenerationProvider } from "../../providers/contracts.js";
-import { FINAL_DOOR_LINE } from "../scenario/lines.js";
+import { getFinalDoorLine, getQuestReply } from "../scenario/lines.js";
 import { buildQuestBrainPrompt } from "./prompt.js";
 import { replyPassesGuardrails } from "./guardrails.js";
 import { parseClaudeQuestDecision, type ClaudeQuestDecision } from "./parser.js";
@@ -137,7 +137,14 @@ function finalizeAcceptedDecision(
   });
 
   if (turn.event.type === "door-opened") {
-    return { ...turn, reply: FINAL_DOOR_LINE };
+    return { ...turn, reply: getFinalDoorLine(ctx.language) };
+  }
+
+  if (turn.actor === "fixel") {
+    return {
+      ...turn,
+      reply: getQuestReply(getFixelNonverbalReplyId(turn.event.type), ctx.language),
+    };
   }
 
   if (replyPassesGuardrails(turn)) {
@@ -166,6 +173,20 @@ function finalizeAcceptedDecision(
     reply: fallbackReply,
     replyLanguage: ctx.language,
   });
+}
+
+function getFixelNonverbalReplyId(
+  eventType: QuestTurn["event"]["type"],
+): "code-revealed" | "fixel-sleeping-rejected" | "smalltalk-fixel" {
+  if (eventType === "code-revealed") {
+    return "code-revealed";
+  }
+
+  if (eventType === "fixel-sleeping-rejected") {
+    return "fixel-sleeping-rejected";
+  }
+
+  return "smalltalk-fixel";
 }
 
 function generateWithTimeout(

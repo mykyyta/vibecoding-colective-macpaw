@@ -1,21 +1,22 @@
 import type { QuestActor, QuestLanguage, QuestState } from "../../../shared/voice.js";
+import type { QuestTranscriptFacts } from "./classifier.js";
 import { PERSONAS } from "../scenario/actors.js";
 import { getQuestReply } from "../scenario/lines.js";
 
-export function getChitchatActor(state: QuestState): QuestActor {
-  if (state.doorOpen) {
-    return "door";
+export function getChitchatActor(facts: QuestTranscriptFacts): QuestActor {
+  if (facts.hasSofiaAddress || (!facts.hasDan && !facts.hasHoover && !facts.hasFixel)) {
+    return "sofia";
   }
 
-  if (state.pixelRejectedOrdinaryCommand || state.codeRevealed) {
-    return "pixel";
-  }
+  if (facts.hasDan) return "dan";
+  if (facts.hasHoover) return "hoover";
+  if (facts.hasFixel) return "fixel";
 
-  return "guard";
+  return "sofia";
 }
 
 export function getChitchatActors(): QuestActor[] {
-  return ["guard", "pixel", "sofia", "door", "system"];
+  return ["sofia", "dan", "hoover", "fixel"];
 }
 
 export function getChitchatFallbackReply(

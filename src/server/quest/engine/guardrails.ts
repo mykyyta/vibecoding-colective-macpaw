@@ -14,45 +14,18 @@ interface QuestTurnForGuardrail {
 const MAX_REPLY_LENGTH = 320;
 const MAX_SOFIA_REPLY_LENGTH = 220;
 
-export function requiresOlegNameInReply(eventType: QuestTransitionId): boolean {
-  return eventType === "oleg-name-learned";
-}
-
-export function isPrematureSofiaCatLanguageHint(
-  turn: QuestTurnForGuardrail,
-): boolean {
-  return (
-    turn.event.type === "sofia-hint-given" &&
-    turn.previousQuestState.guardHintGiven &&
-    !turn.previousQuestState.pixelRejectedOrdinaryCommand &&
-    containsCatSoundOrLanguageHint(turn.reply)
-  );
-}
-
 export function isAllowedQuestBrainReply(turn: QuestTurnForGuardrail): boolean {
-  const { actor, reply, nextQuestState: state } = turn;
+  const { reply, nextQuestState: state } = turn;
 
   if (!reply || reply.length > MAX_REPLY_LENGTH) {
     return false;
   }
 
-  if (!state.olegNameKnown && containsOlegReveal(reply)) {
+  if (!state.danDoorChecked && containsHooverReveal(reply)) {
     return false;
   }
 
-  if (!state.guardHintGiven && containsPixelKeypadClue(reply)) {
-    return false;
-  }
-
-  if (!state.guardHintGiven && containsPixelNameReveal(reply)) {
-    return false;
-  }
-
-  if (
-    actor !== "pixel" &&
-    !state.guardHintGiven &&
-    containsCatSoundOrLanguageHint(reply)
-  ) {
+  if (!state.hooverClueGiven && containsFixelOrBadgeReveal(reply)) {
     return false;
   }
 
@@ -110,25 +83,11 @@ export function isAllowedSofiaReply(
 }
 
 export function replyPassesGuardrails(turn: QuestTurnForGuardrail): boolean {
-  if (
-    requiresOlegNameInReply(turn.event.type) &&
-    !containsOlegReveal(turn.reply)
-  ) {
-    return false;
-  }
-
-  if (
-    turn.event.type === "guard-hint-given" &&
-    !containsPixelNameReveal(turn.reply)
-  ) {
-    return false;
-  }
-
-  if (isPrematureSofiaCatLanguageHint(turn)) {
-    return false;
-  }
-
   if (!isAllowedQuestBrainReply(turn)) {
+    return false;
+  }
+
+  if (turn.actor === "fixel" && !isNonverbalFixelReply(turn.reply)) {
     return false;
   }
 
@@ -142,42 +101,26 @@ export function replyPassesGuardrails(turn: QuestTurnForGuardrail): boolean {
   return true;
 }
 
-export function containsOlegReveal(reply: string): boolean {
+export function isNonverbalFixelReply(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
-  return /\b(олег|олєг|оліг|oleg|oleh)\b/u.test(text);
-}
-
-export function containsPixelKeypadClue(reply: string): boolean {
-  const text = normalizeForGuardrail(reply);
-
-  return (
-    /\b(pixel|піксел\w*|пиксел\w*).{0,80}\b(keypad|код|парол|клавіатур|панел)/u.test(
-      text,
-    ) ||
-    /\b(keypad|код|парол|клавіатур|панел).{0,80}\b(pixel|піксел\w*|пиксел\w*)/u.test(
-      text,
-    )
+  return /^(м+р+[р\-\s.!,…]*|m+r+[rh\-\s.!,…]*|mrrp[.!,…]*|мррп[.!,…]*)$/u.test(
+    text,
   );
 }
 
-export function containsPixelNameReveal(reply: string): boolean {
+export function containsHooverReveal(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
-  return (
-    /(^|[^\p{L}\p{N}_])(pixel|піксель|пиксель|піксел|пиксел|пікс|пикс)(?=$|[^\p{L}\p{N}_])/u.test(text) ||
-    /(^|[^\p{L}\p{N}_])(моє|моєму|моїм|my)\s+ім/u.test(text) ||
-    /(знаєш|вгадав|назвав|назвала|said|guessed).{0,30}(ім|name)/u.test(text) ||
-    /(мене|me).{0,20}(звати|called)/u.test(text)
-  );
+  return /(^|[^\p{L}\p{N}_])(hoover|хувер|ховер|гувер)(?=$|[^\p{L}\p{N}_])/u.test(text);
 }
 
-export function containsCatSoundOrLanguageHint(reply: string): boolean {
+export function containsFixelOrBadgeReveal(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
   return (
-    /(по-котяч|котяч|його мов|її мов|own language|мур|мяу|няв|purr|meow|cat sound)/u.test(text) ||
-    /(^|[^\p{L}\p{N}_])мр+(?=$|[^\p{L}\p{N}_])/u.test(text)
+    /(^|[^\p{L}\p{N}_])(fixel|фіксель|фіксел|фиксель|фиксел)(?=$|[^\p{L}\p{N}_])/u.test(text) ||
+    /(бейдж|бедж|badge)/u.test(text)
   );
 }
 

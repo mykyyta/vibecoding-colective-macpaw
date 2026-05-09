@@ -7,88 +7,81 @@ import type { QuestState } from "../../src/shared/voice.js";
 import { analyzeQuestTranscript } from "../../src/server/quest/index.js";
 
 const initial: QuestState = {
-  olegNameKnown: false,
-  guardHintGiven: false,
-  pixelRejectedOrdinaryCommand: false,
+  danDoorChecked: false,
+  hooverClueGiven: false,
   codeRevealed: false,
   doorOpen: false,
 };
 
-const olegKnown: QuestState = { ...initial, olegNameKnown: true };
-const hintGiven: QuestState = { ...olegKnown, guardHintGiven: true };
-const pixelRejected: QuestState = { ...hintGiven, pixelRejectedOrdinaryCommand: true };
-const codeRevealed: QuestState = { ...hintGiven, codeRevealed: true };
+const danChecked: QuestState = { ...initial, danDoorChecked: true };
+const hooverClue: QuestState = { ...danChecked, hooverClueGiven: true };
+const codeRevealed: QuestState = { ...hooverClue, codeRevealed: true };
 const doorOpen: QuestState = { ...codeRevealed, doorOpen: true };
 
 // chitchat-replied is always available
 const initialAllowed = getAllowedQuestTransitions(initial, "uk");
-const chitchatEntry = initialAllowed.find((t) => t.id === "chitchat-replied");
-assert.ok(chitchatEntry, "chitchat-replied always available");
+assert.ok(initialAllowed.find((t) => t.id === "chitchat-replied"), "chitchat-replied always available");
 
-// sofia-hint-given is always available
-const sofiaEntry = initialAllowed.find((t) => t.id === "sofia-hint-given");
-assert.ok(sofiaEntry, "sofia-hint-given always available");
+// sofia-hint-given is always available but requires facts to be legal
+assert.ok(initialAllowed.find((t) => t.id === "sofia-hint-given"), "sofia-hint-given available");
 
-// oleg-name-learned available only before olegNameKnown
-const nameLearnedInitial = initialAllowed.find((t) => t.id === "oleg-name-learned");
-assert.ok(nameLearnedInitial, "oleg-name-learned available at initial");
-const olegKnownAllowed = getAllowedQuestTransitions(olegKnown, "uk");
-const nameLearnedAfter = olegKnownAllowed.find((t) => t.id === "oleg-name-learned");
-assert.equal(nameLearnedAfter, undefined, "oleg-name-learned not available after olegNameKnown");
+// dan-door-checked available only before danDoorChecked
+assert.ok(initialAllowed.find((t) => t.id === "dan-door-checked"), "dan-door-checked available at initial");
+const danCheckedAllowed = getAllowedQuestTransitions(danChecked, "uk");
+assert.equal(danCheckedAllowed.find((t) => t.id === "dan-door-checked"), undefined);
 
-// guard-hint-given available only when olegNameKnown and not guardHintGiven
-const guardHintInitial = initialAllowed.find((t) => t.id === "guard-hint-given");
-assert.equal(guardHintInitial, undefined, "guard-hint-given not available at initial");
-const guardHintOleg = olegKnownAllowed.find((t) => t.id === "guard-hint-given");
-assert.ok(guardHintOleg, "guard-hint-given available when olegNameKnown");
-const hintGivenAllowed = getAllowedQuestTransitions(hintGiven, "uk");
-const guardHintAfter = hintGivenAllowed.find((t) => t.id === "guard-hint-given");
-assert.equal(guardHintAfter, undefined, "guard-hint-given not available after guardHintGiven");
+// Hoover transitions available only after Dan checked door and before Hoover clue
+assert.equal(initialAllowed.find((t) => t.id === "hoover-clue-given"), undefined);
+assert.ok(danCheckedAllowed.find((t) => t.id === "hoover-clue-given"), "hoover-clue-given available after Dan");
+assert.ok(danCheckedAllowed.find((t) => t.id === "hoover-ordinary-rejected"), "hoover rejection available after Dan");
+const hooverAllowed = getAllowedQuestTransitions(hooverClue, "uk");
+assert.equal(hooverAllowed.find((t) => t.id === "hoover-clue-given"), undefined);
 
-// pixel-ordinary-rejected available when guardHintGiven and not pixelRejectedOrdinaryCommand
-const pixelOrdinaryHint = hintGivenAllowed.find((t) => t.id === "pixel-ordinary-rejected");
-assert.ok(pixelOrdinaryHint, "pixel-ordinary-rejected available when guardHintGiven");
-const pixelRejectedAllowed = getAllowedQuestTransitions(pixelRejected, "uk");
-const pixelOrdinaryAfter = pixelRejectedAllowed.find((t) => t.id === "pixel-ordinary-rejected");
-assert.equal(pixelOrdinaryAfter, undefined, "pixel-ordinary-rejected not available after rejection");
+// Fixel/code transitions available after Hoover clue
+assert.ok(hooverAllowed.find((t) => t.id === "code-revealed"), "code-revealed available after Hoover clue");
+assert.ok(hooverAllowed.find((t) => t.id === "fixel-sleeping-rejected"), "Fixel rejection available after Hoover clue");
+const codeAllowed = getAllowedQuestTransitions(codeRevealed, "uk");
+assert.equal(codeAllowed.find((t) => t.id === "code-revealed"), undefined);
 
-// code-revealed available when guardHintGiven and not codeRevealed
-const codeRevHint = hintGivenAllowed.find((t) => t.id === "code-revealed");
-assert.ok(codeRevHint, "code-revealed available when guardHintGiven");
-const codeRevealedAllowed = getAllowedQuestTransitions(codeRevealed, "uk");
-const codeRevAfter = codeRevealedAllowed.find((t) => t.id === "code-revealed");
-assert.equal(codeRevAfter, undefined, "code-revealed not available after codeRevealed");
+// door-opened available after code reveal
+assert.ok(codeAllowed.find((t) => t.id === "door-opened"), "door-opened available after code reveal");
+const doorAllowed = getAllowedQuestTransitions(doorOpen, "uk");
+assert.equal(doorAllowed.find((t) => t.id === "door-opened"), undefined);
 
-// door-opened available when olegNameKnown + codeRevealed and not doorOpen
-const doorOpenEntry = codeRevealedAllowed.find((t) => t.id === "door-opened");
-assert.ok(doorOpenEntry, "door-opened available when olegNameKnown and codeRevealed");
-const doorOpenAllowed = getAllowedQuestTransitions(doorOpen, "uk");
-const doorOpenAfter = doorOpenAllowed.find((t) => t.id === "door-opened");
-assert.equal(doorOpenAfter, undefined, "door-opened not available after doorOpen");
+// isTransitionLegal: Dan door check
+const danDoor = analyzeQuestTranscript("Dan, check the door");
+assert.equal(isTransitionLegal("dan-door-checked", initial, danDoor), true);
+assert.equal(isTransitionLegal("dan-door-checked", danChecked, danDoor), false);
 
-// isTransitionLegal: oleg-name-learned legal when hasNameQuestion
-const nameQuestion = analyzeQuestTranscript("як тебе звати");
-assert.equal(isTransitionLegal("oleg-name-learned", initial, nameQuestion), true);
-assert.equal(isTransitionLegal("oleg-name-learned", olegKnown, nameQuestion), false, "not legal after olegNameKnown");
+// isTransitionLegal: Hoover gentle clue
+const hooverGentle = analyzeQuestTranscript("Hoover, sweet cat, please help");
+assert.equal(isTransitionLegal("hoover-clue-given", danChecked, hooverGentle), true);
+assert.equal(isTransitionLegal("hoover-clue-given", initial, hooverGentle), false);
 
-// isTransitionLegal: guard-hint-given legal when hasOleg + hasDoor
-const olegDoor = analyzeQuestTranscript("Олег, відкрий двері");
-assert.equal(isTransitionLegal("guard-hint-given", olegKnown, olegDoor), true);
-assert.equal(isTransitionLegal("guard-hint-given", initial, olegDoor), false, "not legal without olegNameKnown");
+// isTransitionLegal: Hoover ordinary rejection
+const hooverRough = analyzeQuestTranscript("Hoover, give me the code");
+assert.equal(isTransitionLegal("hoover-ordinary-rejected", danChecked, hooverRough), true);
+assert.equal(isTransitionLegal("hoover-clue-given", danChecked, hooverRough), false);
 
-// isTransitionLegal: code-revealed legal when hasPixel + hasPurr
-const pixelPurr = analyzeQuestTranscript("Pixel мяу");
-assert.equal(isTransitionLegal("code-revealed", hintGiven, pixelPurr), true);
-assert.equal(isTransitionLegal("code-revealed", initial, pixelPurr), false, "not legal without guardHintGiven");
+// isTransitionLegal: Fixel wake reveals code
+const fixelWake = analyzeQuestTranscript("Гей, Фіксель, прокидайся");
+assert.equal(isTransitionLegal("code-revealed", hooverClue, fixelWake), true);
+assert.equal(isTransitionLegal("code-revealed", danChecked, fixelWake), false);
 
-// isTransitionLegal: door-opened legal when hasOleg + hasCode404
-const olegCode = analyzeQuestTranscript("Олег, код 404");
-assert.equal(isTransitionLegal("door-opened", codeRevealed, olegCode), true);
-assert.equal(isTransitionLegal("door-opened", hintGiven, olegCode), false, "not legal without codeRevealed");
+// isTransitionLegal: Fixel plain request does not reveal code
+const fixelPlain = analyzeQuestTranscript("Фіксель, дай код");
+assert.equal(isTransitionLegal("fixel-sleeping-rejected", hooverClue, fixelPlain), true);
+assert.equal(isTransitionLegal("code-revealed", hooverClue, fixelPlain), false);
 
-// chitchat-replied is always legal (no factsCheck)
-const anything = analyzeQuestTranscript("привіт");
-assert.equal(isTransitionLegal("chitchat-replied", initial, anything), true);
-assert.equal(isTransitionLegal("chitchat-replied", doorOpen, anything), true);
+// isTransitionLegal: door-opened requires Dan + revealed 404
+const danCode = analyzeQuestTranscript("Dan, code 404");
+assert.equal(isTransitionLegal("door-opened", codeRevealed, danCode), true);
+assert.equal(isTransitionLegal("door-opened", hooverClue, danCode), false);
 
-console.log("transitions.test: passed (21 assertions)");
+// sofia-hint-given requires direct Sofia address + hint intent
+const sofiaHint = analyzeQuestTranscript("Софіє, дай підказку");
+assert.equal(isTransitionLegal("sofia-hint-given", initial, sofiaHint), true);
+const unaddressedHelp = analyzeQuestTranscript("дай підказку");
+assert.equal(isTransitionLegal("sofia-hint-given", initial, unaddressedHelp), false);
+
+console.log("transitions.test: passed (28 assertions)");

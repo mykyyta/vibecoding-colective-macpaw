@@ -12,14 +12,19 @@
   z-index: 20;
 }
 
-.speech-bubble--guard {
+.speech-bubble--dan {
   right: 28%;
   bottom: 48%;
 }
 
-.speech-bubble--pixel {
+.speech-bubble--hoover {
   right: 4%;
   bottom: 39%;
+}
+
+.speech-bubble--fixel {
+  left: 22%;
+  top: 15%;
 }
 
 .speech-bubble--sofia {
@@ -48,14 +53,16 @@
   line-height: 1.25;
 }
 
-.quest-app--catIgnored .speech-bubble--pixel {
+.quest-app--catRejected .speech-bubble--hoover,
+.quest-app--catRejected .speech-bubble--fixel {
   border-color: color-mix(in oklch, oklch(55% 0.13 28), transparent 50%);
 }
 
-.quest-app--codeRevealed .speech-bubble--pixel,
+.quest-app--codeRevealed .speech-bubble--hoover,
+.quest-app--codeRevealed .speech-bubble--fixel,
 .speech-bubble--sofia,
-.quest-app--doorOpening .speech-bubble--guard,
-.quest-app--escaped .speech-bubble--guard {
+.quest-app--doorOpening .speech-bubble--dan,
+.quest-app--escaped .speech-bubble--dan {
   border-color: color-mix(in oklch, var(--green), transparent 38%);
 }
 

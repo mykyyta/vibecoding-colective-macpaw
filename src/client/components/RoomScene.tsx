@@ -22,14 +22,17 @@ export default function RoomScene({
   voiceLanguage: QuestLanguage;
 }) {
   const doorOpen = roomState === "doorOpening" || roomState === "escaped";
-  const pixelMood =
-    roomState === "catIgnored"
+  const hooverMood =
+    roomState === "catRejected"
       ? "ignored"
-      : roomState === "codeRevealed" ||
+      : questState.hooverClueGiven ||
+          roomState === "codeRevealed" ||
           roomState === "doorOpening" ||
           roomState === "escaped"
         ? "helpful"
         : "idle";
+  const badgeEdgeVisible = questState.hooverClueGiven || questState.codeRevealed;
+  const badgeCodeVisible = questState.codeRevealed || questState.doorOpen;
 
   return (
     <section
@@ -72,16 +75,13 @@ export default function RoomScene({
             alt="Vibecoding Collective event banner"
           />
         </div>
-        <div className="screen-rim-cat" aria-hidden="true">
-          <span className="screen-rim-cat__shadow" />
-          <span className="screen-rim-cat__tail" />
-          <span className="screen-rim-cat__body" />
-          <span className="screen-rim-cat__head">
-            <i className="screen-rim-cat__ear screen-rim-cat__ear--left" />
-            <i className="screen-rim-cat__ear screen-rim-cat__ear--right" />
-            <i className="screen-rim-cat__face" />
-          </span>
-        </div>
+        <Character
+          actor="fixel"
+          roomState={roomState}
+          voiceLanguage={voiceLanguage}
+          badgeEdgeVisible={badgeEdgeVisible}
+          badgeCodeVisible={badgeCodeVisible}
+        />
         <div className="screen-sheen" aria-hidden="true" />
         <div className="stage-success" aria-hidden="true">
           <span>EXIT RESOLVED</span>
@@ -114,20 +114,20 @@ export default function RoomScene({
           <span className="door-handle" />
         </div>
         <div
-          className={`keypad ${roomState === "codeRevealed" ? "keypad--ready" : ""} ${
+          className={`keypad ${questState.codeRevealed ? "keypad--ready" : ""} ${
             doorOpen ? "keypad--accepted" : ""
           }`}
           aria-label={VOICE_COPY[voiceLanguage].exitKeypadAria}
         >
-          <span>{doorOpen || roomState === "codeRevealed" ? "404" : ""}</span>
+          <span>{doorOpen ? "404" : ""}</span>
         </div>
       </div>
 
       <Character actor="sofia" roomState={roomState} voiceLanguage={voiceLanguage} />
-      <Character actor="guard" roomState={roomState} voiceLanguage={voiceLanguage} />
+      <Character actor="dan" roomState={roomState} voiceLanguage={voiceLanguage} />
       <Character
-        actor="pixel"
-        mood={pixelMood}
+        actor="hoover"
+        mood={hooverMood}
         roomState={roomState}
         voiceLanguage={voiceLanguage}
       />

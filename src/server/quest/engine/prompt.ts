@@ -70,42 +70,34 @@ function getReplyLanguageLabel(replyLanguage: QuestLanguage): string {
 
 function getQuestStageSummary(state: QuestState): string {
   if (state.doorOpen) {
-    return "the player has escaped; only celebratory or ambient follow-up should remain";
+    return "the door is open; only short organizer follow-up should remain";
   }
 
   if (state.codeRevealed) {
-    return "the code is known; the next useful move is giving code 404 to Oleg";
+    return "the code is visible; the next useful move is giving code 404 to Dan";
   }
 
-  if (state.pixelRejectedOrdinaryCommand) {
-    return "Pixel rejected ordinary human requests; the next useful move is addressing Pixel with a cat-like sound";
+  if (state.hooverClueGiven) {
+    return "Hoover revealed that Fixel took the badge; the next useful move is waking Fixel";
   }
 
-  if (state.guardHintGiven) {
-    return "Oleg revealed Pixel as the clue near the exit panel; the next useful move is engaging Pixel";
+  if (state.danDoorChecked) {
+    return "Dan checked the code lock and pointed to Hoover; the next useful move is gently addressing Hoover";
   }
 
-  if (state.olegNameKnown) {
-    return "the guard is known as Oleg; the next useful move is directly asking Oleg about the exit";
-  }
-
-  return "the guard's name is not known; the next useful move is learning who the person by the door is";
+  return "the door has not been checked; the next useful move is asking Dan about the door panel";
 }
 
 function getVisibleCharacterSummary(state: QuestState): string {
   const visible = [
-    "guard near the door",
-    "cat nearby",
-    "locked door/room",
-    "Sofiia in the room",
+    "Sofiia, event organizer",
+    "Dan near the door panel",
+    "Hoover, the white cat near the door",
+    "Fixel, the brown sleeping cat above or near the stage",
   ];
 
-  if (state.olegNameKnown) {
-    visible[0] = "Oleg, the guard near the door";
-  }
-
-  if (state.guardHintGiven) {
-    visible[1] = "Pixel, the cat near the exit panel";
+  if (state.hooverClueGiven) {
+    visible.push("the edge of the organizer badge under Fixel");
   }
 
   return visible.join("; ");
@@ -146,7 +138,7 @@ export function getSceneBlock({
 }
 
 export function getPersonasBlock(eventPhrase: string): string {
-  const actorOrder: QuestActor[] = ["guard", "pixel", "sofia", "door"];
+  const actorOrder: QuestActor[] = ["sofia", "dan", "hoover", "fixel"];
   const sections = actorOrder
     .map((actor) => PERSONAS[actor].promptLines(eventPhrase))
     .filter((lines) => lines.length > 0);
@@ -155,4 +147,3 @@ export function getPersonasBlock(eventPhrase: string): string {
     i < sections.length - 1 ? [...lines, ""] : lines,
   )].join("\n");
 }
-

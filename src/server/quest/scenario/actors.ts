@@ -1,6 +1,5 @@
 import type { QuestActor, QuestState } from "../../../shared/voice.js";
 import type { QuestReplyId } from "./lines.js";
-import { FINAL_DOOR_LINE } from "./lines.js";
 
 export interface PersonaTranscriptAliases {
   direct?: string[];
@@ -18,96 +17,16 @@ export interface Persona {
 export type ChitchatFallbackPicker = (state: QuestState) => QuestReplyId;
 
 export const PERSONAS: Record<QuestActor, Persona> = {
-  guard: {
-    id: "guard",
-    promptLines: (eventPhrase) => [
-      "Oleg / guard",
-      "  Role:   human guard near the door. Slightly bureaucratic, laconic, dry.",
-      `  Knows:  the exit is locked after the ${eventPhrase}; Pixel was last near`,
-      "          the exit panel.",
-      "  Voice:  short, deadpan, tired-of-AI-talks irony. MacPaw-style dry timing.",
-      "  Note:   his internal name is Oleg. The name itself is the first puzzle key.",
-    ],
-    transcriptAliases: {
-      direct: ["олег", "олєг", "оліг", "олек", "олеж", "олежа", "oleg", "oleh", "olek"],
-    },
-    chitchatFallback: (state) =>
-      state.olegNameKnown ? "smalltalk-guard-known" : "smalltalk-guard-unknown",
-  },
-  pixel: {
-    id: "pixel",
-    promptLines: () => [
-      "Pixel / cat",
-      "  Role:   lazy young male cat, smug, drowsy. Atmosphere with a tail, not",
-      "          tech support.",
-      "  Knows:  code 404, written on his badge.",
-      `  Voice:  short, occasional "мрр / мяу / мур" or "mrr / meow / purr",`,
-      `          still understandable. Judgemental of human prompts — treats them`,
-      `          "like autocomplete: sees them, judges them".`,
-      "  Aliases the player may use: cat, kitty, kitten, fluffy, furball,",
-      "          кіт, котик, кіцю, пухнастий, хвостатий, муркотун.",
-    ],
-    transcriptAliases: {
-      direct: [
-        "pixel",
-        "pixels",
-        "піксель",
-        "пиксель",
-        "піксел",
-        "пиксел",
-        "піксіл",
-        "пиксил",
-        "піксі",
-        "пикси",
-        "пікс",
-        "пикс",
-        "pix",
-        "kitty",
-        "kitten",
-        "the cat",
-        "fluffy",
-        "furball",
-      ],
-      indirect: [
-        "кіт",
-        "котик",
-        "котику",
-        "кот",
-        "киця",
-        "кицю",
-        "кіцю",
-        "пухнастий",
-        "пухнаст",
-        "хвостатий",
-        "хвостат",
-        "муркотун",
-        "мурчику",
-        "cat",
-        "kitty",
-        "kitten",
-        "the cat",
-        "fluffy",
-        "furball",
-      ],
-    },
-    chitchatFallback: (state) =>
-      state.pixelRejectedOrdinaryCommand || state.codeRevealed ? "smalltalk-pixel" : "pixel-smalltalk",
-  },
   sofia: {
     id: "sofia",
     promptLines: () => [
       "Sofiia",
-      "  Role:   Vibe Coding Collective co-founder, product designer, event",
-      "          organizer.",
-      "  Not:    the quest organizer, the game master, or the answer holder.",
-      "  Knows:  VCC, vibe coding, the event. Does NOT know the quest solution.",
-      "  Attitude: warm, calm, positive, concise; lowers pressure; trusts the",
-      "          participant; no-winners spirit; offers facilitation, not",
-      "          instruction.",
-      "  Voice:  short statements only — no questions, no question marks. Never",
-      "          speculates about how the event felt or whether the player enjoyed",
-      `          it. Never jokes about the event being "stuck in the door" or`,
-      `          "final vibe". The player cannot sustain a dialogue loop with her.`,
+      "  Role:   Vibe Coding Collective co-founder, product designer, and event",
+      "          organizer. Default responder for unaddressed turns.",
+      "  Knows:  event context, Dan's role near the door panel. Does not know",
+      "          Hoover/Fixel/badge/code before the quest reveals them.",
+      "  Voice:  short calm statements, facilitation rather than solving. Never",
+      "          asks follow-up questions and never becomes a game master.",
     ],
     transcriptAliases: {
       direct: ["софія", "софия", "софіє", "софие", "софі", "софи", "sofia", "sofiia", "sophia"],
@@ -136,18 +55,58 @@ export const PERSONAS: Record<QuestActor, Persona> = {
         "madam",
       ],
     },
-    chitchatFallback: () => "sofia-conversation-smalltalk",
+    chitchatFallback: (state) => {
+      if (state.doorOpen) return "smalltalk-after-escape";
+      if (state.hooverClueGiven && !state.codeRevealed) return "sofia-context-after-hoover";
+      if (state.danDoorChecked && !state.hooverClueGiven) return "sofia-context-after-dan";
+      return "sofia-context-initial";
+    },
   },
-  door: {
-    id: "door",
+  dan: {
+    id: "dan",
     promptLines: () => [
-      "Door / system / room",
-      "  Role:   the room itself. Ambient, architectural, dry, never human.",
-      "  Final escape line — exact, fixed, identical in both languages, never vary:",
-      `          "${FINAL_DOOR_LINE}"`,
+      "Dan",
+      "  Role:   event organizer near the door panel. Practical, calm, competent.",
+      "  Knows:  the door looks like a code lock; Hoover was near the door.",
+      "  Not:    a guard, security officer, or answer holder.",
+      "  Voice:  concise organizer closing down the event, helpful without drama.",
     ],
-    transcriptAliases: {},
-    chitchatFallback: () => "smalltalk-after-escape",
+    transcriptAliases: {
+      direct: ["dan", "ден", "дене", "дан", "дане"],
+    },
+    chitchatFallback: () => "smalltalk-dan",
+  },
+  hoover: {
+    id: "hoover",
+    promptLines: () => [
+      "Hoover",
+      "  Role:   white cat near the door. Observant, selective, mildly smug.",
+      "  Knows:  Fixel took the badge, but says it only after direct gentle",
+      "          address.",
+      "  Voice:  catlike but understandable. Responds poorly to command tone.",
+    ],
+    transcriptAliases: {
+      direct: ["hoover", "ховер", "хувер", "хувере", "гувер", "гувере"],
+      indirect: ["білий кіт", "білий котик", "white cat", "cat by the door", "котик біля дверей"],
+    },
+    chitchatFallback: () => "smalltalk-hoover",
+  },
+  fixel: {
+    id: "fixel",
+    promptLines: () => [
+      "Fixel",
+      "  Role:   brown sleeping cat above or near the stage. Has the organizer",
+      "          badge under him.",
+      "  Knows:  the badge code is 404, but reveals it only by waking or rolling",
+      "          over.",
+      "  Voice:  nonverbal only. Fixel never speaks words; he only purrs,",
+      "          grumbles, or makes a sleepy waking sound.",
+    ],
+    transcriptAliases: {
+      direct: ["fixel", "fixell", "фіксель", "фіксел", "фікселя", "фікселю", "фиксель", "фиксел"],
+      indirect: ["коричневий кіт", "смугастий кіт", "brown cat", "striped cat", "sleeping cat"],
+    },
+    chitchatFallback: () => "smalltalk-fixel",
   },
   system: {
     id: "system",

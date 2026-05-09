@@ -43,14 +43,14 @@ assert.equal(defaultFromAmbiguous.source, "default");
 
 // Heuristic UK transcript -> uk
 const heuristicUk = decideQuestLanguage({
-  transcript: "як тебе звати охоронець",
+  transcript: "Ден перевір двері",
 });
 assert.equal(heuristicUk.language, "uk", "heuristic uk transcript -> uk");
 assert.equal(heuristicUk.source, "heuristic");
 
 // Heuristic EN transcript -> en
 const heuristicEn = decideQuestLanguage({
-  transcript: "what is your name guard",
+  transcript: "what is your name dan",
 });
 assert.equal(heuristicEn.language, "en", "heuristic en transcript -> en");
 assert.equal(heuristicEn.source, "heuristic");

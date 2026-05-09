@@ -27,6 +27,7 @@
     "infra:apply": "scripts/infra/apply.sh",
     "deploy:railway": "scripts/railway/deploy-web.sh",
     "deploy:cloudfront": "scripts/cloudfront/deploy-frontend.sh",
+    "elevenlabs:sfx:fixel": "node scripts/elevenlabs-fixel-sfx.mjs",
     "elevenlabs:mcp:create": "node scripts/elevenlabs-mcp.mjs create",
     "elevenlabs:mcp:list": "node scripts/elevenlabs-mcp.mjs list",
     "elevenlabs:mcp:tools": "node scripts/elevenlabs-mcp.mjs tools"

@@ -63,8 +63,8 @@ export interface TextToSpeechProvider {
   model: string;
   defaultVoiceId: string;
   voiceIds: {
-    guard: string;
-    pixel: string;
+    dan: string;
+    hoover: string;
     room: string;
     sofia: string;
   };

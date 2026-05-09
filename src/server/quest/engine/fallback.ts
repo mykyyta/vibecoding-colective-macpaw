@@ -35,7 +35,12 @@ function buildTurn(
   previousQuestState: QuestState,
 ): QuestTurnShape {
   const nextQuestState = applyQuestTransition(previousQuestState, transitionId);
-  const progressed = !["chitchat-replied", "sofia-hint-given"].includes(transitionId);
+  const progressed = ![
+    "chitchat-replied",
+    "sofia-hint-given",
+    "hoover-ordinary-rejected",
+    "fixel-sleeping-rejected",
+  ].includes(transitionId);
 
   return {
     action: { type: "none" },
@@ -60,14 +65,14 @@ export function createHeuristicFallbackTurn(
   if (progressing) {
     return buildTurn(
       progressing.id,
-      progressing.actor(previousQuestState),
+      progressing.actor(previousQuestState, facts),
       progressing.fallbackReply(previousQuestState, replyLanguage),
       replyLanguage,
       previousQuestState,
     );
   }
 
-  const actor = getChitchatActor(previousQuestState);
+  const actor = getChitchatActor(facts);
   const reply = getChitchatFallbackReply(actor, previousQuestState, replyLanguage);
   return buildTurn("chitchat-replied", actor, reply, replyLanguage, previousQuestState);
 }

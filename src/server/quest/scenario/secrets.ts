@@ -10,41 +10,19 @@ export interface SecretFact {
 
 export const SECRETS: SecretFact[] = [
   {
-    id: "oleg-name",
-    description: "The guard's name Oleg must not be revealed before oleg-name-learned",
-    revealedByMoveId: "oleg-name-learned",
-    patterns: ["\\b(олег|олєг|оліг|oleg|oleh)\\b"],
+    id: "hoover-clue",
+    description: "Hoover must not be mentioned before dan-door-checked",
+    revealedByMoveId: "dan-door-checked",
+    patterns: ["(^|[^\\p{L}\\p{N}_])(hoover|хувер|ховер|гувер)(?=$|[^\\p{L}\\p{N}_])"],
     matchType: "regex",
   },
   {
-    id: "pixel-name",
-    description: "Pixel's name must not be revealed before guard-hint-given",
-    revealedByMoveId: "guard-hint-given",
+    id: "fixel-badge",
+    description: "Fixel and the badge must not be revealed before hoover-clue-given",
+    revealedByMoveId: "hoover-clue-given",
     patterns: [
-      "(^|[^\\p{L}\\p{N}_])(pixel|піксель|пиксель|піксел|пиксел|пікс|пикс)(?=$|[^\\p{L}\\p{N}_])",
-      "(^|[^\\p{L}\\p{N}_])(моє|моєму|моїм|my)\\s+ім",
-      "(знаєш|вгадав|назвав|назвала|said|guessed).{0,30}(ім|name)",
-      "(мене|me).{0,20}(звати|called)",
-    ],
-    matchType: "regex",
-  },
-  {
-    id: "pixel-keypad-clue",
-    description: "Pixel near the panel clue must not be revealed before guard-hint-given",
-    revealedByMoveId: "guard-hint-given",
-    patterns: [
-      "\\b(pixel|піксел\\w*|пиксел\\w*).{0,80}\\b(keypad|код|парол|клавіатур|панел)",
-      "\\b(keypad|код|парол|клавіатур|панел).{0,80}\\b(pixel|піксел\\w*|пиксел\\w*)",
-    ],
-    matchType: "regex",
-  },
-  {
-    id: "cat-language",
-    description: "Cat-sound or cat-language hints must not be given before pixel-ordinary-rejected (stage-conditional: checked only in specific actor/state combos)",
-    revealedByMoveId: "pixel-ordinary-rejected",
-    patterns: [
-      "(по-котяч|котяч|його мов|її мов|own language|мур|мяу|няв|purr|meow|cat sound)",
-      "(^|[^\\p{L}\\p{N}_])мр+(?=$|[^\\p{L}\\p{N}_])",
+      "(^|[^\\p{L}\\p{N}_])(fixel|фіксель|фіксел|фиксель|фиксел)(?=$|[^\\p{L}\\p{N}_])",
+      "(бейдж|бедж|badge)",
     ],
     matchType: "regex",
   },
@@ -52,9 +30,7 @@ export const SECRETS: SecretFact[] = [
     id: "code-404",
     description: "Code 404 must not be revealed before code-revealed",
     revealedByMoveId: "code-revealed",
-    patterns: [
-      "(^|[^\\d])404([^\\d]|$)",
-    ],
+    patterns: ["(^|[^\\d])404([^\\d]|$)"],
     matchType: "regex",
   },
   {

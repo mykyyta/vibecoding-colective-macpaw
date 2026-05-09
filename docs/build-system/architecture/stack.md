@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-08
+last_updated: 2026-05-09
 owner: Architect
 ---
 
@@ -69,8 +69,15 @@ npm start
 - `SERVER_PORT` controls the Express API port.
 - `CLAUDE_API_KEY` and `CLAUDE_MODEL` configure server-side Claude text generation.
 - `GEMINI_API_KEY` and `GEMINI_MODEL` configure server-side Gemini text generation and image-generation readiness.
-- `ELEVENLABS_API_KEY` and `ELEVENLABS_TTS_MODEL` configure server-side ElevenLabs direct API calls.
-- ElevenLabs voice IDs for Oleg, Pixel, Sofiia, and room/door narration are code constants in `src/server/providers/config.ts`, not deployment environment variables.
+- `ELEVENLABS_API_KEY`, `ELEVENLABS_TTS_MODEL`, and `ELEVENLABS_SFX_MODEL`
+  configure server-side or script-driven ElevenLabs direct API calls.
+- ElevenLabs voice IDs for Dan, Hoover, Sofiia, and fallback narration are code
+  constants in `src/server/providers/config.ts`, not deployment environment
+  variables.
+- Fixel is a nonverbal actor. His purr/grumble audio should be generated as
+  static ElevenLabs Sound Effects assets under `public/audio/` with
+  `npm run elevenlabs:sfx:fixel -- --yes`, then played as local assets at
+  runtime. Runtime quest turns should not call Sound Effects generation.
 - `ELEVENLABS_MCP_SERVER_URL` is used by the MCP registration helper.
 - `DEMO_API_TOKEN` can protect paid provider endpoints if a demo route is exposed through a public tunnel.
 - DynamoDB configuration belongs in server-side environment variables when a
@@ -108,6 +115,11 @@ Direct provider API calls live under `src/server/providers/` and are called only
 
 The direct ElevenLabs connector is separate from the ElevenLabs MCP registration helper. Use the direct connector when this app calls ElevenLabs APIs. Use MCP registration when an ElevenLabs Conversational AI agent needs to call tools exposed by this project or another MCP server.
 
+ElevenLabs Sound Effects generation is treated as an asset-production step, not
+a per-turn runtime dependency. The generation script requires `--yes` because it
+can consume paid credits. Generated files are served by Vite or the built client
+from `public/audio/`.
+
 ## Voice Language Contract
 
 The voice quest supports Ukrainian and English without a visible language
@@ -129,10 +141,10 @@ generation. The decision should consider, in order:
 3. the last reliable session language for short or ambiguous turns;
 4. Ukrainian as the default when no reliable signal exists.
 
-Short turns such as `Pixel`, `404`, `meow`, `mrr`, `purr`, or `мур` are
-language-ambiguous. They should not switch the reply language unless provider
-confidence is high enough. Use a sticky previous language for these turns when a
-quest session already has one.
+Short turns such as `Hoover`, `Fixel`, `404`, `hey`, `boo`, `бу`, `mrr`, or
+`мрр` are language-ambiguous. They should not switch the reply language unless
+provider confidence is high enough. Use a sticky previous language for these
+turns when a quest session already has one.
 
 Main quest UI copy should follow the current quest language for player-facing
 messages, errors, leaderboard states, and accessibility labels. The microphone

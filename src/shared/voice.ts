@@ -6,7 +6,7 @@ export type VoiceAction =
   | { type: "clear-log" }
   | { type: "none" };
 
-export type QuestActor = "system" | "guard" | "pixel" | "door" | "sofia";
+export type QuestActor = "system" | "sofia" | "dan" | "hoover" | "fixel";
 
 export type QuestLanguage = "uk" | "en";
 
@@ -49,18 +49,18 @@ export function mapProviderLanguageCodeToQuestLanguage(
 }
 
 export interface QuestState {
-  olegNameKnown: boolean;
-  guardHintGiven: boolean;
-  pixelRejectedOrdinaryCommand: boolean;
+  danDoorChecked: boolean;
+  hooverClueGiven: boolean;
   codeRevealed: boolean;
   doorOpen: boolean;
 }
 
 export type QuestEventType =
   | "chitchat-replied"
-  | "oleg-name-learned"
-  | "guard-hint-given"
-  | "pixel-ordinary-rejected"
+  | "dan-door-checked"
+  | "hoover-ordinary-rejected"
+  | "hoover-clue-given"
+  | "fixel-sleeping-rejected"
   | "code-revealed"
   | "door-opened"
   | "sofia-hint-given";
@@ -93,6 +93,12 @@ export interface VoiceTurnResponse {
     contentType: string;
     base64: string;
     provider: "elevenlabs";
+  };
+  soundEffect?: {
+    assetUrl: string;
+    fallbackText: string;
+    id: "fixel-purr-soft" | "fixel-grumble" | "fixel-wake-mrrp";
+    provider: "asset";
   };
   audioError?: string;
 }

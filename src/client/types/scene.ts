@@ -1,13 +1,13 @@
 export type RoomState =
   | "idle"
   | "listening"
-  | "guardHintGiven"
-  | "catIgnored"
+  | "danDoorChecked"
+  | "catRejected"
   | "codeRevealed"
   | "doorOpening"
   | "escaped";
 
-export type BubbleActor = "guard" | "pixel" | "room" | "sofia";
+export type BubbleActor = "dan" | "hoover" | "fixel" | "room" | "sofia";
 
 export interface SceneBubbleContent {
   actor: BubbleActor;
