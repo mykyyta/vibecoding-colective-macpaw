@@ -26,6 +26,7 @@ export default function Character({
           <i className="pixel-ear pixel-ear--right" />
           <i className="pixel-eye pixel-eye--left" />
           <i className="pixel-eye pixel-eye--right" />
+          <i className="pixel-nose" />
         </span>
       </div>
     );
@@ -67,10 +68,16 @@ export default function Character({
     >
       <span className="guard-shadow" />
       <span className="guard-legs" />
-      <span className="guard-body" />
+      <span className="guard-body">
+        <i className="guard-shirt" />
+      </span>
       <span className="guard-head">
-        <i className="guard-cap" />
+        <i className="guard-hair guard-hair--back" />
+        <i className="guard-beard" />
         <i className="guard-face" />
+        <i className="guard-hair guard-hair--left" />
+        <i className="guard-hair guard-hair--right" />
+        <i className="guard-hair guard-hair--crown" />
       </span>
       <span className="guard-arm" />
     </div>

@@ -27,62 +27,239 @@
   height: 62px;
   border-radius: 0 0 10px 10px;
   background:
-    linear-gradient(90deg, transparent 43%, color-mix(in oklch, var(--plaster-lit), transparent 76%) 43% 55%, transparent 55%),
-    oklch(24% 0.038 224);
+    linear-gradient(90deg, transparent 42%, color-mix(in oklch, var(--plaster-lit), transparent 88%) 42% 54%, transparent 54%),
+    linear-gradient(180deg, oklch(25% 0.014 72), oklch(17% 0.011 72)),
+    oklch(20% 0.012 72);
+}
+
+.guard-shirt {
+  position: absolute;
+  left: 12px;
+  top: 2px;
+  z-index: 2;
+  width: 27px;
+  height: 59px;
+  border-radius: 7px 7px 4px 4px;
+  background:
+    linear-gradient(180deg, oklch(32% 0.071 147), oklch(24% 0.058 148)),
+    oklch(28% 0.065 148);
+  box-shadow: inset -4px 0 0 color-mix(in oklch, var(--stage), transparent 78%);
 }
 
 .guard-body {
   position: absolute;
-  left: 18px;
+  left: 15px;
   bottom: 67px;
-  width: 45px;
+  z-index: 3;
+  width: 51px;
   height: 64px;
-  border-radius: 14px 14px 9px 9px;
+  border-radius: 15px 15px 9px 9px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.guard-body::before,
+.guard-body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 32px;
+  border-radius: 14px 13px 8px 8px;
   background:
-    linear-gradient(90deg, var(--green) 0 7px, transparent 7px),
-    oklch(37% 0.078 224);
-  box-shadow: inset -8px 0 0 color-mix(in oklch, var(--stage), transparent 76%);
+    linear-gradient(180deg, oklch(38% 0.018 76), oklch(25% 0.014 74)),
+    oklch(30% 0.016 74);
+  box-shadow:
+    inset 0 -10px 0 color-mix(in oklch, var(--stage), transparent 84%),
+    inset 0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 88%);
+}
+
+.guard-body::before {
+  left: 0;
+  clip-path: polygon(0 0, 43% 0, 88% 100%, 0 100%);
+  background:
+    repeating-linear-gradient(
+      128deg,
+      transparent 0 8px,
+      color-mix(in oklch, var(--plaster-lit), transparent 85%) 8px 9px,
+      transparent 9px 15px
+    ),
+    repeating-linear-gradient(
+      76deg,
+      transparent 0 18px,
+      color-mix(in oklch, var(--stage), transparent 78%) 18px 19px,
+      transparent 19px 27px
+    ),
+    linear-gradient(180deg, oklch(38% 0.018 76), oklch(25% 0.014 74)),
+    oklch(30% 0.016 74);
+}
+
+.guard-body::after {
+  right: 0;
+  clip-path: polygon(57% 0, 100% 0, 100% 100%, 12% 100%);
+  background:
+    repeating-linear-gradient(
+      52deg,
+      transparent 0 9px,
+      color-mix(in oklch, var(--stage), transparent 66%) 9px 10px,
+      transparent 10px 16px
+    ),
+    repeating-linear-gradient(
+      112deg,
+      transparent 0 19px,
+      color-mix(in oklch, var(--plaster-lit), transparent 88%) 19px 20px,
+      transparent 20px 28px
+    ),
+    linear-gradient(180deg, oklch(35% 0.017 76), oklch(23% 0.014 74)),
+    oklch(29% 0.016 74);
+}
+
+.guard-shirt::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 17px;
+  height: 14px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: color-mix(in oklch, var(--plaster-lit), transparent 88%);
 }
 
 .guard-head {
   position: absolute;
-  left: 22px;
-  bottom: 125px;
-  width: 37px;
-  height: 39px;
-  border-radius: 45% 45% 42% 42%;
-  background: oklch(75% 0.078 58);
-  box-shadow: inset -5px -4px 0 color-mix(in oklch, var(--wood-dark), transparent 66%);
-}
-
-.guard-cap {
-  position: absolute;
-  left: -3px;
-  top: -9px;
-  width: 42px;
-  height: 16px;
-  border-radius: 10px 10px 5px 5px;
-  background: oklch(21% 0.038 224);
+  left: 17px;
+  bottom: 124px;
+  width: 48px;
+  height: 49px;
+  z-index: 4;
 }
 
 .guard-face {
   position: absolute;
-  left: 23px;
-  top: 18px;
-  width: 7px;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--ink);
+  left: 8px;
+  top: 8px;
+  z-index: 2;
+  width: 32px;
+  height: 36px;
+  border-radius: 48% 48% 43% 43%;
+  background: oklch(75% 0.078 58);
+  box-shadow: inset -4px -3px 0 color-mix(in oklch, var(--wood-dark), transparent 72%);
+}
+
+.guard-face::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 15px;
+  width: 18px;
+  height: 2px;
+  background:
+    linear-gradient(90deg, oklch(18% 0.026 68), oklch(18% 0.026 68)) left center / 5px 1.5px no-repeat,
+    linear-gradient(90deg, oklch(18% 0.026 68), oklch(18% 0.026 68)) right center / 5px 1.5px no-repeat;
+}
+
+.guard-face::after {
+  content: none;
+  position: absolute;
+  left: 12px;
+  top: 24px;
+  width: 8px;
+  height: 4px;
+  border-bottom: 2px solid color-mix(in oklch, var(--plaster-lit), transparent 25%);
+  border-radius: 0 0 999px 999px;
+}
+
+.guard-beard {
+  position: absolute;
+  left: 8px;
+  top: 21px;
+  width: 32px;
+  height: 23px;
+  z-index: 3;
+  border-radius: 0 0 43% 43%;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0 18%,
+      color-mix(in oklch, oklch(28% 0.037 48), transparent 72%) 34%,
+      color-mix(in oklch, oklch(28% 0.037 48), transparent 26%) 62%,
+      color-mix(in oklch, oklch(28% 0.037 48), transparent 14%) 100%
+    );
+  clip-path: inset(0 0 0 0 round 0 0 43% 43%);
+}
+
+.guard-beard::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 7px;
+  width: 8px;
+  height: 4px;
+  border-bottom: 2px solid color-mix(in oklch, var(--plaster-lit), transparent 24%);
+  border-radius: 0 0 999px 999px;
+}
+
+.guard-hair {
+  position: absolute;
+  z-index: 1;
+  background: oklch(25% 0.032 48);
+}
+
+.guard-hair--back {
+  left: 4px;
+  top: -1px;
+  width: 40px;
+  height: 27px;
+  z-index: 1;
+  border-radius: 35% 33% 40% 38%;
+  background:
+    linear-gradient(135deg, oklch(31% 0.039 49) 0 28%, transparent 29% 100%),
+    linear-gradient(180deg, oklch(25% 0.032 48), oklch(20% 0.027 46)),
+    oklch(25% 0.032 48);
+  clip-path: polygon(5% 64%, 10% 32%, 25% 14%, 55% 6%, 82% 16%, 94% 38%, 91% 72%, 72% 62%, 54% 57%, 35% 63%, 17% 82%);
+}
+
+.guard-hair--crown {
+  left: 8px;
+  top: -5px;
+  z-index: 1;
+  width: 32px;
+  height: 17px;
+  border-radius: 30% 24% 45% 40%;
+  background:
+    linear-gradient(160deg, oklch(34% 0.043 49) 0 34%, oklch(24% 0.032 48) 35% 100%);
+  clip-path: polygon(0 78%, 7% 28%, 35% 8%, 70% 10%, 100% 42%, 91% 84%, 55% 73%, 20% 85%);
+}
+
+.guard-hair--left,
+.guard-hair--right {
+  top: 12px;
+  z-index: 1;
+  width: 6px;
+  height: 14px;
+  border-radius: 8px 8px 6px 6px;
+}
+
+.guard-hair--left {
+  left: 5px;
+  transform: rotate(4deg);
+}
+
+.guard-hair--right {
+  right: 5px;
+  transform: rotate(-4deg);
 }
 
 .guard-arm {
   position: absolute;
-  right: 7px;
+  right: 5px;
   bottom: 84px;
   width: 14px;
   height: 49px;
   border-radius: 999px;
-  background: oklch(75% 0.078 58);
+  background:
+    linear-gradient(180deg, oklch(31% 0.016 74) 0 62%, oklch(75% 0.078 58) 63% 100%);
   transform: rotate(-18deg);
   transform-origin: top center;
 }
@@ -378,6 +555,13 @@
   width: 74px;
   height: 64px;
   --pixel-scale: scale(1);
+  --pixel-fur: oklch(94% 0.012 83);
+  --pixel-fur-lit: oklch(98% 0.006 85);
+  --pixel-fur-shadow: oklch(82% 0.018 84);
+  --pixel-inner-ear: oklch(82% 0.055 33);
+  --pixel-nose: oklch(68% 0.09 28);
+  --pixel-left-eye: oklch(36% 0.055 78);
+  --pixel-right-eye: oklch(38% 0.045 238);
   z-index: 17;
   transform: var(--pixel-scale);
   transition:
@@ -415,10 +599,12 @@
   width: 44px;
   height: 29px;
   border-radius: 52% 48% 45% 45%;
-  background: var(--cat);
+  background:
+    radial-gradient(ellipse at 28% 25%, var(--pixel-fur-lit) 0 24%, transparent 25%),
+    linear-gradient(180deg, var(--pixel-fur-lit), var(--pixel-fur));
   box-shadow:
-    inset 0 3px 0 color-mix(in oklch, var(--plaster-lit), transparent 84%),
-    0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 78%);
+    inset -4px -2px 0 color-mix(in oklch, var(--pixel-fur-shadow), transparent 18%),
+    0 0 0 1px color-mix(in oklch, var(--ink), transparent 82%);
   animation: pixel-breathe-desktop 2.9s var(--ease-out) infinite alternate;
 }
 
@@ -429,10 +615,12 @@
   width: 34px;
   height: 31px;
   border-radius: 52% 48% 45% 45%;
-  background: var(--cat);
+  background:
+    radial-gradient(ellipse at 33% 30%, var(--pixel-fur-lit) 0 24%, transparent 25%),
+    linear-gradient(180deg, var(--pixel-fur-lit), var(--pixel-fur));
   box-shadow:
-    inset -3px 4px 0 color-mix(in oklch, var(--plaster-lit), transparent 86%),
-    0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 76%);
+    inset -3px -2px 0 color-mix(in oklch, var(--pixel-fur-shadow), transparent 8%),
+    0 0 0 1px color-mix(in oklch, var(--ink), transparent 78%);
   animation: pixel-head-look-desktop 3.4s var(--ease-out) infinite alternate;
 }
 
@@ -441,8 +629,11 @@
   top: -8px;
   width: 13px;
   height: 15px;
-  background: var(--cat);
+  background:
+    linear-gradient(180deg, var(--pixel-inner-ear) 0 48%, transparent 49%) center 4px / 7px 9px no-repeat,
+    var(--pixel-fur);
   clip-path: polygon(50% 0, 0 100%, 100% 100%);
+  filter: drop-shadow(0 0 0.5px color-mix(in oklch, var(--ink), transparent 64%));
 }
 
 .pixel-ear--left {
@@ -458,19 +649,45 @@
 .pixel-eye {
   position: absolute;
   top: 13px;
-  width: 5px;
-  height: 7px;
-  border-radius: 999px;
-  background: var(--green);
+  width: 6px;
+  height: 6px;
+  border-radius: 55% 55% 50% 50%;
+  background: var(--pixel-left-eye);
+  box-shadow:
+    inset 0 1.5px 0 color-mix(in oklch, var(--pixel-fur-lit), transparent 18%),
+    0 0 0 1px color-mix(in oklch, var(--ink), transparent 58%);
   animation: pixel-blink 4.8s steps(1) infinite;
 }
 
+.pixel-eye::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: oklch(13% 0.018 70);
+}
+
 .pixel-eye--left {
-  left: 10px;
+  left: 9px;
 }
 
 .pixel-eye--right {
-  right: 10px;
+  right: 9px;
+  background: var(--pixel-right-eye);
+}
+
+.pixel-nose {
+  position: absolute;
+  left: 15px;
+  top: 20px;
+  width: 5px;
+  height: 4px;
+  border-radius: 55% 55% 65% 65%;
+  background: var(--pixel-nose);
+  box-shadow: 0 2px 0 -1px color-mix(in oklch, var(--ink), transparent 50%);
 }
 
 .pixel-tail {
@@ -479,10 +696,11 @@
   bottom: 25px;
   width: 36px;
   height: 33px;
-  border: 7px solid var(--cat);
+  border: 7px solid var(--pixel-fur);
   border-left: 0;
   border-bottom: 0;
   border-radius: 0 999px 0 0;
+  filter: drop-shadow(0 0 0.5px color-mix(in oklch, var(--ink), transparent 70%));
   transform-origin: left bottom;
   animation: tail-swish-desktop 2.3s var(--ease-out) infinite alternate;
 }
@@ -493,7 +711,9 @@
 }
 
 .pixel--helpful .pixel-eye {
-  background: var(--amber);
+  box-shadow:
+    inset 1px 1px 0 color-mix(in oklch, var(--plaster-lit), transparent 24%),
+    0 0 8px color-mix(in oklch, var(--amber), transparent 18%);
 }
 
 .quest-app--doorOpening .pixel--helpful {
