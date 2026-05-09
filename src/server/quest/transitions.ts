@@ -5,6 +5,7 @@ import type {
   QuestState,
 } from "../../shared/voice.js";
 import type { QuestTranscriptFacts } from "./classifier.js";
+import { PERSONAS } from "./personas.js";
 import { getQuestReply } from "./replies.js";
 import { normalizeQuestState } from "./state.js";
 
@@ -54,23 +55,7 @@ export function getChitchatFallbackReply(
     return getQuestReply("smalltalk-after-escape", replyLanguage);
   }
 
-  if (actor === "sofia") {
-    return getQuestReply("sofia-conversation-smalltalk", replyLanguage);
-  }
-
-  if (actor === "pixel") {
-    return state.pixelAddressed
-      ? getQuestReply("smalltalk-pixel", replyLanguage)
-      : getQuestReply("pixel-smalltalk", replyLanguage);
-  }
-
-  if (actor === "system") {
-    return getQuestReply("unknown", replyLanguage);
-  }
-
-  return state.olegNameKnown
-    ? getQuestReply("smalltalk-guard-known", replyLanguage)
-    : getQuestReply("smalltalk-guard-unknown", replyLanguage);
+  return getQuestReply(PERSONAS[actor].chitchatFallback(state), replyLanguage);
 }
 
 function getSofiaHintStageContext(state: QuestState): string {

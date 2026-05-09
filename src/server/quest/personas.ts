@@ -22,6 +22,7 @@ interface Persona {
   id: QuestActor;
   promptLines: (eventPhrase: string) => string[];
   transcriptAliases: PersonaTranscriptAliases;
+  chitchatFallback: (state: QuestState) => QuestReplyId;
   voice: {
     elevenLabsRole: ElevenLabsVoiceRole;
     settings?: ElevenLabsVoiceSettings;
@@ -42,6 +43,8 @@ export const PERSONAS: Record<QuestActor, Persona> = {
     transcriptAliases: {
       direct: ["олег", "олєг", "оліг", "олек", "олеж", "олежа", "oleg", "oleh", "olek"],
     },
+    chitchatFallback: (state) =>
+      state.olegNameKnown ? "smalltalk-guard-known" : "smalltalk-guard-unknown",
     voice: {
       elevenLabsRole: "guard",
     },
@@ -102,6 +105,8 @@ export const PERSONAS: Record<QuestActor, Persona> = {
         "furball",
       ],
     },
+    chitchatFallback: (state) =>
+      state.pixelAddressed ? "smalltalk-pixel" : "pixel-smalltalk",
     voice: {
       elevenLabsRole: "pixel",
       settings: {
@@ -156,6 +161,7 @@ export const PERSONAS: Record<QuestActor, Persona> = {
         "madam",
       ],
     },
+    chitchatFallback: () => "sofia-conversation-smalltalk",
     voice: {
       elevenLabsRole: "sofia",
     },
@@ -169,6 +175,7 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       `          "${FINAL_DOOR_LINE}"`,
     ],
     transcriptAliases: {},
+    chitchatFallback: () => "smalltalk-after-escape",
     voice: {
       elevenLabsRole: "room",
     },
@@ -177,6 +184,7 @@ export const PERSONAS: Record<QuestActor, Persona> = {
     id: "system",
     promptLines: () => [],
     transcriptAliases: {},
+    chitchatFallback: () => "unknown",
     voice: {
       elevenLabsRole: "room",
     },
