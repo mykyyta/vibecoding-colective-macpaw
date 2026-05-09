@@ -1,6 +1,6 @@
 import type { QuestActor, QuestEventType, QuestLanguage, QuestState } from "../../shared/voice.js";
 import type { AllowedQuestTransition } from "./transitions.js";
-import { PERSONAS } from "./personas.js";
+import { PERSONAS } from "./scenario/actors.js";
 
 interface QuestPromptTransition {
   id: QuestEventType;

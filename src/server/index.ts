@@ -22,7 +22,7 @@ import {
 import { createProviderRegistry } from "./providers/registry.js";
 import { createQuestBrainTurn } from "./quest/brain.js";
 import { decideQuestLanguage, normalizeQuestState } from "./quest/index.js";
-import { getElevenLabsVoiceRole, getElevenLabsVoiceSettings } from "./quest/personas.js";
+import { getElevenLabsVoiceRole, getElevenLabsVoiceSettings } from "./quest/engine/voice-adapter.js";
 import {
   createElevenLabsRealtimeSttSession,
   transcribeElevenLabsAudio,

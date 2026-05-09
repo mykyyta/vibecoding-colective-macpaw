@@ -1,4 +1,4 @@
-import { PERSONAS } from "./personas.js";
+import { PERSONAS } from "./scenario/actors.js";
 
 export interface QuestTranscriptFacts {
   text: string;

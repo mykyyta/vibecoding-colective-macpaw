@@ -1,33 +1,21 @@
-import type { QuestActor, QuestState } from "../../shared/voice.js";
-import type { QuestReplyId } from "./scenario/lines.js";
-import { FINAL_DOOR_LINE } from "./scenario/lines.js";
+import type { QuestActor, QuestState } from "../../../shared/voice.js";
+import type { QuestReplyId } from "./lines.js";
+import { FINAL_DOOR_LINE } from "./lines.js";
 
-type ElevenLabsVoiceRole = "guard" | "pixel" | "room" | "sofia";
-
-interface ElevenLabsVoiceSettings {
-  stability: number;
-  similarityBoost: number;
-  style: number;
-  speed: number;
-  useSpeakerBoost: boolean;
-}
-
-interface PersonaTranscriptAliases {
+export interface PersonaTranscriptAliases {
   direct?: string[];
   indirect?: string[];
   feminine?: string[];
 }
 
-interface Persona {
+export interface Persona {
   id: QuestActor;
   promptLines: (eventPhrase: string) => string[];
   transcriptAliases: PersonaTranscriptAliases;
   chitchatFallback: (state: QuestState) => QuestReplyId;
-  voice: {
-    elevenLabsRole: ElevenLabsVoiceRole;
-    settings?: ElevenLabsVoiceSettings;
-  };
 }
+
+export type ChitchatFallbackPicker = (state: QuestState) => QuestReplyId;
 
 export const PERSONAS: Record<QuestActor, Persona> = {
   guard: {
@@ -45,9 +33,6 @@ export const PERSONAS: Record<QuestActor, Persona> = {
     },
     chitchatFallback: (state) =>
       state.olegNameKnown ? "smalltalk-guard-known" : "smalltalk-guard-unknown",
-    voice: {
-      elevenLabsRole: "guard",
-    },
   },
   pixel: {
     id: "pixel",
@@ -107,16 +92,6 @@ export const PERSONAS: Record<QuestActor, Persona> = {
     },
     chitchatFallback: (state) =>
       state.pixelRejectedOrdinaryCommand || state.codeRevealed ? "smalltalk-pixel" : "pixel-smalltalk",
-    voice: {
-      elevenLabsRole: "pixel",
-      settings: {
-        stability: 0.42,
-        similarityBoost: 0.78,
-        style: 0.28,
-        speed: 0.82,
-        useSpeakerBoost: true,
-      },
-    },
   },
   sofia: {
     id: "sofia",
@@ -162,9 +137,6 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       ],
     },
     chitchatFallback: () => "sofia-conversation-smalltalk",
-    voice: {
-      elevenLabsRole: "sofia",
-    },
   },
   door: {
     id: "door",
@@ -176,30 +148,14 @@ export const PERSONAS: Record<QuestActor, Persona> = {
     ],
     transcriptAliases: {},
     chitchatFallback: () => "smalltalk-after-escape",
-    voice: {
-      elevenLabsRole: "room",
-    },
   },
   system: {
     id: "system",
     promptLines: () => [],
     transcriptAliases: {},
     chitchatFallback: () => "unknown",
-    voice: {
-      elevenLabsRole: "room",
-    },
   },
 };
-
-export function getElevenLabsVoiceRole(actor: QuestActor): ElevenLabsVoiceRole {
-  return PERSONAS[actor].voice.elevenLabsRole;
-}
-
-export function getElevenLabsVoiceSettings(
-  actor: QuestActor,
-): ElevenLabsVoiceSettings | undefined {
-  return PERSONAS[actor].voice.settings;
-}
 
 export function getPersonaPromptLines(
   actor: QuestActor,
@@ -207,5 +163,3 @@ export function getPersonaPromptLines(
 ): string[] {
   return PERSONAS[actor].promptLines(eventPhrase);
 }
-
-export type ChitchatFallbackPicker = (state: QuestState) => QuestReplyId;
