@@ -1,16 +1,9 @@
-import type { QuestActor, QuestLanguage, QuestState } from "../../shared/voice.js";
+import type { QuestLanguage, QuestState } from "../../shared/voice.js";
 import type { TextGenerationProvider } from "../providers/contracts.js";
 import { FINAL_DOOR_LINE } from "./replies.js";
 import { buildQuestBrainPrompt } from "./prompt.js";
-import {
-  containsCatSoundOrLanguageHint,
-  containsCodeReveal,
-  containsDoorOpenClaim,
-  containsOlegReveal,
-  containsPixelKeypadClue,
-  containsPixelNameReveal,
-  normalizeForGuardrail,
-} from "./guardrails.js";
+import { replyPassesGuardrails } from "./guardrails.js";
+import { parseClaudeQuestDecision, type ClaudeQuestDecision } from "./parser.js";
 import {
   analyzeQuestTranscript,
   createQuestTurn,
@@ -21,7 +14,6 @@ import {
   normalizeQuestState,
   type AllowedQuestTransition,
   type QuestTranscriptFacts,
-  type QuestTransitionId,
   type QuestTurn,
 } from "./index.js";
 
@@ -32,170 +24,148 @@ interface QuestBrainRequest {
   getClaudeProvider: () => TextGenerationProvider;
 }
 
-interface ClaudeQuestDecision {
-  transitionId: QuestTransitionId;
-  actor: QuestActor;
-  reply: string;
-  confidence?: number;
+interface BrainContext {
+  transcript: string;
+  state: QuestState;
+  facts: QuestTranscriptFacts;
+  language: QuestLanguage;
+  allowedTransitions: AllowedQuestTransition[];
+  fallbackTurn: QuestTurn;
+  getClaudeProvider: () => TextGenerationProvider;
 }
+
+type ValidationResult =
+  | { ok: true; allowedTransition: AllowedQuestTransition }
+  | { ok: false; reason: "transition.invalid" | "transition.illegal" };
 
 const CLAUDE_QUEST_TIMEOUT_MS = 7000;
-const MAX_REPLY_LENGTH = 320;
-const MAX_SOFIA_REPLY_LENGTH = 220;
 
-const TRANSITION_IDS: QuestTransitionId[] = [
-  "chitchat-replied",
-  "oleg-name-learned",
-  "guard-hint-given",
-  "pixel-ordinary-rejected",
-  "code-revealed",
-  "door-opened",
-  "sofia-hint-given",
-];
+export async function createQuestBrainTurn(req: QuestBrainRequest): Promise<QuestTurn> {
+  const ctx = prepareBrainContext(req);
 
-const ACTORS: QuestActor[] = ["system", "guard", "pixel", "door", "sofia"];
-
-export async function createQuestBrainTurn({
-  transcript,
-  questState,
-  replyLanguage = "uk",
-  getClaudeProvider,
-}: QuestBrainRequest): Promise<QuestTurn> {
-  const normalizedQuestState = normalizeQuestState(questState);
-  const fallbackTurn = createQuestTurn(
-    transcript,
-    normalizedQuestState,
-    replyLanguage,
-  );
-  const allowedTransitions = getAllowedQuestTransitions(
-    normalizedQuestState,
-    replyLanguage,
-  );
-  const transcriptFacts = analyzeQuestTranscript(transcript);
-
+  let decision: ClaudeQuestDecision | null;
   try {
-    const claude = getClaudeProvider();
-    const generated = await generateWithTimeout(claude, {
-      prompt: buildQuestBrainPrompt({
-        transcript,
-        questState: normalizedQuestState,
-        allowedTransitions,
-        replyLanguage,
-      }),
-      maxTokens: 220,
-      temperature: 0.68,
-    });
-    const decision = parseClaudeQuestDecision(generated.text);
-    const allowedTransition = allowedTransitions.find(
-      (transition) => transition.id === decision.transitionId,
-    );
-
-    const allowedActors = allowedTransition?.allowedActors ?? [
-      allowedTransition?.actor,
-    ];
-
-    if (
-      !allowedTransition ||
-      !allowedActors.includes(decision.actor)
-    ) {
-      console.info("[quest-brain] transition.invalid", {
-        transitionId: decision.transitionId,
-        actor: decision.actor,
-      });
-      return fallbackTurn;
-    }
-
-    if (
-      !isValidQuestBrainDecision({
-        decision,
-        allowedTransition,
-        normalizedQuestState,
-        transcriptFacts,
-      })
-    ) {
-      console.info("[quest-brain] transition.illegal", {
-        transitionId: decision.transitionId,
-      });
-      return fallbackTurn;
-    }
-
-    const turn = createQuestTurnFromTransition({
-      transcript,
-      questState: normalizedQuestState,
-      transitionId: decision.transitionId,
-      actor: decision.actor,
-      reply: decision.reply,
-      replyLanguage,
-    });
-
-    if (turn.event.type === "door-opened") {
-      return { ...turn, reply: FINAL_DOOR_LINE };
-    }
-
-    if (replyPassesGuardrails(turn)) {
-      return turn;
-    }
-
-    console.info("[quest-brain] reply.guardrail_failed", {
-      transitionId: decision.transitionId,
-      actor: decision.actor,
-    });
-    const fallbackReply =
-      decision.transitionId === "chitchat-replied"
-        ? getChitchatFallbackReply(
-            decision.actor,
-            normalizedQuestState,
-            replyLanguage,
-          )
-        : allowedTransition.fallbackReply;
-
-    return createQuestTurnFromTransition({
-      transcript,
-      questState: normalizedQuestState,
-      transitionId: decision.transitionId,
-      actor: decision.actor,
-      reply: fallbackReply,
-      replyLanguage,
-    });
+    decision = await tryGetClaudeDecision(ctx);
   } catch (error) {
-    console.info("[quest-brain] claude.failed", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return fallbackTurn;
+    logBrainTelemetry("claude.failed", { error: errorMessage(error) });
+    return ctx.fallbackTurn;
   }
+
+  if (!decision) return ctx.fallbackTurn;
+
+  const validation = validateDecision(decision, ctx);
+  if (!validation.ok) {
+    logBrainTelemetry(validation.reason, {
+      transitionId: decision.transitionId,
+      actor: decision.actor,
+    });
+    return ctx.fallbackTurn;
+  }
+
+  return finalizeAcceptedDecision(decision, ctx);
 }
 
-function replyPassesGuardrails(turn: QuestTurn): boolean {
-  if (
-    requiresOlegNameInReply(turn.event.type) &&
-    !containsOlegReveal(turn.reply)
-  ) {
-    return false;
+function prepareBrainContext(req: QuestBrainRequest): BrainContext {
+  const state = normalizeQuestState(req.questState);
+  const language = req.replyLanguage ?? "uk";
+  const facts = analyzeQuestTranscript(req.transcript);
+  const allowedTransitions = getAllowedQuestTransitions(state, language);
+  const fallbackTurn = createQuestTurn(req.transcript, state, language);
+
+  return {
+    transcript: req.transcript,
+    state,
+    facts,
+    language,
+    allowedTransitions,
+    fallbackTurn,
+    getClaudeProvider: req.getClaudeProvider,
+  };
+}
+
+async function tryGetClaudeDecision(
+  ctx: BrainContext,
+): Promise<ClaudeQuestDecision | null> {
+  const claude = ctx.getClaudeProvider();
+  const generated = await generateWithTimeout(claude, {
+    prompt: buildQuestBrainPrompt({
+      transcript: ctx.transcript,
+      questState: ctx.state,
+      allowedTransitions: ctx.allowedTransitions,
+      replyLanguage: ctx.language,
+    }),
+    maxTokens: 220,
+    temperature: 0.68,
+  });
+
+  return parseClaudeQuestDecision(generated.text);
+}
+
+function validateDecision(
+  decision: ClaudeQuestDecision,
+  ctx: BrainContext,
+): ValidationResult {
+  const allowedTransition = ctx.allowedTransitions.find(
+    (t) => t.id === decision.transitionId,
+  );
+  const allowedActors = allowedTransition?.allowedActors ?? [
+    allowedTransition?.actor,
+  ];
+
+  if (!allowedTransition || !allowedActors.includes(decision.actor)) {
+    return { ok: false, reason: "transition.invalid" };
   }
 
-  if (
-    turn.event.type === "guard-hint-given" &&
-    !containsPixelNameReveal(turn.reply)
-  ) {
-    return false;
+  if (!isTransitionLegal(decision.transitionId, ctx.state, ctx.facts)) {
+    return { ok: false, reason: "transition.illegal" };
   }
 
-  if (isPrematureSofiaCatLanguageHint(turn)) {
-    return false;
+  return { ok: true, allowedTransition };
+}
+
+function finalizeAcceptedDecision(
+  decision: ClaudeQuestDecision,
+  ctx: BrainContext,
+): QuestTurn {
+  const turn = createQuestTurnFromTransition({
+    transcript: ctx.transcript,
+    questState: ctx.state,
+    transitionId: decision.transitionId,
+    actor: decision.actor,
+    reply: decision.reply,
+    replyLanguage: ctx.language,
+  });
+
+  if (turn.event.type === "door-opened") {
+    return { ...turn, reply: FINAL_DOOR_LINE };
   }
 
-  if (!isAllowedQuestBrainReply(turn)) {
-    return false;
+  if (replyPassesGuardrails(turn)) {
+    return turn;
   }
 
-  if (
-    turn.actor === "sofia" &&
-    !isAllowedSofiaReply(turn.reply, turn.event.type)
-  ) {
-    return false;
-  }
+  logBrainTelemetry("reply.guardrail_failed", {
+    transitionId: decision.transitionId,
+    actor: decision.actor,
+  });
 
-  return true;
+  const allowedTransition = ctx.allowedTransitions.find(
+    (t) => t.id === decision.transitionId,
+  )!;
+
+  const fallbackReply =
+    decision.transitionId === "chitchat-replied"
+      ? getChitchatFallbackReply(decision.actor, ctx.state, ctx.language)
+      : allowedTransition.fallbackReply;
+
+  return createQuestTurnFromTransition({
+    transcript: ctx.transcript,
+    questState: ctx.state,
+    transitionId: decision.transitionId,
+    actor: decision.actor,
+    reply: fallbackReply,
+    replyLanguage: ctx.language,
+  });
 }
 
 function generateWithTimeout(
@@ -218,182 +188,10 @@ function generateWithTimeout(
   );
 }
 
-function isValidQuestBrainDecision({
-  decision,
-  allowedTransition,
-  normalizedQuestState,
-  transcriptFacts,
-}: {
-  decision: ClaudeQuestDecision;
-  allowedTransition: AllowedQuestTransition;
-  normalizedQuestState: QuestState;
-  transcriptFacts: QuestTranscriptFacts;
-}): boolean {
-  const allowedActors = allowedTransition.allowedActors ?? [
-    allowedTransition.actor,
-  ];
-
-  if (!allowedActors.includes(decision.actor)) {
-    return false;
-  }
-
-  return isTransitionLegal(
-    decision.transitionId,
-    normalizedQuestState,
-    transcriptFacts,
-  );
+function logBrainTelemetry(name: string, fields: Record<string, unknown>): void {
+  console.info(`[quest-brain] ${name}`, fields);
 }
 
-function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
-  const parsed = JSON.parse(stripJsonEnvelope(text)) as unknown;
-
-  if (!isRecord(parsed)) {
-    throw new Error("Claude quest decision must be an object.");
-  }
-
-  const transitionId = parsed.transitionId;
-  const actor = parsed.actor;
-  const reply = parsed.reply;
-  const confidence = parsed.confidence;
-
-  if (
-    typeof transitionId !== "string" ||
-    !TRANSITION_IDS.includes(transitionId as QuestTransitionId)
-  ) {
-    throw new Error("Claude quest decision has invalid transitionId.");
-  }
-
-  if (typeof actor !== "string" || !ACTORS.includes(actor as QuestActor)) {
-    throw new Error("Claude quest decision has invalid actor.");
-  }
-
-  if (typeof reply !== "string") {
-    throw new Error("Claude quest decision has invalid reply.");
-  }
-
-  if (
-    confidence !== undefined &&
-    (typeof confidence !== "number" || confidence < 0 || confidence > 1)
-  ) {
-    throw new Error("Claude quest decision has invalid confidence.");
-  }
-
-  return {
-    transitionId: transitionId as QuestTransitionId,
-    actor: actor as QuestActor,
-    reply: normalizeGeneratedReply(reply),
-    confidence,
-  };
-}
-
-function stripJsonEnvelope(text: string): string {
-  const trimmed = text.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/u);
-
-  return (fenced?.[1] ?? trimmed).trim();
-}
-
-function normalizeGeneratedReply(text: string): string {
-  return text
-    .trim()
-    .replace(/^["'«“”]+|["'«“”]+$/gu, "")
-    .replace(/\s+/gu, " ")
-    .trim();
-}
-
-function requiresOlegNameInReply(eventType: QuestTransitionId): boolean {
-  return eventType === "oleg-name-learned";
-}
-
-function isAllowedQuestBrainReply(turn: QuestTurn): boolean {
-  const { actor, reply, nextQuestState: state } = turn;
-
-  if (!reply || reply.length > MAX_REPLY_LENGTH) {
-    return false;
-  }
-
-  if (!state.olegNameKnown && containsOlegReveal(reply)) {
-    return false;
-  }
-
-  if (!state.guardHintGiven && containsPixelKeypadClue(reply)) {
-    return false;
-  }
-
-  if (!state.guardHintGiven && containsPixelNameReveal(reply)) {
-    return false;
-  }
-
-  if (
-    actor !== "pixel" &&
-    !state.guardHintGiven &&
-    containsCatSoundOrLanguageHint(reply)
-  ) {
-    return false;
-  }
-
-  if (!state.codeRevealed && containsCodeReveal(reply)) {
-    return false;
-  }
-
-  if (!state.doorOpen && containsDoorOpenClaim(reply)) {
-    return false;
-  }
-
-  return true;
-}
-
-function isAllowedSofiaReply(
-  reply: string,
-  _eventType: QuestTransitionId,
-): boolean {
-  if (reply.length > MAX_SOFIA_REPLY_LENGTH || /[?？]/u.test(reply)) {
-    return false;
-  }
-
-  const text = normalizeForGuardrail(reply);
-  const hasEventRecapJoke =
-    /(івент|ивент|event).{0,80}(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy)/u.test(
-      text,
-    ) ||
-    /(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy).{0,80}(івент|ивент|event)/u.test(
-      text,
-    ) ||
-    text.includes("фінальний вайб");
-
-  if (hasEventRecapJoke) {
-    return false;
-  }
-
-  return ![
-    "як тобі",
-    "як вам",
-    "як ти",
-    "як ви",
-    "чи ти",
-    "чи ви",
-    "що ти хочеш",
-    "що ви хочете",
-    "what do you",
-    "what would you",
-    "how are you",
-    "how was",
-    "how do you",
-    "do you want",
-    "would you",
-    "did you",
-  ].some((phrase) => text.includes(phrase));
-}
-
-function isPrematureSofiaCatLanguageHint(turn: QuestTurn): boolean {
-  return (
-    turn.event.type === "sofia-hint-given" &&
-    turn.previousQuestState.guardHintGiven &&
-    !turn.previousQuestState.pixelRejectedOrdinaryCommand &&
-    containsCatSoundOrLanguageHint(turn.reply)
-  );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

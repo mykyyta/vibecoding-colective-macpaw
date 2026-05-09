@@ -1,3 +1,147 @@
+import type { QuestState } from "../../shared/voice.js";
+import type { QuestTransitionId } from "./transitions.js";
+
+// QuestTurn shape reproduced to avoid a circular import with index.ts.
+// TypeScript structural typing makes this compatible with the real QuestTurn.
+interface QuestTurnForGuardrail {
+  actor: string;
+  reply: string;
+  event: { type: QuestTransitionId };
+  previousQuestState: QuestState;
+  nextQuestState: QuestState;
+}
+
+const MAX_REPLY_LENGTH = 320;
+const MAX_SOFIA_REPLY_LENGTH = 220;
+
+export function requiresOlegNameInReply(eventType: QuestTransitionId): boolean {
+  return eventType === "oleg-name-learned";
+}
+
+export function isPrematureSofiaCatLanguageHint(
+  turn: QuestTurnForGuardrail,
+): boolean {
+  return (
+    turn.event.type === "sofia-hint-given" &&
+    turn.previousQuestState.guardHintGiven &&
+    !turn.previousQuestState.pixelRejectedOrdinaryCommand &&
+    containsCatSoundOrLanguageHint(turn.reply)
+  );
+}
+
+export function isAllowedQuestBrainReply(turn: QuestTurnForGuardrail): boolean {
+  const { actor, reply, nextQuestState: state } = turn;
+
+  if (!reply || reply.length > MAX_REPLY_LENGTH) {
+    return false;
+  }
+
+  if (!state.olegNameKnown && containsOlegReveal(reply)) {
+    return false;
+  }
+
+  if (!state.guardHintGiven && containsPixelKeypadClue(reply)) {
+    return false;
+  }
+
+  if (!state.guardHintGiven && containsPixelNameReveal(reply)) {
+    return false;
+  }
+
+  if (
+    actor !== "pixel" &&
+    !state.guardHintGiven &&
+    containsCatSoundOrLanguageHint(reply)
+  ) {
+    return false;
+  }
+
+  if (!state.codeRevealed && containsCodeReveal(reply)) {
+    return false;
+  }
+
+  if (!state.doorOpen && containsDoorOpenClaim(reply)) {
+    return false;
+  }
+
+  return true;
+}
+
+export function isAllowedSofiaReply(
+  reply: string,
+  _eventType: QuestTransitionId,
+): boolean {
+  if (reply.length > MAX_SOFIA_REPLY_LENGTH || /[?？]/u.test(reply)) {
+    return false;
+  }
+
+  const text = normalizeForGuardrail(reply);
+  const hasEventRecapJoke =
+    /(івент|ивент|event).{0,80}(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy)/u.test(
+      text,
+    ) ||
+    /(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy).{0,80}(івент|ивент|event)/u.test(
+      text,
+    ) ||
+    text.includes("фінальний вайб");
+
+  if (hasEventRecapJoke) {
+    return false;
+  }
+
+  return ![
+    "як тобі",
+    "як вам",
+    "як ти",
+    "як ви",
+    "чи ти",
+    "чи ви",
+    "що ти хочеш",
+    "що ви хочете",
+    "what do you",
+    "what would you",
+    "how are you",
+    "how was",
+    "how do you",
+    "do you want",
+    "would you",
+    "did you",
+  ].some((phrase) => text.includes(phrase));
+}
+
+export function replyPassesGuardrails(turn: QuestTurnForGuardrail): boolean {
+  if (
+    requiresOlegNameInReply(turn.event.type) &&
+    !containsOlegReveal(turn.reply)
+  ) {
+    return false;
+  }
+
+  if (
+    turn.event.type === "guard-hint-given" &&
+    !containsPixelNameReveal(turn.reply)
+  ) {
+    return false;
+  }
+
+  if (isPrematureSofiaCatLanguageHint(turn)) {
+    return false;
+  }
+
+  if (!isAllowedQuestBrainReply(turn)) {
+    return false;
+  }
+
+  if (
+    turn.actor === "sofia" &&
+    !isAllowedSofiaReply(turn.reply, turn.event.type)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function containsOlegReveal(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
