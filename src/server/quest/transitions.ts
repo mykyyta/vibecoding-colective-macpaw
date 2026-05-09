@@ -4,7 +4,8 @@ import type {
   QuestLanguage,
   QuestState,
 } from "../../shared/voice.js";
-import { getQuestReply, type QuestReplyId } from "./content.js";
+import type { QuestTranscriptFacts } from "./classifier.js";
+import { getQuestReply } from "./content.js";
 import { normalizeQuestState } from "./state.js";
 
 export type QuestTransitionId = QuestEventType;
@@ -15,24 +16,6 @@ export interface AllowedQuestTransition {
   allowedActors?: QuestActor[];
   description: string;
   fallbackReply: string;
-}
-
-export interface QuestTranscriptFacts {
-  text: string;
-  matched: string[];
-  hasOleg: boolean;
-  hasPixel: boolean;
-  hasCatAddress: boolean;
-  hasSofia: boolean;
-  hasFeminineAddress: boolean;
-  hasSofiaAddress: boolean;
-  hasDoor: boolean;
-  hasNameQuestion: boolean;
-  hasCode404: boolean;
-  hasCodeIntent: boolean;
-  hasVccIntent: boolean;
-  hasPurr: boolean;
-  hasSmalltalk: boolean;
 }
 
 interface TransitionRecord {
