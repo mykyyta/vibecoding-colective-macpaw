@@ -22,6 +22,7 @@ import {
 import { createProviderRegistry } from "./providers/registry.js";
 import { createQuestBrainTurn } from "./quest/brain.js";
 import { decideQuestLanguage, normalizeQuestState } from "./quest/index.js";
+import { getElevenLabsVoiceRole, getElevenLabsVoiceSettings } from "./quest/personas.js";
 import {
   createElevenLabsRealtimeSttSession,
   transcribeElevenLabsAudio,
@@ -227,8 +228,8 @@ app.post("/api/voice-turn", async (request, response) => {
     const tts = providerRegistry.getTextToSpeechProvider("elevenlabs");
     const audio = await tts.synthesizeSpeech({
       text: reply,
-      voiceId: tts.voiceIds[getElevenLabsVoiceRoleForActor(turn.actor)],
-      voiceSettings: getElevenLabsVoiceSettingsForActor(turn.actor),
+      voiceId: tts.voiceIds[getElevenLabsVoiceRole(turn.actor)],
+      voiceSettings: getElevenLabsVoiceSettings(turn.actor),
     });
 
     payload.audio = {
@@ -366,42 +367,3 @@ function getElevenLabsRealtimeSttConfigIfAvailable() {
   }
 }
 
-function getElevenLabsVoiceRoleForActor(
-  actor: QuestActor,
-): "guard" | "pixel" | "room" | "sofia" {
-  switch (actor) {
-    case "guard":
-      return "guard";
-    case "pixel":
-      return "pixel";
-    case "sofia":
-      return "sofia";
-    case "door":
-    case "system":
-      return "room";
-  }
-}
-
-function getElevenLabsVoiceSettingsForActor(
-  actor: QuestActor,
-):
-  | {
-      stability: number;
-      similarityBoost: number;
-      style: number;
-      speed: number;
-      useSpeakerBoost: boolean;
-    }
-  | undefined {
-  if (actor !== "pixel") {
-    return undefined;
-  }
-
-  return {
-    stability: 0.42,
-    similarityBoost: 0.78,
-    style: 0.28,
-    speed: 0.82,
-    useSpeakerBoost: true,
-  };
-}
