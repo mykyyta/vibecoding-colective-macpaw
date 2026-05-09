@@ -48,35 +48,12 @@ export function mapProviderLanguageCodeToQuestLanguage(
   return undefined;
 }
 
-export type QuestTriggerType =
-  | "generic-door-command"
-  | "ask-guard-name"
-  | "oleg-directed-door-command"
-  | "oleg-directed-code"
-  | "pixel-directed-command"
-  | "pixel-directed-purr"
-  | "pixel-chitchat"
-  | "purr-without-pixel"
-  | "sofia-hint-request"
-  | "sofia-chitchat"
-  | "chitchat"
-  | "unknown";
-
 export interface QuestState {
   olegNameKnown: boolean;
   guardHintGiven: boolean;
-  pixelAddressed: boolean;
   pixelRejectedOrdinaryCommand: boolean;
   codeRevealed: boolean;
   doorOpen: boolean;
-  escaped: boolean;
-}
-
-export interface QuestTrigger {
-  type: QuestTriggerType;
-  actor: QuestActor;
-  directAddress: boolean;
-  matched: string[];
 }
 
 export type QuestEventType =
@@ -107,7 +84,6 @@ export interface VoiceTurnResponse {
   reply: string;
   action: VoiceAction;
   actor: QuestActor;
-  trigger: QuestTrigger;
   event: QuestEvent;
   previousQuestState: QuestState;
   nextQuestState: QuestState;

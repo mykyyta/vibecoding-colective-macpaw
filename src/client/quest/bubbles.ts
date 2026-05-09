@@ -76,7 +76,7 @@ export function getAmbientHint(
     return copy.ambientDoorOpening;
   }
 
-  if (questState.escaped || questState.doorOpen) {
+  if (questState.doorOpen) {
     return copy.ambientEscaped;
   }
 
@@ -84,7 +84,7 @@ export function getAmbientHint(
     return copy.ambientCodeRevealed;
   }
 
-  if (questState.pixelAddressed) {
+  if (questState.pixelRejectedOrdinaryCommand || questState.codeRevealed) {
     return copy.ambientPixelAddressed;
   }
 

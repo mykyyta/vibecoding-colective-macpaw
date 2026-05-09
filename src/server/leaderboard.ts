@@ -267,7 +267,7 @@ export async function handleCreateLeaderboardEntry(input: {
 }
 
 export function isQuestCompleted(questState: QuestState): boolean {
-  return questState.escaped || questState.doorOpen;
+  return questState.doorOpen;
 }
 
 export function createMemoryLeaderboardStore(): LeaderboardStore {

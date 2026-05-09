@@ -4,11 +4,9 @@ import type { RoomState } from "../types/scene";
 export const initialQuestState: QuestState = {
   olegNameKnown: false,
   guardHintGiven: false,
-  pixelAddressed: false,
   pixelRejectedOrdinaryCommand: false,
   codeRevealed: false,
   doorOpen: false,
-  escaped: false,
 };
 
 export function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState {
@@ -29,7 +27,7 @@ export function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState
 }
 
 export function mapQuestStateToRoomState(questState: QuestState): RoomState {
-  if (questState.escaped || questState.doorOpen) {
+  if (questState.doorOpen) {
     return "escaped";
   }
 
