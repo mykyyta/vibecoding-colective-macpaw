@@ -1,3 +1,5 @@
+import { PERSONAS } from "./personas.js";
+
 export interface QuestTranscriptFacts {
   text: string;
   matched: string[];
@@ -19,103 +21,11 @@ export interface QuestTranscriptFacts {
 export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts {
   const text = normalizeTranscript(transcript);
   const matched: string[] = [];
-  const hasOleg = includesAny(
-    text,
-    ["олег", "олєг", "оліг", "олек", "олеж", "олежа", "oleg", "oleh", "olek"],
-    matched,
-  );
-  const hasPixel = includesAny(
-    text,
-    [
-      "pixel",
-      "pixels",
-      "піксель",
-      "пиксель",
-      "піксел",
-      "пиксел",
-      "піксіл",
-      "пиксил",
-      "піксі",
-      "пикси",
-      "пікс",
-      "пикс",
-      "pix",
-      "kitty",
-      "kitten",
-      "the cat",
-      "fluffy",
-      "furball",
-    ],
-    matched,
-  );
-  const hasCatAddress = includesAny(
-    text,
-    [
-      "кіт",
-      "котик",
-      "котику",
-      "кот",
-      "киця",
-      "кицю",
-      "кіцю",
-      "пухнастий",
-      "пухнаст",
-      "хвостатий",
-      "хвостат",
-      "муркотун",
-      "мурчику",
-      "cat",
-      "kitty",
-      "kitten",
-      "the cat",
-      "fluffy",
-      "furball",
-    ],
-    matched,
-  );
-  const hasSofia = includesAny(
-    text,
-    [
-      "софія",
-      "софия",
-      "софіє",
-      "софие",
-      "софі",
-      "софи",
-      "sofia",
-      "sofiia",
-      "sophia",
-    ],
-    matched,
-  );
-  const hasFeminineAddress = includesAny(
-    text,
-    [
-      "дівчино",
-      "дівчина",
-      "девушка",
-      "пані",
-      "леді",
-      "мисс",
-      "жінко",
-      "женщина",
-      "організаторка",
-      "організаторко",
-      "організатор",
-      "организатор",
-      "дизайнерко",
-      "product designer",
-      "designer",
-      "organizer",
-      "girl",
-      "lady",
-      "woman",
-      "ma'am",
-      "maam",
-      "madam",
-    ],
-    matched,
-  );
+  const hasOleg = includesAny(text, PERSONAS.guard.transcriptAliases.direct ?? [], matched);
+  const hasPixel = includesAny(text, PERSONAS.pixel.transcriptAliases.direct ?? [], matched);
+  const hasCatAddress = includesAny(text, PERSONAS.pixel.transcriptAliases.indirect ?? [], matched);
+  const hasSofia = includesAny(text, PERSONAS.sofia.transcriptAliases.direct ?? [], matched);
+  const hasFeminineAddress = includesAny(text, PERSONAS.sofia.transcriptAliases.feminine ?? [], matched);
   const hasSofiaAddress = hasSofia || hasFeminineAddress;
   const hasDoor = includesAny(
     text,

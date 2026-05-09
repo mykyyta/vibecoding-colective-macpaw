@@ -12,9 +12,16 @@ interface ElevenLabsVoiceSettings {
   useSpeakerBoost: boolean;
 }
 
+interface PersonaTranscriptAliases {
+  direct?: string[];
+  indirect?: string[];
+  feminine?: string[];
+}
+
 interface Persona {
   id: QuestActor;
   promptLines: (eventPhrase: string) => string[];
+  transcriptAliases: PersonaTranscriptAliases;
   voice: {
     elevenLabsRole: ElevenLabsVoiceRole;
     settings?: ElevenLabsVoiceSettings;
@@ -32,6 +39,9 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       "  Voice:  short, deadpan, tired-of-AI-talks irony. MacPaw-style dry timing.",
       "  Note:   his internal name is Oleg. The name itself is the first puzzle key.",
     ],
+    transcriptAliases: {
+      direct: ["олег", "олєг", "оліг", "олек", "олеж", "олежа", "oleg", "oleh", "olek"],
+    },
     voice: {
       elevenLabsRole: "guard",
     },
@@ -49,6 +59,49 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       "  Aliases the player may use: cat, kitty, kitten, fluffy, furball,",
       "          кіт, котик, кіцю, пухнастий, хвостатий, муркотун.",
     ],
+    transcriptAliases: {
+      direct: [
+        "pixel",
+        "pixels",
+        "піксель",
+        "пиксель",
+        "піксел",
+        "пиксел",
+        "піксіл",
+        "пиксил",
+        "піксі",
+        "пикси",
+        "пікс",
+        "пикс",
+        "pix",
+        "kitty",
+        "kitten",
+        "the cat",
+        "fluffy",
+        "furball",
+      ],
+      indirect: [
+        "кіт",
+        "котик",
+        "котику",
+        "кот",
+        "киця",
+        "кицю",
+        "кіцю",
+        "пухнастий",
+        "пухнаст",
+        "хвостатий",
+        "хвостат",
+        "муркотун",
+        "мурчику",
+        "cat",
+        "kitty",
+        "kitten",
+        "the cat",
+        "fluffy",
+        "furball",
+      ],
+    },
     voice: {
       elevenLabsRole: "pixel",
       settings: {
@@ -76,6 +129,33 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       `          it. Never jokes about the event being "stuck in the door" or`,
       `          "final vibe". The player cannot sustain a dialogue loop with her.`,
     ],
+    transcriptAliases: {
+      direct: ["софія", "софия", "софіє", "софие", "софі", "софи", "sofia", "sofiia", "sophia"],
+      feminine: [
+        "дівчино",
+        "дівчина",
+        "девушка",
+        "пані",
+        "леді",
+        "мисс",
+        "жінко",
+        "женщина",
+        "організаторка",
+        "організаторко",
+        "організатор",
+        "организатор",
+        "дизайнерко",
+        "product designer",
+        "designer",
+        "organizer",
+        "girl",
+        "lady",
+        "woman",
+        "ma'am",
+        "maam",
+        "madam",
+      ],
+    },
     voice: {
       elevenLabsRole: "sofia",
     },
@@ -88,6 +168,7 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       "  Final escape line — exact, fixed, identical in both languages, never vary:",
       `          "${FINAL_DOOR_LINE}"`,
     ],
+    transcriptAliases: {},
     voice: {
       elevenLabsRole: "room",
     },
@@ -95,6 +176,7 @@ export const PERSONAS: Record<QuestActor, Persona> = {
   system: {
     id: "system",
     promptLines: () => [],
+    transcriptAliases: {},
     voice: {
       elevenLabsRole: "room",
     },

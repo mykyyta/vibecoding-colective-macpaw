@@ -456,4 +456,57 @@ const englishUnaddressedHelp = await runTurn({
 });
 assert.equal(englishUnaddressedHelp.event.type, "chitchat-replied");
 
+// Alias detection: pixel + purr via cat alias
+const pixelMurAlias = await runTurn({
+  transcript: "Pixel мур",
+  questState: {
+    olegNameKnown: true,
+    guardHintGiven: true,
+  },
+  decision: {
+    transitionId: "code-revealed",
+    actor: "pixel",
+    reply: "Мрр-р. Код 404 на моєму бейджику; нарешті не prompt engineering, а нормальне муркотіння.",
+  },
+});
+assert.equal(pixelMurAlias.event.type, "code-revealed");
+assert.equal(pixelMurAlias.actor, "pixel");
+
+// Alias detection: sofia direct address
+const sofiaDirect = await runTurn({
+  transcript: "Sofiia, any ideas?",
+  decision: {
+    transitionId: "sofia-hint-given",
+    actor: "sofia",
+    reply: "Start with the person by the door.",
+  },
+});
+assert.equal(sofiaDirect.event.type, "sofia-hint-given");
+assert.equal(sofiaDirect.actor, "sofia");
+
+// Alias detection: oleg ukrainian alias
+const olegAlias = await runTurn({
+  transcript: "Олег, відкрий двері",
+  questState: { olegNameKnown: true },
+  decision: {
+    transitionId: "guard-hint-given",
+    actor: "guard",
+    reply: "Олег на місці. Вихід замкнений після вайбкодінг івенту; Pixel крутився біля панелі.",
+  },
+});
+assert.equal(olegAlias.event.type, "guard-hint-given");
+assert.equal(olegAlias.actor, "guard");
+
+// Alias detection: cat word indirect (кіт) routes to pixel chitchat
+const catWordAlias = await runTurn({
+  transcript: "котику, привіт",
+  decision: {
+    transitionId: "chitchat-replied",
+    actor: "pixel",
+    reply: "Мр. Я не техпідтримка, я атмосфера з хвостом.",
+  },
+});
+assert.equal(catWordAlias.event.type, "chitchat-replied");
+assert.equal(catWordAlias.actor, "pixel");
+
 console.log("Quest brain routing smoke passed.");
