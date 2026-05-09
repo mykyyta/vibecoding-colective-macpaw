@@ -11,3 +11,10 @@ export {
   getSceneBlock,
   getPersonasBlock,
 } from "./prompt.js";
+
+export {
+  analyzeQuestTranscript,
+  normalizeTranscript,
+  findPurrMatches,
+  type QuestTranscriptFacts,
+} from "./classifier.js";

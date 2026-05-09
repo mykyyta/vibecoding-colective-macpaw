@@ -8,7 +8,7 @@ import type {
 import {
   analyzeQuestTranscript,
   type QuestTranscriptFacts,
-} from "./classifier.js";
+} from "./engine/classifier.js";
 import { createHeuristicFallbackTurn } from "./fallback.js";
 import { decideQuestLanguage, type QuestLanguageDecisionRequest } from "./language.js";
 import { initialQuestState, normalizeQuestState } from "./state.js";

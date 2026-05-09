@@ -3,7 +3,7 @@ import type {
   QuestLanguageDecision,
   QuestLanguageInput,
 } from "../../shared/voice.js";
-import { findPurrMatches, normalizeTranscript } from "./classifier.js";
+import { findPurrMatches, normalizeTranscript } from "./engine/classifier.js";
 
 export interface QuestLanguageDecisionRequest {
   transcript: string;

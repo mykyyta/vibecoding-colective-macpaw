@@ -17,3 +17,11 @@ export { getStoryHeader, getSceneDescription } from "./story.js";
 export { getHardRulesBlock } from "./rules.js";
 export { getStyleBlock } from "./style.js";
 export { getRoutingContractBlock } from "./routing.js";
+export {
+  DOOR_ALIASES,
+  NAME_QUESTION_ALIASES,
+  CODE_ALIASES,
+  CODE_INTENT_ALIASES,
+  VCC_ALIASES,
+  SMALLTALK_ALIASES,
+} from "./aliases.js";

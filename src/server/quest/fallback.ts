@@ -5,7 +5,7 @@ import type {
   VoiceAction,
   QuestEvent,
 } from "../../shared/voice.js";
-import { analyzeQuestTranscript } from "./classifier.js";
+import { analyzeQuestTranscript } from "./engine/classifier.js";
 import { normalizeQuestState } from "./state.js";
 import type { QuestTransitionId } from "./transitions.js";
 import {

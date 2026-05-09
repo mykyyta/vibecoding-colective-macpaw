@@ -4,7 +4,7 @@ import type {
   QuestLanguage,
   QuestState,
 } from "../../shared/voice.js";
-import type { QuestTranscriptFacts } from "./classifier.js";
+import type { QuestTranscriptFacts } from "./engine/classifier.js";
 import { PERSONAS } from "./scenario/actors.js";
 import { getQuestReply } from "./scenario/lines.js";
 import { normalizeQuestState } from "./state.js";
