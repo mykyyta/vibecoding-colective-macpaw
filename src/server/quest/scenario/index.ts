@@ -12,3 +12,8 @@ export {
   type PersonaTranscriptAliases,
   type ChitchatFallbackPicker,
 } from "./actors.js";
+
+export { getStoryHeader, getSceneDescription } from "./story.js";
+export { getHardRulesBlock } from "./rules.js";
+export { getStyleBlock } from "./style.js";
+export { getRoutingContractBlock } from "./routing.js";

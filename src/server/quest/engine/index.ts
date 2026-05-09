@@ -4,3 +4,10 @@ export {
   type ElevenLabsVoiceRole,
   type ElevenLabsVoiceSettings,
 } from "./voice-adapter.js";
+
+export {
+  buildQuestBrainPrompt,
+  getOutputFormatBlock,
+  getSceneBlock,
+  getPersonasBlock,
+} from "./prompt.js";
