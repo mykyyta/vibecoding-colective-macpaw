@@ -31,7 +31,7 @@ social logic:
 | Scenario Finalization | Strategist | Completed | Product Apex now reflects **Badge Not Found**, code `404`, Dan's final line, character rules, and examples for Hoover/Fixel interactions. |
 | Quest Contract And Backend Routing | Codex | Completed | Shared quest contract, backend state machine, Claude routing/guardrails, fallback replies, and quest tests now use Sofiia, Dan, Hoover, and Fixel. |
 | Frontend Scenario State Update | Codex | Completed | Client scene, copy, bubble actors, and badge reveal states now use Dan, Sofiia, Hoover, and Fixel. |
-| Voice And Nonverbal Audio Contract | Codex | In Progress | Fixel now uses a local Sound Effects asset contract instead of TTS; provider voice roles now use Dan/Hoover names; actual ElevenLabs SFX file generation is pending an explicit paid-generation run. |
+| Voice And Nonverbal Audio Contract | Codex | In Progress | Fixel now uses a local Sound Effects asset contract instead of TTS; provider voice roles now use Dan/Hoover/Sofiia names and no room voice; actual ElevenLabs SFX file generation is pending an explicit paid-generation run. |
 
 ## Current Decisions
 
@@ -83,7 +83,11 @@ assets after explicit approval for the paid ElevenLabs generation run.
 
 Packet 4 implementation checkpoint:
 
-- Server voice provider roles now use `dan`, `hoover`, `sofia`, and `room`.
+- Server voice provider roles now use `dan`, `hoover`, and `sofia`; there is no
+  room or door TTS voice role.
+- `system` technical fallback uses Sofiia's voice role if it ever reaches TTS,
+  matching Sofiia's default-responder role instead of reintroducing a room
+  voice.
 - Fixel is explicitly excluded from spoken ElevenLabs TTS routing.
 - Fixel turns return static `soundEffect` metadata when a mapped asset exists.
 - Client speech diagnostics now use generic nonverbal-marker naming instead of

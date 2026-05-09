@@ -33,7 +33,6 @@ export interface ElevenLabsProviderConfig {
   voiceIds: {
     dan: string;
     hoover: string;
-    room: string;
     sofia: string;
   };
 }
@@ -47,7 +46,6 @@ const DEFAULT_ELEVENLABS_STT_MODEL = "scribe_v2_realtime";
 const ELEVENLABS_VOICE_IDS = {
   dan: "CwhRBWXzGAHq8TQ4Fs17",
   hoover: "bIHbv24MWmeRgasZH58o",
-  room: "hpp4J3VqNfWAUOO0d1Us",
   sofia: "bg0e02brzo3RVUEbuZeo",
 } as const;
 

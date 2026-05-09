@@ -1,6 +1,6 @@
 import type { QuestActor } from "../../../shared/voice.js";
 
-export type ElevenLabsVoiceRole = "dan" | "hoover" | "room" | "sofia";
+export type ElevenLabsVoiceRole = "dan" | "hoover" | "sofia";
 export type ElevenLabsSpeechActor = Exclude<QuestActor, "fixel">;
 
 export interface ElevenLabsVoiceSettings {
@@ -15,7 +15,7 @@ const VOICE_ROLE_BY_ACTOR: Record<ElevenLabsSpeechActor, ElevenLabsVoiceRole> = 
   sofia: "sofia",
   dan: "dan",
   hoover: "hoover",
-  system: "room",
+  system: "sofia",
 };
 
 const VOICE_SETTINGS_BY_ACTOR: Partial<

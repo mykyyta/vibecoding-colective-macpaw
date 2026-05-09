@@ -1,6 +1,6 @@
 ---
 state: active
-last_updated: 2026-05-07
+last_updated: 2026-05-09
 owner: Planner
 ---
 
@@ -13,6 +13,12 @@ Add Sofiia as a supporting character in **Exit MacPaw Space**.
 Sofiia is the co-founder of the Vibecoding Collective initiative and the organizer
 of the event. She should create event vibe and help the player when asked, but
 she must not become a required puzzle participant.
+
+Scenario reconciliation, 2026-05-09: this brief is superseded in part by
+`docs/work/initiatives/organizers-cat-badge-scenario/brief.md`. The hint
+contract is preserved, but the default-routing assumption is inverted: Sofiia is
+now the default responder for unaddressed turns, while direct hint/help behavior
+still must not reveal gated facts early or progress puzzle state.
 
 ## Outcome Shape
 

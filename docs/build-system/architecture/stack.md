@@ -71,9 +71,9 @@ npm start
 - `GEMINI_API_KEY` and `GEMINI_MODEL` configure server-side Gemini text generation and image-generation readiness.
 - `ELEVENLABS_API_KEY`, `ELEVENLABS_TTS_MODEL`, and `ELEVENLABS_SFX_MODEL`
   configure server-side or script-driven ElevenLabs direct API calls.
-- ElevenLabs voice IDs for Dan, Hoover, Sofiia, and fallback narration are code
-  constants in `src/server/providers/config.ts`, not deployment environment
-  variables.
+- ElevenLabs voice IDs for Dan, Hoover, and Sofiia are code constants in
+  `src/server/providers/config.ts`, not deployment environment variables. There
+  is no room or door TTS voice in the current scenario.
 - Fixel is a nonverbal actor. His purr/grumble audio should be generated as
   static ElevenLabs Sound Effects assets under `public/audio/` with
   `npm run elevenlabs:sfx:fixel -- --yes`, then played as local assets at

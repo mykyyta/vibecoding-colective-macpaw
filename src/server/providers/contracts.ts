@@ -65,7 +65,6 @@ export interface TextToSpeechProvider {
   voiceIds: {
     dan: string;
     hoover: string;
-    room: string;
     sofia: string;
   };
   synthesizeSpeech(
