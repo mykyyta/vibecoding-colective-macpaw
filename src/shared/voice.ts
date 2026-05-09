@@ -7,6 +7,7 @@ export type VoiceAction =
   | { type: "none" };
 
 export type QuestActor = "system" | "sofia" | "dan" | "hoover" | "fixel";
+export type QuestNameTagActor = Exclude<QuestActor, "system">;
 
 export type QuestLanguage = "uk" | "en";
 
@@ -82,6 +83,7 @@ export interface VoiceTurnResponse {
   transcript: string;
   languageDecision: QuestLanguageDecision;
   reply: string;
+  nameTagActors: QuestNameTagActor[];
   action: VoiceAction;
   actor: QuestActor;
   event: QuestEvent;

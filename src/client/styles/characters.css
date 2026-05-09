@@ -1,4 +1,52 @@
 
+.character-name-tag {
+  position: absolute;
+  left: 50%;
+  top: -1.75rem;
+  z-index: 9;
+  display: inline-grid;
+  place-items: center;
+  min-width: 3.1rem;
+  max-width: 5.8rem;
+  min-height: 1.28rem;
+  padding: 0.12rem 0.46rem;
+  border: 1px solid color-mix(in oklch, var(--ink), transparent 72%);
+  border-radius: 5px;
+  background: color-mix(in oklch, var(--plaster-lit), transparent 5%);
+  box-shadow: 0 8px 18px color-mix(in oklch, var(--ink), transparent 82%);
+  color: var(--ink);
+  font-size: 0.66rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  overflow: hidden;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.character-name-tag::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid color-mix(in oklch, var(--ink), transparent 72%);
+  border-bottom: 1px solid color-mix(in oklch, var(--ink), transparent 72%);
+  background: color-mix(in oklch, var(--plaster-lit), transparent 5%);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.hoover-cat .character-name-tag {
+  top: -1.35rem;
+}
+
+.screen-rim-cat .character-name-tag {
+  top: -1.45rem;
+}
+
 .dan-figure {
   position: absolute;
   right: 28%;

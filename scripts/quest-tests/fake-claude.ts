@@ -1,4 +1,4 @@
-import type { QuestActor } from "../../src/shared/voice.js";
+import type { QuestActor, QuestNameTagActor } from "../../src/shared/voice.js";
 import type {
   TextGenerationProvider,
   TextGenerationResponse,
@@ -9,6 +9,7 @@ export interface FakeDecision {
   transitionId: QuestTransitionId;
   actor: QuestActor;
   reply: string;
+  nameTagActors?: QuestNameTagActor[];
   confidence?: number;
 }
 
@@ -27,5 +28,8 @@ export function fakeClaudeFromText(text: string): TextGenerationProvider {
 }
 
 export function fakeClaudeDecision(decision: FakeDecision): TextGenerationProvider {
-  return fakeClaudeFromText(JSON.stringify(decision));
+  return fakeClaudeFromText(JSON.stringify({
+    nameTagActors: [],
+    ...decision,
+  }));
 }

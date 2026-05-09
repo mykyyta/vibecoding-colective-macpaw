@@ -1,3 +1,5 @@
+import type { QuestNameTagActor } from "../../shared/voice";
+
 export type RoomState =
   | "idle"
   | "listening"
@@ -8,6 +10,7 @@ export type RoomState =
   | "escaped";
 
 export type BubbleActor = "dan" | "hoover" | "fixel" | "room" | "sofia";
+export type CharacterNameTagState = Record<QuestNameTagActor, boolean>;
 
 export interface SceneBubbleContent {
   actor: BubbleActor;

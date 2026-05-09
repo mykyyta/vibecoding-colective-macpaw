@@ -1,4 +1,8 @@
-import type { QuestLanguage, QuestState } from "../../../shared/voice.js";
+import type {
+  QuestLanguage,
+  QuestNameTagActor,
+  QuestState,
+} from "../../../shared/voice.js";
 import type { TextGenerationProvider } from "../../providers/contracts.js";
 import { getFinalDoorLine, getQuestReply } from "../scenario/lines.js";
 import { buildQuestBrainPrompt } from "./prompt.js";
@@ -133,6 +137,7 @@ function finalizeAcceptedDecision(
     transitionId: decision.transitionId,
     actor: decision.actor,
     reply: decision.reply,
+    nameTagActors: filterNameTagActors(decision.nameTagActors, ctx.state, decision.transitionId),
     replyLanguage: ctx.language,
   });
 
@@ -171,7 +176,33 @@ function finalizeAcceptedDecision(
     transitionId: decision.transitionId,
     actor: decision.actor,
     reply: fallbackReply,
+    nameTagActors: filterNameTagActors(decision.nameTagActors, ctx.state, decision.transitionId),
     replyLanguage: ctx.language,
+  });
+}
+
+function filterNameTagActors(
+  actors: QuestNameTagActor[],
+  state: QuestState,
+  transitionId: QuestTurn["event"]["type"],
+): QuestNameTagActor[] {
+  const nextState =
+    transitionId === "dan-door-checked"
+      ? { ...state, danDoorChecked: true }
+      : transitionId === "hoover-clue-given"
+        ? { ...state, hooverClueGiven: true }
+        : state;
+
+  return actors.filter((actor) => {
+    if (actor === "hoover") {
+      return nextState.danDoorChecked;
+    }
+
+    if (actor === "fixel") {
+      return nextState.hooverClueGiven;
+    }
+
+    return true;
   });
 }
 

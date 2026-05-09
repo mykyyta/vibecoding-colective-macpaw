@@ -170,6 +170,14 @@
     left: 34%;
     bottom: 48%;
   }
+
+  .character-name-tag {
+    min-width: 2.75rem;
+    max-width: 5rem;
+    min-height: 1.14rem;
+    padding: 0.1rem 0.36rem;
+    font-size: 0.58rem;
+  }
 }
 
 @media (max-width: 620px) {
@@ -263,6 +271,11 @@
 
   .hoover-cat--helpful {
     transform: var(--hoover-cat-scale) translateY(-4px);
+  }
+
+  .character-name-tag {
+    max-width: 4.5rem;
+    font-size: 0.54rem;
   }
 
   .speech-bubble {

@@ -63,6 +63,11 @@ stepped seating on the right, vertical wood columns, ceiling fixtures, and
 precise warm LED lines. UI chrome must stay minimal enough that the room remains
 the product.
 
+Character name labels may appear as small in-scene tags after the LLM decides a
+character's proper name was spoken in the player transcript or in the character
+reply. These labels are visual memory only: they do not progress quest state and
+must respect the same reveal gates as the dialogue path.
+
 ## Core Scenario
 
 The room shows a locked exit, Sofiia, Dan, Hoover near the door, and Fixel

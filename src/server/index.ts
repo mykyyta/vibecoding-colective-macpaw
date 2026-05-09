@@ -219,6 +219,7 @@ app.post("/api/voice-turn", async (request, response) => {
     transcript: parsed.transcript,
     languageDecision,
     reply,
+    nameTagActors: turn.nameTagActors,
     action: turn.action,
     actor: turn.actor,
     event: turn.event,

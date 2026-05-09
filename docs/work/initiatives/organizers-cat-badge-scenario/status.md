@@ -103,6 +103,17 @@ Packet 4 implementation checkpoint:
   - `npm run typecheck`;
   - `git diff --check`.
 
+Name tag visual memory checkpoint:
+
+- Claude quest brain output now includes `nameTagActors`, the LLM-decided list
+  of character names explicitly spoken in the player transcript or accepted
+  reply.
+- The client renders small persistent in-scene name tags for those actors after
+  the server returns them.
+- The tags are visual memory only and do not alter quest state.
+- Hoover and Fixel tags are still backend-gated so early LLM leaks do not reveal
+  those names before the accepted scenario stage.
+
 Packet 3 completion notes:
 
 - `Character` actor props now use `dan | sofia | hoover | fixel`.

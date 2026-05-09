@@ -1,6 +1,7 @@
 import type {
   QuestActor,
   QuestLanguage,
+  QuestNameTagActor,
   QuestState,
   VoiceAction,
   QuestEvent,
@@ -23,6 +24,7 @@ interface QuestTurnShape {
   event: QuestEvent;
   replyLanguage: QuestLanguage;
   reply: string;
+  nameTagActors: QuestNameTagActor[];
   previousQuestState: QuestState;
   nextQuestState: QuestState;
 }
@@ -48,6 +50,7 @@ function buildTurn(
     event: { type: transitionId, progressed },
     replyLanguage,
     reply,
+    nameTagActors: [],
     previousQuestState,
     nextQuestState,
   };

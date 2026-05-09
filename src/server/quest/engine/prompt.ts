@@ -112,10 +112,15 @@ export function getOutputFormatBlock(replyLanguageLabel: string): string {
     `  "transitionId": "<one id from allowedTransitions below>",`,
     `  "actor":        "<one allowed actor for that transition>",`,
     `  "reply":        "<${replyLanguageLabel} player-facing reply>",`,
+    `  "nameTagActors": ["<character ids whose proper names are spoken in the player transcript or reply>"],`,
     `  "confidence":   0.0`,
     "}",
     `The reply is 1-2 short sentences spoken by the chosen actor, in natural ${replyLanguageLabel}.`,
     "Keep proper names verbatim. Do not switch language except for the fixed final door line.",
+    "nameTagActors is a visual label decision. Include only these ids: sofia, dan, hoover, fixel.",
+    "Include an id only when that character's proper name is explicitly spoken in the player transcript or in your reply. Do not include a character just because they are visible, targeted, or speaking.",
+    "Recognize Ukrainian and English name variants: Софія/Sofiia, Ден/Dan, Хувер/Hoover, Фіксель/Fixel.",
+    "Respect reveal gates: do not include hoover before Dan has checked the door; do not include fixel before Hoover has revealed the clue.",
   ].join("\n");
 }
 

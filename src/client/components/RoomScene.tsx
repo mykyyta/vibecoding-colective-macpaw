@@ -1,7 +1,11 @@
 import type { QuestLanguage, QuestState } from "../../shared/voice";
 import { EVENT_BANNER_URL } from "../config/assets";
 import { VOICE_COPY } from "../copy/voice-copy";
-import type { RoomState, SceneBubbleContent } from "../types/scene";
+import type {
+  CharacterNameTagState,
+  RoomState,
+  SceneBubbleContent,
+} from "../types/scene";
 import Character from "./Character";
 import FinalFireworks from "./FinalFireworks";
 import LeaderboardScreen from "./LeaderboardScreen";
@@ -13,12 +17,14 @@ export default function RoomScene({
   leaderboard,
   questState,
   roomState,
+  visibleNameTags,
   voiceLanguage,
 }: {
   bubble: SceneBubbleContent | null;
   leaderboard: LeaderboardScreenProps;
   questState: QuestState;
   roomState: RoomState;
+  visibleNameTags: CharacterNameTagState;
   voiceLanguage: QuestLanguage;
 }) {
   const doorOpen = roomState === "doorOpening" || roomState === "escaped";
@@ -77,6 +83,7 @@ export default function RoomScene({
         </div>
         <Character
           actor="fixel"
+          nameTagVisible={visibleNameTags.fixel}
           roomState={roomState}
           voiceLanguage={voiceLanguage}
           badgeEdgeVisible={badgeEdgeVisible}
@@ -123,11 +130,22 @@ export default function RoomScene({
         </div>
       </div>
 
-      <Character actor="sofia" roomState={roomState} voiceLanguage={voiceLanguage} />
-      <Character actor="dan" roomState={roomState} voiceLanguage={voiceLanguage} />
+      <Character
+        actor="sofia"
+        nameTagVisible={visibleNameTags.sofia}
+        roomState={roomState}
+        voiceLanguage={voiceLanguage}
+      />
+      <Character
+        actor="dan"
+        nameTagVisible={visibleNameTags.dan}
+        roomState={roomState}
+        voiceLanguage={voiceLanguage}
+      />
       <Character
         actor="hoover"
         mood={hooverMood}
+        nameTagVisible={visibleNameTags.hoover}
         roomState={roomState}
         voiceLanguage={voiceLanguage}
       />

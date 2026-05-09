@@ -1,10 +1,11 @@
-import type { QuestActor } from "../../../shared/voice.js";
+import type { QuestActor, QuestNameTagActor } from "../../../shared/voice.js";
 import type { QuestTransitionId } from "./transitions.js";
 
 export interface ClaudeQuestDecision {
   transitionId: QuestTransitionId;
   actor: QuestActor;
   reply: string;
+  nameTagActors: QuestNameTagActor[];
   confidence?: number;
 }
 
@@ -20,6 +21,7 @@ const TRANSITION_IDS: QuestTransitionId[] = [
 ];
 
 const ACTORS: QuestActor[] = ["system", "sofia", "dan", "hoover", "fixel"];
+const NAME_TAG_ACTORS: QuestNameTagActor[] = ["sofia", "dan", "hoover", "fixel"];
 
 export function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
   const parsed = JSON.parse(stripJsonEnvelope(text)) as unknown;
@@ -31,6 +33,7 @@ export function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
   const transitionId = parsed.transitionId;
   const actor = parsed.actor;
   const reply = parsed.reply;
+  const nameTagActors = parsed.nameTagActors;
   const confidence = parsed.confidence;
 
   if (
@@ -49,6 +52,15 @@ export function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
   }
 
   if (
+    !Array.isArray(nameTagActors) ||
+    !nameTagActors.every((value): value is QuestNameTagActor =>
+      typeof value === "string" && NAME_TAG_ACTORS.includes(value as QuestNameTagActor),
+    )
+  ) {
+    throw new Error("Claude quest decision has invalid nameTagActors.");
+  }
+
+  if (
     confidence !== undefined &&
     (typeof confidence !== "number" || confidence < 0 || confidence > 1)
   ) {
@@ -59,6 +71,7 @@ export function parseClaudeQuestDecision(text: string): ClaudeQuestDecision {
     transitionId: transitionId as QuestTransitionId,
     actor: actor as QuestActor,
     reply: normalizeGeneratedReply(reply),
+    nameTagActors: dedupeNameTagActors(nameTagActors),
     confidence,
   };
 }
@@ -76,6 +89,10 @@ function normalizeGeneratedReply(text: string): string {
     .replace(/^["'«""]+|["'«""]+$/gu, "")
     .replace(/\s+/gu, " ")
     .trim();
+}
+
+function dedupeNameTagActors(actors: QuestNameTagActor[]): QuestNameTagActor[] {
+  return NAME_TAG_ACTORS.filter((actor) => actors.includes(actor));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

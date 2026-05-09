@@ -2,6 +2,7 @@ import type {
   QuestActor,
   QuestEvent,
   QuestLanguage,
+  QuestNameTagActor,
   QuestState,
   VoiceAction,
 } from "../../shared/voice.js";
@@ -46,6 +47,7 @@ export interface QuestTurn {
   event: QuestEvent;
   replyLanguage: QuestLanguage;
   reply: string;
+  nameTagActors: QuestNameTagActor[];
   previousQuestState: QuestState;
   nextQuestState: QuestState;
 }
@@ -56,6 +58,7 @@ export interface QuestTransitionTurnInput {
   transitionId: QuestTransitionId;
   actor: QuestActor;
   reply: string;
+  nameTagActors?: QuestNameTagActor[];
   replyLanguage?: QuestLanguage;
 }
 
@@ -75,6 +78,7 @@ export function createQuestTurnFromTransition({
   transitionId,
   actor,
   reply,
+  nameTagActors = [],
   replyLanguage = DEFAULT_REPLY_LANGUAGE,
 }: QuestTransitionTurnInput): QuestTurn {
   const previousQuestState = normalizeQuestState(questState);
@@ -92,6 +96,7 @@ export function createQuestTurnFromTransition({
     event: { type: transitionId, progressed },
     replyLanguage,
     reply,
+    nameTagActors,
     previousQuestState,
     nextQuestState,
   };

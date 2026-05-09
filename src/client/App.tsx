@@ -6,6 +6,7 @@ import type {
 import type {
   QuestLanguage,
   QuestLanguageInput,
+  QuestNameTagActor,
   QuestState,
 } from "../shared/voice";
 import {
@@ -62,13 +63,54 @@ import type {
   RealtimeSpeechRecognizer,
   RecordedSpeechRecognizer,
 } from "./types/realtime";
-import type { RoomState, SceneBubbleContent } from "./types/scene";
+import type {
+  CharacterNameTagState,
+  RoomState,
+  SceneBubbleContent,
+} from "./types/scene";
+
+const NAME_TAG_ACTORS: QuestNameTagActor[] = ["sofia", "dan", "hoover", "fixel"];
+
+function createHiddenNameTags(): CharacterNameTagState {
+  return {
+    sofia: false,
+    dan: false,
+    hoover: false,
+    fixel: false,
+  };
+}
+
+function revealNameTags(
+  current: CharacterNameTagState,
+  actors: QuestNameTagActor[],
+): CharacterNameTagState {
+  if (actors.length === 0) {
+    return current;
+  }
+
+  const next = { ...current };
+  let changed = false;
+
+  for (const actor of actors) {
+    if (!NAME_TAG_ACTORS.includes(actor) || next[actor]) {
+      continue;
+    }
+
+    next[actor] = true;
+    changed = true;
+  }
+
+  return changed ? next : current;
+}
 
 export function App() {
   const [roomState, setRoomState] = useState<RoomState>("idle");
   const [questState, setQuestState] = useState<QuestState>(initialQuestState);
   const [readout, setReadout] = useState("");
   const [bubble, setBubble] = useState<SceneBubbleContent | null>(null);
+  const [visibleNameTags, setVisibleNameTags] = useState<CharacterNameTagState>(
+    createHiddenNameTags,
+  );
   const [interimTranscript, setInterimTranscript] = useState("");
   const [speechAvailable, setSpeechAvailable] = useState(true);
   const [voiceBusy, setVoiceBusy] = useState(false);
@@ -598,6 +640,7 @@ export function App() {
     setInterimTranscript("");
     setVoiceBusy(false);
     setBubble(null);
+    setVisibleNameTags(createHiddenNameTags());
     setQuestSessionId(null);
     previousLanguageRef.current = null;
     browserFallbackLanguageRef.current = DEFAULT_QUEST_LANGUAGE;
@@ -672,6 +715,9 @@ export function App() {
 
       questStateRef.current = response.nextQuestState;
       setQuestState(response.nextQuestState);
+      setVisibleNameTags((current) =>
+        revealNameTags(current, response.nameTagActors),
+      );
       const nextRoomState = getRoomStateForVoiceTurn(response);
       setRoomStateSafely(nextRoomState);
 
@@ -804,6 +850,7 @@ export function App() {
         }}
         questState={questState}
         roomState={roomState}
+        visibleNameTags={visibleNameTags}
         voiceLanguage={voiceLanguage}
       />
       <AmbientHint

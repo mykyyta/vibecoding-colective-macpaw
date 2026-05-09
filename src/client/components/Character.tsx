@@ -7,6 +7,7 @@ export default function Character({
   mood = "idle",
   roomState,
   voiceLanguage,
+  nameTagVisible = false,
   badgeEdgeVisible = false,
   badgeCodeVisible = false,
 }: {
@@ -14,6 +15,7 @@ export default function Character({
   mood?: "idle" | "ignored" | "helpful";
   roomState: RoomState;
   voiceLanguage: QuestLanguage;
+  nameTagVisible?: boolean;
   badgeEdgeVisible?: boolean;
   badgeCodeVisible?: boolean;
 }) {
@@ -22,6 +24,7 @@ export default function Character({
   if (actor === "hoover") {
     return (
       <div className={`hoover hoover-cat hoover-cat--${mood}`} aria-label={copy.hooverAria}>
+        {renderNameTag(nameTagVisible, "Hoover")}
         <span className="hoover-cat-shadow" />
         <span className="hoover-cat-tail" />
         <span className="hoover-cat-body" />
@@ -44,6 +47,7 @@ export default function Character({
         } ${badgeCodeVisible ? "fixel--badge-code" : ""}`}
         aria-label={copy.fixelAria}
       >
+        {renderNameTag(nameTagVisible, "Fixel")}
         <span className="fixel-badge" aria-hidden="true">
           <i>{badgeCodeVisible ? "404" : ""}</i>
         </span>
@@ -62,6 +66,7 @@ export default function Character({
   if (actor === "sofia") {
     return (
       <div className="sofia" aria-label={copy.sofiaAria}>
+        {renderNameTag(nameTagVisible, copy.sofiaName)}
         <span className="sofia-shadow" />
         <span className="sofia-legs" />
         <span className="sofia-skirt" />
@@ -93,6 +98,7 @@ export default function Character({
       className={`dan dan-figure ${isSpeaking ? "dan-figure--speaking" : ""}`}
       aria-label={copy.danAria}
     >
+      {renderNameTag(nameTagVisible, "Dan")}
       <span className="dan-figure-shadow" />
       <span className="dan-figure-legs" />
       <span className="dan-figure-body">
@@ -109,4 +115,12 @@ export default function Character({
       <span className="dan-figure-arm" />
     </div>
   );
+}
+
+function renderNameTag(visible: boolean, label: string) {
+  if (!visible) {
+    return null;
+  }
+
+  return <span className="character-name-tag">{label}</span>;
 }

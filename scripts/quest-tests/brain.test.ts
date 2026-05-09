@@ -33,11 +33,13 @@ const sofiaHint = await runTurn({
     transitionId: "sofia-hint-given",
     actor: "sofia",
     reply: "Я б почала з Dan біля дверної панелі.",
+    nameTagActors: ["sofia", "dan"],
   },
 });
 assert.equal(sofiaHint.event.type, "sofia-hint-given");
 assert.equal(sofiaHint.actor, "sofia");
 assert.equal(sofiaHint.nextQuestState.danDoorChecked, false, "sofia-hint-given does not advance state");
+assert.deepEqual(sofiaHint.nameTagActors, ["sofia", "dan"], "Claude name tag decision is preserved for allowed names");
 
 // Valid Dan door check -> state advances
 const danDoor = await runTurn({
@@ -46,10 +48,12 @@ const danDoor = await runTurn({
     transitionId: "dan-door-checked",
     actor: "dan",
     reply: "Looks like a code lock. Hoover was hanging around near the door.",
+    nameTagActors: ["dan", "hoover"],
   },
 });
 assert.equal(danDoor.event.type, "dan-door-checked");
 assert.equal(danDoor.nextQuestState.danDoorChecked, true);
+assert.deepEqual(danDoor.nameTagActors, ["dan", "hoover"], "Hoover tag may appear when Dan checks the door");
 
 // Valid gentle Hoover -> Hoover clue
 const hooverClue = await runTurn({
@@ -162,6 +166,7 @@ const earlySofiaHoover = await runTurn({
     transitionId: "sofia-hint-given",
     actor: "sofia",
     reply: "Поговори з Hoover біля дверей.",
+    nameTagActors: ["sofia", "hoover"],
   },
 });
 assert.equal(earlySofiaHoover.event.type, "sofia-hint-given");
@@ -170,6 +175,7 @@ assert.equal(
   "Я б почала з Dan. Він ближче до дверної панелі й може зрозуміти, що саме заблоковано.",
   "early Hoover leak replaced by canned Sofiia hint",
 );
+assert.deepEqual(earlySofiaHoover.nameTagActors, ["sofia"], "Hoover tag is gated before Dan checks the door");
 
 // Early Sofiia mention of Fixel/badge is blocked after Dan but before Hoover clue
 const earlySofiaFixel = await runTurn({
@@ -181,6 +187,7 @@ const earlySofiaFixel = await runTurn({
     transitionId: "sofia-hint-given",
     actor: "sofia",
     reply: "Fixel сховав бейдж під собою.",
+    nameTagActors: ["sofia", "fixel"],
   },
 });
 assert.equal(earlySofiaFixel.event.type, "sofia-hint-given");
@@ -189,6 +196,7 @@ assert.equal(
   "Dan дав напрям. Спробуй звернутися до Hoover спокійно й без тиску.",
   "early Fixel/badge leak replaced by canned Sofiia hint",
 );
+assert.deepEqual(earlySofiaFixel.nameTagActors, ["sofia"], "Fixel tag is gated before Hoover clue");
 
 // Unaddressed sofia-hint (no direct Sofia address) -> illegal, fallback
 const unaddressedHelp = await runTurn({
@@ -246,4 +254,4 @@ assert.equal(englishDoor.event.type, "door-opened");
 assert.equal(englishDoor.reply, "Code 404. Door open. Thanks for being with us.");
 assert.equal(englishDoor.nextQuestState.doorOpen, true);
 
-console.log("brain.test: passed (24 assertions)");
+console.log("brain.test: passed (28 assertions)");
