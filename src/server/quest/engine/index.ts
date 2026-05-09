@@ -30,3 +30,18 @@ export {
 } from "./transitions.js";
 
 export { getChitchatActor, getChitchatActors, getChitchatFallbackReply } from "./chitchat.js";
+
+export {
+  replyPassesGuardrails,
+  isAllowedQuestBrainReply,
+  isAllowedSofiaReply,
+  isPrematureSofiaCatLanguageHint,
+  requiresOlegNameInReply,
+  containsOlegReveal,
+  containsPixelNameReveal,
+  containsPixelKeypadClue,
+  containsCatSoundOrLanguageHint,
+  containsCodeReveal,
+  containsDoorOpenClaim,
+  normalizeForGuardrail,
+} from "./guardrails.js";

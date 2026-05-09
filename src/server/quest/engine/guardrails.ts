@@ -1,5 +1,5 @@
-import type { QuestState } from "../../shared/voice.js";
-import type { QuestTransitionId } from "./engine/transitions.js";
+import type { QuestState } from "../../../shared/voice.js";
+import type { QuestTransitionId } from "./transitions.js";
 
 // QuestTurn shape reproduced to avoid a circular import with index.ts.
 // TypeScript structural typing makes this compatible with the real QuestTurn.

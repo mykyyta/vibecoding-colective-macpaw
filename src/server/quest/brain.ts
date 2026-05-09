@@ -2,7 +2,7 @@ import type { QuestLanguage, QuestState } from "../../shared/voice.js";
 import type { TextGenerationProvider } from "../providers/contracts.js";
 import { FINAL_DOOR_LINE } from "./scenario/lines.js";
 import { buildQuestBrainPrompt } from "./engine/prompt.js";
-import { replyPassesGuardrails } from "./guardrails.js";
+import { replyPassesGuardrails } from "./engine/guardrails.js";
 import { parseClaudeQuestDecision, type ClaudeQuestDecision } from "./parser.js";
 import {
   analyzeQuestTranscript,

@@ -38,3 +38,5 @@ export {
   getSofiaHintStageContext,
   type SofiaHintStage,
 } from "./hints.js";
+
+export { SECRETS, type SecretFact } from "./secrets.js";
