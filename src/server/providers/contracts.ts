@@ -14,9 +14,25 @@ export interface ProviderReadiness {
 }
 
 export interface TextGenerationRequest {
-  prompt: string;
+  prompt?: string;
+  contentBlocks?: TextGenerationContentBlock[];
   maxTokens?: number;
   temperature?: number;
+}
+
+export interface TextGenerationContentBlock {
+  type: "text";
+  text: string;
+  cacheControl?: {
+    type: "ephemeral";
+  };
+}
+
+export interface TextGenerationUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  cacheCreationInputTokens?: number;
+  cacheReadInputTokens?: number;
 }
 
 export interface TextGenerationResponse {
@@ -24,6 +40,7 @@ export interface TextGenerationResponse {
   model: string;
   text: string;
   responseId?: string;
+  usage?: TextGenerationUsage;
 }
 
 export interface TextGenerationProvider {

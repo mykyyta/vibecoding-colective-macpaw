@@ -1,4 +1,5 @@
 import type { QuestActor, QuestEventType, QuestLanguage, QuestState } from "../../../shared/voice.js";
+import type { TextGenerationContentBlock } from "../../providers/contracts.js";
 import type { AllowedQuestTransition } from "./transitions.js";
 import { PERSONAS } from "../scenario/actors.js";
 import { getStoryHeader, getSceneDescription } from "../scenario/story.js";
@@ -13,6 +14,9 @@ interface QuestPromptTransition {
   stageContext: string;
 }
 
+const STABLE_EVENT_PHRASE = "vibecoding event / вайбкодінг івент";
+const STABLE_AI_PHRASE = "AI / штучний інтелект";
+
 export function buildQuestBrainPrompt({
   transcript,
   questState,
@@ -24,24 +28,76 @@ export function buildQuestBrainPrompt({
   allowedTransitions: AllowedQuestTransition[];
   replyLanguage: QuestLanguage;
 }): string {
+  return buildQuestBrainPromptContent({
+    transcript,
+    questState,
+    allowedTransitions,
+    replyLanguage,
+  })
+    .map((block) => block.text)
+    .join("\n\n");
+}
+
+export function buildQuestBrainPromptContent({
+  transcript,
+  questState,
+  allowedTransitions,
+  replyLanguage,
+}: {
+  transcript: string;
+  questState: QuestState;
+  allowedTransitions: AllowedQuestTransition[];
+  replyLanguage: QuestLanguage;
+}): TextGenerationContentBlock[] {
+  return [
+    {
+      type: "text",
+      text: buildStableQuestBrainPrompt(),
+      cacheControl: { type: "ephemeral" },
+    },
+    {
+      type: "text",
+      text: buildDynamicQuestBrainPrompt({
+        transcript,
+        questState,
+        allowedTransitions,
+        replyLanguage,
+      }),
+    },
+  ];
+}
+
+function buildStableQuestBrainPrompt(): string {
+  return [
+    getStoryHeader(STABLE_EVENT_PHRASE, STABLE_AI_PHRASE),
+    getOutputFormatBlock(),
+    getSceneBlock(),
+    getPersonasBlock(STABLE_EVENT_PHRASE),
+    getHardRulesBlock(),
+    getStyleBlock(STABLE_AI_PHRASE, STABLE_EVENT_PHRASE),
+    getRoutingContractBlock(),
+  ].join("\n\n");
+}
+
+function buildDynamicQuestBrainPrompt({
+  transcript,
+  questState,
+  allowedTransitions,
+  replyLanguage,
+}: {
+  transcript: string;
+  questState: QuestState;
+  allowedTransitions: AllowedQuestTransition[];
+  replyLanguage: QuestLanguage;
+}): string {
   const replyLanguageLabel = getReplyLanguageLabel(replyLanguage);
-  const eventPhrase =
-    replyLanguage === "en" ? "vibecoding event" : "вайбкодінг івент";
-  const aiPhrase =
-    replyLanguage === "en" ? "AI" : "AI, штучний інтелект";
 
   return [
-    getStoryHeader(eventPhrase, aiPhrase),
-    getOutputFormatBlock(replyLanguageLabel),
-    getSceneBlock({
+    getTurnContextBlock({
       replyLanguageLabel,
       visibleCharacterSummary: getVisibleCharacterSummary(questState),
       stageSummary: getQuestStageSummary(questState),
     }),
-    getPersonasBlock(eventPhrase),
-    getHardRulesBlock(),
-    getStyleBlock(aiPhrase, eventPhrase),
-    getRoutingContractBlock(),
     `[Current state]\n${JSON.stringify(questState)}`,
     [
       "[Allowed transitions]",
@@ -103,7 +159,7 @@ function getVisibleCharacterSummary(state: QuestState): string {
   return visible.join("; ");
 }
 
-export function getOutputFormatBlock(replyLanguageLabel: string): string {
+export function getOutputFormatBlock(): string {
   return [
     "[Output format]",
     "Return strict JSON only. No markdown, no code fence, no labels, no commentary.",
@@ -111,11 +167,11 @@ export function getOutputFormatBlock(replyLanguageLabel: string): string {
     "{",
     `  "transitionId": "<one id from allowedTransitions below>",`,
     `  "actor":        "<one allowed actor for that transition>",`,
-    `  "reply":        "<${replyLanguageLabel} player-facing reply>",`,
+    `  "reply":        "<player-facing reply in the reply language specified in the dynamic turn context>",`,
     `  "nameTagActors": ["<character ids whose proper names are spoken in the player transcript or reply>"],`,
     `  "confidence":   0.0`,
     "}",
-    `The reply is 1-2 short sentences spoken by the chosen actor, in natural ${replyLanguageLabel}.`,
+    "The reply is 1-2 short sentences spoken by the chosen actor, in the requested reply language.",
     "Keep proper names verbatim. Do not switch language except for the fixed final door line.",
     "nameTagActors is a visual label decision. Include only these ids: sofia, dan, hoover, fixel.",
     "Include an id only when that character's proper name is explicitly spoken in the player transcript or in your reply. Do not include a character just because they are visible, targeted, or speaking.",
@@ -124,7 +180,14 @@ export function getOutputFormatBlock(replyLanguageLabel: string): string {
   ].join("\n");
 }
 
-export function getSceneBlock({
+export function getSceneBlock(): string {
+  return [
+    "[Scene]",
+    ...getSceneDescription(),
+  ].join("\n");
+}
+
+function getTurnContextBlock({
   replyLanguageLabel,
   visibleCharacterSummary,
   stageSummary,
@@ -134,11 +197,10 @@ export function getSceneBlock({
   stageSummary: string;
 }): string {
   return [
-    "[Scene]",
-    ...getSceneDescription(),
+    "[Dynamic turn context]",
+    `- Reply language for this turn: ${replyLanguageLabel}.`,
     `- Visible characters this turn: ${visibleCharacterSummary}.`,
     `- Current stage: ${stageSummary}.`,
-    `- Reply language for this turn: ${replyLanguageLabel}.`,
   ].join("\n");
 }
 

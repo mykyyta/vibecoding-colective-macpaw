@@ -3,9 +3,12 @@ import type {
   QuestNameTagActor,
   QuestState,
 } from "../../../shared/voice.js";
-import type { TextGenerationProvider } from "../../providers/contracts.js";
+import type {
+  TextGenerationProvider,
+  TextGenerationUsage,
+} from "../../providers/contracts.js";
 import { getFinalDoorLine, getQuestReply } from "../scenario/lines.js";
-import { buildQuestBrainPrompt } from "./prompt.js";
+import { buildQuestBrainPromptContent } from "./prompt.js";
 import { replyPassesGuardrails } from "./guardrails.js";
 import { parseClaudeQuestDecision, type ClaudeQuestDecision } from "./parser.js";
 import {
@@ -92,7 +95,7 @@ async function tryGetClaudeDecision(
 ): Promise<ClaudeQuestDecision | null> {
   const claude = ctx.getClaudeProvider();
   const generated = await generateWithTimeout(claude, {
-    prompt: buildQuestBrainPrompt({
+    contentBlocks: buildQuestBrainPromptContent({
       transcript: ctx.transcript,
       questState: ctx.state,
       allowedTransitions: ctx.allowedTransitions,
@@ -101,6 +104,7 @@ async function tryGetClaudeDecision(
     maxTokens: 220,
     temperature: 0.68,
   });
+  logClaudeCacheUsage(generated.usage);
 
   return parseClaudeQuestDecision(generated.text);
 }
@@ -242,6 +246,22 @@ function generateWithTimeout(
 
 function logBrainTelemetry(name: string, fields: Record<string, unknown>): void {
   console.info(`[quest-brain] ${name}`, fields);
+}
+
+function logClaudeCacheUsage(usage: TextGenerationUsage | undefined): void {
+  if (
+    usage?.cacheCreationInputTokens === undefined &&
+    usage?.cacheReadInputTokens === undefined
+  ) {
+    return;
+  }
+
+  logBrainTelemetry("claude.cache_usage", {
+    cacheCreationInputTokens: usage.cacheCreationInputTokens ?? 0,
+    cacheReadInputTokens: usage.cacheReadInputTokens ?? 0,
+    inputTokens: usage.inputTokens,
+    outputTokens: usage.outputTokens,
+  });
 }
 
 function errorMessage(error: unknown): string {

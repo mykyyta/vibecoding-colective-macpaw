@@ -1,14 +1,25 @@
 import type {
+  TextGenerationContentBlock,
   TextGenerationProvider,
   TextGenerationRequest,
   TextGenerationResponse,
+  TextGenerationUsage,
 } from "./contracts.js";
 import type { ClaudeProviderConfig } from "./config.js";
 import { asRecord, getString, throwProviderHttpError } from "./http.js";
 
+interface ClaudeTextBlock {
+  type: "text";
+  text: string;
+  cache_control?: {
+    type: "ephemeral";
+  };
+}
+
 function parseClaudeText(payload: unknown): {
   id?: string;
   text: string;
+  usage?: TextGenerationUsage;
 } {
   const record = asRecord(payload);
   const content = Array.isArray(record?.content) ? record.content : [];
@@ -25,6 +36,49 @@ function parseClaudeText(payload: unknown): {
   return {
     id: getString(record?.id),
     text,
+    usage: parseClaudeUsage(record?.usage),
+  };
+}
+
+function parseClaudeUsage(value: unknown): TextGenerationUsage | undefined {
+  const usage = asRecord(value);
+
+  if (!usage) {
+    return undefined;
+  }
+
+  return {
+    inputTokens: getNumber(usage.input_tokens),
+    outputTokens: getNumber(usage.output_tokens),
+    cacheCreationInputTokens: getNumber(usage.cache_creation_input_tokens),
+    cacheReadInputTokens: getNumber(usage.cache_read_input_tokens),
+  };
+}
+
+function getNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function toClaudeContent(request: TextGenerationRequest): string | ClaudeTextBlock[] {
+  if (request.contentBlocks && request.contentBlocks.length > 0) {
+    return request.contentBlocks.map(toClaudeTextBlock);
+  }
+
+  if (request.prompt !== undefined) {
+    return request.prompt;
+  }
+
+  return "";
+}
+
+function toClaudeTextBlock(block: TextGenerationContentBlock): ClaudeTextBlock {
+  return {
+    type: "text",
+    text: block.text,
+    cache_control:
+      block.cacheControl !== undefined
+        ? { type: block.cacheControl.type }
+        : undefined,
   };
 }
 
@@ -48,7 +102,7 @@ export function createClaudeTextProvider(
           model: config.model,
           max_tokens: request.maxTokens ?? 256,
           temperature: request.temperature,
-          messages: [{ role: "user", content: request.prompt }],
+          messages: [{ role: "user", content: toClaudeContent(request) }],
         }),
       });
 
@@ -63,6 +117,7 @@ export function createClaudeTextProvider(
         model: config.model,
         responseId: parsed.id,
         text: parsed.text,
+        usage: parsed.usage,
       };
     },
   };

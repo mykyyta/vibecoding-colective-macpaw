@@ -113,6 +113,11 @@ re-implement them.
 
 Direct provider API calls live under `src/server/providers/` and are called only from the Express server. The browser may receive readiness metadata, generated content, or audio responses through server routes, but it must never receive raw provider API keys.
 
+Claude quest-brain requests use provider-level content blocks so stable scenario
+instructions can be marked with Anthropic prompt caching `cache_control`. Keep
+current quest state, allowed transitions, reply language, and player transcript
+in an uncached dynamic block.
+
 The direct ElevenLabs connector is separate from the ElevenLabs MCP registration helper. Use the direct connector when this app calls ElevenLabs APIs. Use MCP registration when an ElevenLabs Conversational AI agent needs to call tools exposed by this project or another MCP server.
 
 ElevenLabs Sound Effects generation is treated as an asset-production step, not

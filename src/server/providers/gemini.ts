@@ -47,7 +47,7 @@ export function createGeminiTextProvider(
           contents: [
             {
               role: "user",
-              parts: [{ text: request.prompt }],
+              parts: [{ text: getRequestPromptText(request) }],
             },
           ],
           generationConfig: {
@@ -68,6 +68,10 @@ export function createGeminiTextProvider(
       };
     },
   };
+}
+
+function getRequestPromptText(request: TextGenerationRequest): string {
+  return request.prompt ?? request.contentBlocks?.map((block) => block.text).join("\n\n") ?? "";
 }
 
 export function createGeminiImageReadinessProvider(

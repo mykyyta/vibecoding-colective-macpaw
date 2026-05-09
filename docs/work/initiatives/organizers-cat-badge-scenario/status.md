@@ -32,6 +32,7 @@ social logic:
 | Quest Contract And Backend Routing | Codex | Completed | Shared quest contract, backend state machine, Claude routing/guardrails, fallback replies, and quest tests now use Sofiia, Dan, Hoover, and Fixel. |
 | Frontend Scenario State Update | Codex | Completed | Client scene, copy, bubble actors, and badge reveal states now use Dan, Sofiia, Hoover, and Fixel. |
 | Voice And Nonverbal Audio Contract | Codex | In Progress | Fixel now uses a local Sound Effects asset contract instead of TTS; provider voice roles now use Dan/Hoover/Sofiia names and no room voice; actual ElevenLabs SFX file generation is pending an explicit paid-generation run. |
+| Claude Prompt Cache Partitioning | Codex | Completed | Quest-brain prompts now send a cache-marked stable Claude content block plus an uncached dynamic turn block; cache usage fields are parsed for telemetry when Anthropic returns them. |
 
 ## Current Decisions
 
@@ -113,6 +114,127 @@ Name tag visual memory checkpoint:
 - The tags are visual memory only and do not alter quest state.
 - Hoover and Fixel tags are still backend-gated so early LLM leaks do not reveal
   those names before the accepted scenario stage.
+
+## Claude Prompt Cache Partitioning Plan
+
+Scale decision: one technical packet inside this initiative. The change touches
+the provider request contract and quest-brain prompt construction, but it is one
+coherent Executor-sized implementation unit.
+
+Goal: make the stable quest-brain instructions eligible for Anthropic prompt
+caching while keeping per-turn state, allowed transitions, language, and player
+transcript dynamic.
+
+Scope in:
+
+- Split quest-brain prompt construction into stable and dynamic blocks.
+- Extend the text-generation provider contract so Claude requests can send
+  multiple content blocks, not only one `prompt` string.
+- Mark the stable Claude content block with `cache_control: { type:
+  "ephemeral" }`.
+- Keep dynamic content out of the cached block:
+  - `questState`;
+  - allowed transitions;
+  - player transcript;
+  - reply language;
+  - stage summary and visible dynamic reveal state.
+- Preserve current parser, guardrails, fallback behavior, and response schema,
+  including `nameTagActors`.
+- Expose or log Claude usage cache fields when present so cache behavior can be
+  verified during provider-enabled smoke.
+- Update durable architecture docs if the provider contract changes.
+
+Scope out:
+
+- Switching providers or models.
+- Caching ElevenLabs, STT, SFX, or browser speech paths.
+- Changing scenario rules, quest gates, character behavior, or UI.
+- Adding a prompt-template framework or generic scenario engine.
+- Requiring Claude to be configured for local fallback tests.
+
+Likely files:
+
+- `src/server/providers/contracts.ts`
+- `src/server/providers/claude.ts`
+- `src/server/quest/engine/prompt.ts`
+- `src/server/quest/engine/brain.ts`
+- `scripts/quest-tests/brain.test.ts`
+- `scripts/quest-tests/fake-claude.ts`
+- `docs/build-system/architecture/stack.md`
+- `docs/work/initiatives/organizers-cat-badge-scenario/status.md`
+
+Implementation shape:
+
+- Add a typed content-block request form, for example `contentBlocks`, while
+  keeping `prompt` for Gemini and existing fake providers.
+- Have `buildQuestBrainPrompt` return either:
+  - a legacy joined string for tests and non-Claude providers; or
+  - `{ stablePrompt, dynamicPrompt }` for Claude.
+- Put product/scenario rules, personas, output schema, style, and routing
+  contract into the stable block.
+- Put all stateful per-turn data into the dynamic block.
+- Avoid language-specific text in the stable block where practical. If
+  unavoidable, accept two cache prefixes, one Ukrainian and one English.
+- Have Claude provider serialize content blocks as Anthropic message content and
+  apply `cache_control` only to the stable text block.
+
+Acceptance criteria:
+
+- `/api/voice-turn` still works with Claude configured and with Claude
+  unavailable fallback.
+- The Claude request no longer sends the whole quest-brain prompt as one user
+  string.
+- Stable instructions are sent as a cache-marked content block.
+- Dynamic turn data remains uncached and changes per request.
+- `nameTagActors`, final Dan line forcing, Fixel nonverbal forcing, and all
+  reveal gates still behave as before.
+- Provider response parsing remains compatible with existing Claude message
+  responses.
+- Cache usage fields are visible in server logs or telemetry when Anthropic
+  returns them.
+
+Validation:
+
+- `npm run test:quest`
+- `npm run check:scenario-purity`
+- `npm run typecheck`
+- `git diff --check`
+- Provider-disabled `/api/voice-turn` smoke to confirm deterministic fallback.
+- Provider-enabled Claude smoke, when credentials are available, checking for
+  cache usage fields such as cache creation or cache read input tokens.
+
+Risks and notes:
+
+- Prompt caching only helps when the stable prefix is long enough and identical
+  across calls; tiny or frequently changing prefixes may not produce cache hits.
+- Language-specific output instructions can split the cache into separate
+  Ukrainian and English prefixes unless moved into the dynamic block.
+- Anthropic prompt caching depends on request serialization and `cache_control`;
+  a local array split without provider-level content blocks is not sufficient.
+- The stable block must not contain current state, transcript, or allowed
+  transition cards, otherwise cache hits will be unstable or semantically wrong.
+
+Completion notes:
+
+- `TextGenerationRequest` now supports structured text content blocks while
+  preserving the legacy joined `prompt` string path.
+- Claude serialization sends the stable quest-brain block as an Anthropic text
+  content block with `cache_control: { type: "ephemeral" }`.
+- Dynamic turn data remains in a second uncached block:
+  `questState`, allowed transitions, reply language, visible dynamic reveal
+  summary, stage summary, and player transcript.
+- Gemini and fake providers remain compatible by joining content blocks when a
+  plain prompt string is needed.
+- Claude usage parsing now captures cache creation/read token fields and logs
+  them from quest-brain telemetry when present.
+- Validation passed:
+  - `npm run test:quest`;
+  - `npm run check:scenario-purity`;
+  - `npm run typecheck`;
+  - `git diff --check`;
+  - provider-disabled local `/api/voice-turn` smoke.
+- Provider-enabled cache-hit verification is still pending a run with Claude
+  credentials and multiple repeated turns inside the cache TTL.
 
 Packet 3 completion notes:
 

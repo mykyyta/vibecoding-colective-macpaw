@@ -5,6 +5,7 @@ await import("./state.test.js");
 await import("./transitions.test.js");
 await import("./classifier.test.js");
 await import("./language.test.js");
+await import("./prompt.test.js");
 await import("./brain.test.js");
 
 console.log("All quest tests passed.");
