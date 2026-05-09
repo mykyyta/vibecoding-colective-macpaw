@@ -1,5 +1,5 @@
 import type { QuestActor, QuestEventType, QuestLanguage, QuestState } from "../../../shared/voice.js";
-import type { AllowedQuestTransition } from "../transitions.js";
+import type { AllowedQuestTransition } from "./transitions.js";
 import { PERSONAS } from "../scenario/actors.js";
 import { getStoryHeader, getSceneDescription } from "../scenario/story.js";
 import { getHardRulesBlock } from "../scenario/rules.js";

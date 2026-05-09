@@ -15,11 +15,11 @@ import { initialQuestState, normalizeQuestState } from "./state.js";
 import {
   applyQuestTransition,
   getAllowedQuestTransitions,
-  getChitchatFallbackReply,
   isTransitionLegal,
   type AllowedQuestTransition,
   type QuestTransitionId,
-} from "./transitions.js";
+} from "./engine/transitions.js";
+import { getChitchatFallbackReply } from "./engine/chitchat.js";
 
 export {
   analyzeQuestTranscript,

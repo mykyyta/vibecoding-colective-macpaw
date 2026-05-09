@@ -25,3 +25,16 @@ export {
   VCC_ALIASES,
   SMALLTALK_ALIASES,
 } from "./aliases.js";
+
+export {
+  MOVE_SCENARIO_DATA,
+  type MoveScenarioData,
+} from "./moves.js";
+
+export {
+  SOFIA_HINT_STAGES,
+  getSofiaHintStageForState,
+  getSofiaHintReplyId,
+  getSofiaHintStageContext,
+  type SofiaHintStage,
+} from "./hints.js";

@@ -7,13 +7,12 @@ import type {
 } from "../../shared/voice.js";
 import { analyzeQuestTranscript } from "./engine/classifier.js";
 import { normalizeQuestState } from "./state.js";
-import type { QuestTransitionId } from "./transitions.js";
+import type { QuestTransitionId } from "./engine/transitions.js";
 import {
   applyQuestTransition,
   findFirstLegalProgressingTransition,
-  getChitchatActor,
-  getChitchatFallbackReply,
-} from "./transitions.js";
+} from "./engine/transitions.js";
+import { getChitchatActor, getChitchatFallbackReply } from "./engine/chitchat.js";
 
 // QuestTurn is structurally reproduced here to avoid a circular value import
 // (index.ts imports createHeuristicFallbackTurn; fallback.ts must not import

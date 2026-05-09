@@ -1,5 +1,5 @@
 import type { QuestActor } from "../../shared/voice.js";
-import type { QuestTransitionId } from "./transitions.js";
+import type { QuestTransitionId } from "./engine/transitions.js";
 
 export interface ClaudeQuestDecision {
   transitionId: QuestTransitionId;
