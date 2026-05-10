@@ -176,7 +176,7 @@
 }
 
 .fixel--badge-code {
-  transform: rotate(3deg) translateY(-3px);
+  animation: fixel-roll-on-back 620ms var(--ease-out) both;
 }
 
 .fixel-badge {
@@ -201,10 +201,11 @@
   font-weight: 900;
   line-height: 1;
   opacity: 0;
-  overflow: hidden;
+  overflow: visible;
   transform: translateX(10px) rotate(-6deg);
   transition:
     opacity 180ms var(--ease-out),
+    bottom 220ms var(--ease-out),
     right 220ms var(--ease-out),
     transform 220ms var(--ease-out),
     width 220ms var(--ease-out);
@@ -239,10 +240,28 @@
 }
 
 .fixel--badge-code .fixel-badge {
-  right: -7%;
-  width: 33px;
+  right: 31%;
+  bottom: -49%;
+  z-index: 4;
+  width: 27px;
+  height: 17px;
   opacity: 1;
-  transform: translateX(0) rotate(-6deg);
+  font-size: 0.5rem;
+  transform: translateX(0) rotate(-5deg);
+}
+
+.fixel--badge-code .fixel-badge::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -32px;
+  width: 4px;
+  height: 33px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, oklch(66% 0.082 24) 0 45%, color-mix(in oklch, var(--plaster-lit), transparent 72%) 46% 54%, oklch(55% 0.084 24) 55% 100%);
+  transform: translateX(-50%) rotate(5deg);
+  transform-origin: top center;
 }
 
 .fixel--badge-code .fixel-badge i {
@@ -280,6 +299,21 @@
   animation: rim-cat-sleep 3.4s var(--ease-out) infinite alternate;
 }
 
+.fixel--badge-code .screen-rim-cat__body {
+  right: 18%;
+  bottom: 7%;
+  z-index: 2;
+  width: 58%;
+  height: 64%;
+  border-radius: 50% 50% 48% 48%;
+  background:
+    radial-gradient(ellipse at 51% 54%, var(--rim-cat-muzzle) 0 34%, transparent 35%),
+    linear-gradient(104deg, transparent 0 25%, color-mix(in oklch, var(--rim-cat-fur-dark), transparent 20%) 25% 30%, transparent 30% 49%, color-mix(in oklch, var(--rim-cat-fur-dark), transparent 23%) 49% 54%, transparent 54% 72%, color-mix(in oklch, var(--rim-cat-fur-dark), transparent 20%) 72% 77%, transparent 77%),
+    linear-gradient(180deg, var(--rim-cat-fur-lit), var(--rim-cat-fur));
+  animation: fixel-belly-roll 620ms var(--ease-out) both;
+  transform-origin: 50% 68%;
+}
+
 .screen-rim-cat__head {
   position: absolute;
   left: 5%;
@@ -296,6 +330,16 @@
     0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 82%);
   transform: rotate(-9deg);
   animation: rim-cat-sleep 3.4s 180ms var(--ease-out) infinite alternate;
+}
+
+.fixel--badge-code .screen-rim-cat__head {
+  left: 2%;
+  bottom: 0%;
+  z-index: 4;
+  width: 40%;
+  height: 59%;
+  animation: fixel-head-roll 620ms 40ms var(--ease-out) both;
+  transform-origin: 50% 56%;
 }
 
 .screen-rim-cat__ear {
@@ -343,6 +387,14 @@
   border-radius: 0 0 999px 0;
   transform: rotate(12deg);
   transform-origin: left bottom;
+}
+
+.fixel--badge-code .screen-rim-cat__tail {
+  right: 3%;
+  bottom: 9%;
+  z-index: 1;
+  border-color: color-mix(in oklch, var(--rim-cat-fur), var(--rim-cat-fur-dark) 48%);
+  animation: fixel-tail-clear-badge 620ms var(--ease-out) both;
 }
 
 .screen-sheen {

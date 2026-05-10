@@ -89,9 +89,9 @@
   height: 59px;
   border-radius: 7px 7px 4px 4px;
   background:
-    linear-gradient(180deg, oklch(32% 0.071 147), oklch(24% 0.058 148)),
-    oklch(28% 0.065 148);
-  box-shadow: inset -4px 0 0 color-mix(in oklch, var(--stage), transparent 78%);
+    linear-gradient(180deg, oklch(71% 0.054 214), oklch(58% 0.045 214)),
+    oklch(64% 0.05 214);
+  box-shadow: inset -4px 0 0 color-mix(in oklch, oklch(34% 0.025 223), transparent 74%);
 }
 
 .dan-figure-body {
@@ -116,8 +116,8 @@
   width: 32px;
   border-radius: 14px 13px 8px 8px;
   background:
-    linear-gradient(180deg, oklch(38% 0.018 76), oklch(25% 0.014 74)),
-    oklch(30% 0.016 74);
+    linear-gradient(180deg, oklch(36% 0.026 246), oklch(22% 0.021 246)),
+    oklch(28% 0.023 246);
   box-shadow:
     inset 0 -10px 0 color-mix(in oklch, var(--stage), transparent 84%),
     inset 0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 88%);
@@ -130,17 +130,17 @@
     repeating-linear-gradient(
       128deg,
       transparent 0 8px,
-      color-mix(in oklch, var(--plaster-lit), transparent 85%) 8px 9px,
+      color-mix(in oklch, var(--plaster-lit), transparent 89%) 8px 9px,
       transparent 9px 15px
     ),
     repeating-linear-gradient(
       76deg,
       transparent 0 18px,
-      color-mix(in oklch, var(--stage), transparent 78%) 18px 19px,
+      color-mix(in oklch, oklch(13% 0.018 246), transparent 76%) 18px 19px,
       transparent 19px 27px
     ),
-    linear-gradient(180deg, oklch(38% 0.018 76), oklch(25% 0.014 74)),
-    oklch(30% 0.016 74);
+    linear-gradient(180deg, oklch(36% 0.026 246), oklch(22% 0.021 246)),
+    oklch(28% 0.023 246);
 }
 
 .dan-figure-body::after {
@@ -150,17 +150,17 @@
     repeating-linear-gradient(
       52deg,
       transparent 0 9px,
-      color-mix(in oklch, var(--stage), transparent 66%) 9px 10px,
+      color-mix(in oklch, oklch(12% 0.018 246), transparent 64%) 9px 10px,
       transparent 10px 16px
     ),
     repeating-linear-gradient(
       112deg,
       transparent 0 19px,
-      color-mix(in oklch, var(--plaster-lit), transparent 88%) 19px 20px,
+      color-mix(in oklch, var(--plaster-lit), transparent 91%) 19px 20px,
       transparent 20px 28px
     ),
-    linear-gradient(180deg, oklch(35% 0.017 76), oklch(23% 0.014 74)),
-    oklch(29% 0.016 74);
+    linear-gradient(180deg, oklch(33% 0.025 246), oklch(20% 0.02 246)),
+    oklch(26% 0.022 246);
 }
 
 .dan-figure-shirt::before {
@@ -171,7 +171,7 @@
   width: 17px;
   height: 14px;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  background: color-mix(in oklch, var(--plaster-lit), transparent 88%);
+  background: color-mix(in oklch, oklch(79% 0.047 214), transparent 28%);
 }
 
 .dan-figure-head {
@@ -307,7 +307,7 @@
   height: 49px;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, oklch(31% 0.016 74) 0 62%, oklch(75% 0.078 58) 63% 100%);
+    linear-gradient(180deg, oklch(26% 0.023 246) 0 62%, oklch(75% 0.078 58) 63% 100%);
   transform: rotate(-18deg);
   transform-origin: top center;
 }

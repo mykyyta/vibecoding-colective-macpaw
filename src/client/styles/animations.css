@@ -99,6 +99,58 @@
   }
 }
 
+@keyframes fixel-roll-on-back {
+  0% {
+    transform: rotate(-2deg) translateY(0);
+  }
+
+  54% {
+    transform: rotate(-14deg) translateY(-5px);
+  }
+
+  100% {
+    transform: rotate(7deg) translateY(-4px);
+  }
+}
+
+@keyframes fixel-belly-roll {
+  0% {
+    transform: translateX(0) rotate(0deg) scaleX(1);
+  }
+
+  58% {
+    transform: translateX(-4%) rotate(-20deg) scaleX(0.96);
+  }
+
+  100% {
+    transform: translateX(-2%) rotate(-8deg) scaleX(1.04);
+  }
+}
+
+@keyframes fixel-head-roll {
+  0% {
+    transform: rotate(-9deg) translateY(0);
+  }
+
+  58% {
+    transform: rotate(-132deg) translateY(-4%);
+  }
+
+  100% {
+    transform: rotate(-178deg) translateY(-1%);
+  }
+}
+
+@keyframes fixel-tail-clear-badge {
+  0% {
+    transform: rotate(12deg);
+  }
+
+  100% {
+    transform: rotate(-22deg) translateX(10%) translateY(12%);
+  }
+}
+
 @keyframes dan-figure-talk {
   from {
     transform: rotate(-18deg);
