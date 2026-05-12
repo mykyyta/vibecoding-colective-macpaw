@@ -36,8 +36,8 @@ export type QuestReplyId =
 
 export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
   "sofia-introduced": {
-    uk: "Привіт! Я Софія, а це Ден. Івент уже згорнули, нас попросили на вихід — а двері якось заблоковані. Думаю, разом точно щось вигадаємо. Ден поруч, з нього й починай — він тут точно більше знає.",
-    en: "Hi! I'm Sofiia, this is Dan. The event has wrapped and we've been asked out — and the door is somehow locked. I think together we'll figure something out. Dan is right here — start with him, he definitely knows more.",
+    uk: "Привіт, я Софія, це Ден. Сьогодні був класний івент, але тепер нам потрібна твоя допомога з дверима. Я впевнена — щось точно придумаємо.",
+    en: "Hi, I'm Sofiia, this is Dan. Today's event was great, but now we need your help with the door. I'm sure we'll figure something out.",
   },
   "dan-badge-asked": {
     uk: "А, двері... ага, без бейджика їх не відчиниш. Я свій десь 'оптимізував', чесно. Слухай, тут весь час білий кіт біля мене крутився — спитай у нього, він точно бачив.",

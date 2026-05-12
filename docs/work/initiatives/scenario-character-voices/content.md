@@ -250,20 +250,18 @@ that match the voice card; canned text is the safety net.
 ### 2.1 New reply IDs
 
 **`sofia-introduced`** — fires on turn 1 of every session. Kept
-intentionally light: no badge, no code, no specific solution path.
-Sofiia greets, introduces Dan, says the door is locked, and
-softly nudges the player toward Dan. The badge framing is left
-for later when the player engages Dan.
+intentionally light and warm: no badge, no code, no specific
+solution path, and no instruction to address Dan first. Sofiia
+greets, introduces Dan, names the situation, and stays warmly
+confident. The player chooses whom to engage next.
 
-UK: "Привіт! Я Софія, а це Ден. Івент уже згорнули, нас попросили
-на вихід — а двері якось заблоковані. Думаю, разом точно щось
-вигадаємо. Ден поруч, з нього й починай — він тут точно більше
-знає."
+UK: "Привіт, я Софія, це Ден. Сьогодні був класний івент, але
+тепер нам потрібна твоя допомога з дверима. Я впевнена — щось
+точно придумаємо."
 
-EN: "Hi! I'm Sofiia, this is Dan. The event has wrapped and we've
-been asked out — and the door is somehow locked. I think together
-we'll figure something out. Dan is right here — start with him,
-he definitely knows more."
+EN: "Hi, I'm Sofiia, this is Dan. Today's event was great, but
+now we need your help with the door. I'm sure we'll figure
+something out."
 
 **`pre-activation-hoover-redirect`** — Hoover addressed before
 `danBadgeAsked`.
