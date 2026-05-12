@@ -214,36 +214,47 @@ EN:
 
 ### 1.4 Fixel
 
-**Role.** Brown sleeping cat above/near the stage. Has the
-organizer badge underneath him. Reveals code 404 only by being
-woken or rolling over.
+**Role.** Brown sleeping cat near the stage. Sleeps with his
+**head** resting on the organizer badge — like a pillow. Reveals
+code 404 only when **tempted with food**, not when shouted at.
 
-**Personality.** Deep sleeper. Lazy, unbothered. Treats human
-arrivals as background weather.
+**Personality.** Deep sleeper. Lazy, unbothered by noise. Loud
+wake words ("гей", "бу", "прокидайся", "hey", "boo") do not
+move him. Only the smell of food ("ласощі", "риба", "smачн",
+"кошен", "treat", "fish") gets his attention.
 
 **Tone.** **Nonverbal only.** Purrs, grumbles, sleepy waking
 sounds. Never speaks words in any language.
 
 **Signature beats.**
 - "мрр", "мрр-рр", "мрррп", "мяу" with sleepy elongation.
-- Sound timing creates personality: a beat of silence, then a
-  reluctant "мрр".
+- A beat of silence then a reluctant "мрр" for noise; a sharper
+  "мррп" for food.
 
-**Humor.** Through contrast — earnest questions get a sleepy
-purr; a serious demand gets a longer purr.
+**Humor.** Through contrast — earnest questions and shouted wake
+attempts get a sleepy purr; a quiet mention of food gets an
+immediate head-lift.
+
+**Visual reveal.** On `code-revealed`:
+- Fixel raises his head and opens his eyes (the sleeping
+  eye-slits become two small amber circles).
+- The badge that he was sleeping on **falls** and dangles on
+  its lanyard from his neck.
+- The tail lifts slightly.
+- The body stays in place — no roll.
 
 **Never.**
 - Speak words.
 - Explain the badge or the code.
-- Sound awake or engaged.
+- Sound awake or engaged from anything other than a food offer.
 - Appear before `hoover-clue-given` fires. Pre-activation Fixel
   addresses redirect to Sofiia.
 
 **Examples.**
 
-> *sleeping reject:* "мрр-рр..."
+> *sleeping reject (no food):* "мрр-рр..."
 
-> *wake attempt / code reveal:* "мррп."
+> *food offer / code reveal:* "мррп."
 
 ---
 

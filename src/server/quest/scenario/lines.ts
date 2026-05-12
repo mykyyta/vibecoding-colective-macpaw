@@ -92,8 +92,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "How's the search? If Dan pointed at someone — go that way, just gently.",
   },
   "sofia-context-after-hoover": {
-    uk: "Майже все. Десь там сцена і дуже сонна причина, чому бейдж поки мовчить.",
-    en: "Almost there. Somewhere a stage — and a very sleepy reason the badge is still quiet.",
+    uk: "Майже все. На сцені спить хтось дуже впертий — на нього треба підступитися хитро. Може, його чимось пригостити?",
+    en: "Almost there. Someone very stubborn is asleep on the stage — you'll need to approach them cleverly. Maybe offer something tasty?",
   },
   "sofia-hint-initial": {
     uk: "Я б почала з Дена. Спитай його прямо про двері — він точно знає більше, ніж видно зараз.",
@@ -108,8 +108,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "If Dan pointed at someone — speak to them without pressure. Cats don't really do orders.",
   },
   "sofia-hint-after-hoover": {
-    uk: "Тепер на сцену. Там хтось дуже міцно спить — спробуй розбудити.",
-    en: "Now look at the stage. Someone is very deeply asleep — try waking them.",
+    uk: "Тепер на сцену. Той, хто там спить, не реагує на крики — а от голод у котів сильніший за сон. Запропонуй йому щось смачне.",
+    en: "Now look at the stage. The one sleeping there won't react to noise — but hunger beats sleep in cats. Try offering him something tasty.",
   },
   "sofia-hint-code-revealed": {
     uk: "Код у тебе. Ден біля панелі — він має почути.",

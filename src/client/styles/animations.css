@@ -99,55 +99,62 @@
   }
 }
 
-@keyframes fixel-roll-on-back {
-  0% {
-    transform: rotate(-2deg) translateY(0);
-  }
-
-  54% {
-    transform: rotate(-14deg) translateY(-5px);
-  }
-
-  100% {
-    transform: rotate(7deg) translateY(-4px);
-  }
-}
-
-@keyframes fixel-belly-roll {
-  0% {
-    transform: translateX(0) rotate(0deg) scaleX(1);
-  }
-
-  58% {
-    transform: translateX(-4%) rotate(-20deg) scaleX(0.96);
-  }
-
-  100% {
-    transform: translateX(-2%) rotate(-8deg) scaleX(1.04);
-  }
-}
-
-@keyframes fixel-head-roll {
+@keyframes fixel-head-lift {
   0% {
     transform: rotate(-9deg) translateY(0);
   }
 
-  58% {
-    transform: rotate(-132deg) translateY(-4%);
+  45% {
+    transform: rotate(2deg) translateY(-12%);
   }
 
   100% {
-    transform: rotate(-178deg) translateY(-1%);
+    transform: rotate(-2deg) translateY(-9%);
   }
 }
 
-@keyframes fixel-tail-clear-badge {
+@keyframes fixel-tail-lift {
   0% {
     transform: rotate(12deg);
   }
 
+  60% {
+    transform: rotate(-8deg);
+  }
+
   100% {
-    transform: rotate(-22deg) translateX(10%) translateY(12%);
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes fixel-badge-drop {
+  0% {
+    transform: translateY(-12px) rotate(-2deg);
+    opacity: 0.85;
+  }
+
+  60% {
+    transform: translateY(6px) rotate(-14deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(2px) rotate(-7deg);
+    opacity: 1;
+  }
+}
+
+@keyframes fixel-badge-swing {
+  0% {
+    transform: translateY(2px) rotate(-7deg);
+  }
+
+  50% {
+    transform: translateY(2px) rotate(-1deg);
+  }
+
+  100% {
+    transform: translateY(2px) rotate(-7deg);
   }
 }
 

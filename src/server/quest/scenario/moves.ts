@@ -66,13 +66,13 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
   "fixel-sleeping-rejected": {
     id: "fixel-sleeping-rejected",
     describe: () =>
-      "Use after Hoover's clue when the player addresses Fixel but does not plausibly try to wake him. Fixel remains asleep, the code is not revealed, and Fixel's reply must be a nonverbal purr or sleepy grumble only.",
+      "Use after Hoover's clue when the player addresses Fixel but does NOT offer food. Loud wake attempts (\"гей\", \"бу\", \"прокидайся\", \"hey\", \"boo\", \"wake up\") are explicitly ignored here — Fixel stays asleep. Fixel's reply must be a nonverbal purr or sleepy grumble only.",
     fallbackLineId: "fixel-sleeping-rejected",
   },
   "code-revealed": {
     id: "code-revealed",
     describe: () =>
-      "Use after Hoover's clue when the player addresses Fixel and makes a plausible waking attempt such as wake up, hey, boo, гей, бу, прокидайся, or similar. This is the only transition that may reveal code 404, but Fixel's reply must still be a nonverbal waking sound only.",
+      "Use after Hoover's clue when the player offers food to Fixel — \"ласощі\", \"риба\", \"смачненьке\", \"кошен\", \"треат\", \"fish\", \"treat\", \"snack\", \"food\", or any mention of edible things. Fixel lifts his head, opens his eyes, and the badge that he was sleeping on falls and dangles on its lanyard, exposing code 404. This is the only transition that may reveal code 404, but Fixel's reply must still be a nonverbal waking sound only.",
     fallbackLineId: "code-revealed",
   },
   "door-opened": {

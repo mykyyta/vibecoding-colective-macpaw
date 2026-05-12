@@ -27,7 +27,7 @@ export {
   HINT_INTENT_ALIASES,
   VCC_ALIASES,
   SMALLTALK_ALIASES,
-  WAKE_ALIASES,
+  FOOD_OFFER_ALIASES,
 } from "./aliases.js";
 
 export {

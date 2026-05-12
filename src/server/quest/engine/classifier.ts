@@ -8,7 +8,7 @@ import {
   LOSS_SUGGESTION_ALIASES,
   VCC_ALIASES,
   SMALLTALK_ALIASES,
-  WAKE_ALIASES,
+  FOOD_OFFER_ALIASES,
 } from "../scenario/aliases.js";
 
 export interface QuestTranscriptFacts {
@@ -27,7 +27,7 @@ export interface QuestTranscriptFacts {
   hasHintIntent: boolean;
   hasVccIntent: boolean;
   hasGentleHooverAddress: boolean;
-  hasWakeAttempt: boolean;
+  hasFoodOffer: boolean;
   hasLossSuggestion: boolean;
   hasSmalltalk: boolean;
 }
@@ -56,7 +56,7 @@ export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts
   const hasVccIntent = includesAny(text, VCC_ALIASES, matched);
   const hasGentleHooverAddress =
     hasHoover && includesAny(text, GENTLE_ALIASES, matched);
-  const hasWakeAttempt = includesAny(text, WAKE_ALIASES, matched);
+  const hasFoodOffer = includesAny(text, FOOD_OFFER_ALIASES, matched);
   const hasLossSuggestion = includesAny(text, LOSS_SUGGESTION_ALIASES, matched);
   const hasSmalltalk = includesAny(text, SMALLTALK_ALIASES, matched);
 
@@ -76,7 +76,7 @@ export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts
     hasHintIntent,
     hasVccIntent,
     hasGentleHooverAddress,
-    hasWakeAttempt,
+    hasFoodOffer,
     hasLossSuggestion,
     hasSmalltalk,
   };

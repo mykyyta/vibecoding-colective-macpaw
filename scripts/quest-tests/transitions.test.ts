@@ -89,15 +89,20 @@ const hooverRough = analyzeQuestTranscript("Хувере, дай код");
 assert.equal(isTransitionLegal("hoover-ordinary-rejected", danAsked, hooverRough), true);
 assert.equal(isTransitionLegal("hoover-clue-given", danAsked, hooverRough), false);
 
-// Fixel wake reveals code
-const fixelWake = analyzeQuestTranscript("Гей, Фіксель, прокидайся");
-assert.equal(isTransitionLegal("code-revealed", hooverClue, fixelWake), true);
-assert.equal(isTransitionLegal("code-revealed", danAsked, fixelWake), false);
+// Fixel food offer reveals code
+const fixelFood = analyzeQuestTranscript("Фіксель, хочеш ласощів?");
+assert.equal(isTransitionLegal("code-revealed", hooverClue, fixelFood), true);
+assert.equal(isTransitionLegal("code-revealed", danAsked, fixelFood), false);
 
-// Fixel plain rejection
+// Fixel address without food offer stays sleeping
 const fixelPlain = analyzeQuestTranscript("Фіксель, дай код");
 assert.equal(isTransitionLegal("fixel-sleeping-rejected", hooverClue, fixelPlain), true);
 assert.equal(isTransitionLegal("code-revealed", hooverClue, fixelPlain), false);
+
+// Plain wake attempt (no food) no longer reveals code
+const fixelWake = analyzeQuestTranscript("Гей, Фіксель, прокидайся");
+assert.equal(isTransitionLegal("code-revealed", hooverClue, fixelWake), false, "wake-only attempts do not reveal code");
+assert.equal(isTransitionLegal("fixel-sleeping-rejected", hooverClue, fixelWake), true);
 
 // door-opened requires Dan + revealed 404
 const danCode = analyzeQuestTranscript("Дене, код 404");
@@ -111,4 +116,4 @@ assert.equal(isTransitionLegal("sofia-hint-given", introduced, sofiaHint), true)
 const unaddressedHelp = analyzeQuestTranscript("дай підказку");
 assert.equal(isTransitionLegal("sofia-hint-given", introduced, unaddressedHelp), false);
 
-console.log("transitions.test: passed (38 assertions)");
+console.log("transitions.test: passed (40 assertions)");

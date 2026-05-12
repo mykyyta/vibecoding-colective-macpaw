@@ -28,7 +28,7 @@ export const SOFIA_HINT_STAGES: Record<SofiaHintStage, SofiaHintStageData> = {
   "hoover-clue": {
     replyId: "sofia-hint-after-hoover",
     contextText:
-      "Current Sofiia hint stage: Hoover revealed that Fixel took the badge. Nudge the player to look at Fixel and wake him, without saying the code.",
+      "Current Sofiia hint stage: Hoover revealed that Fixel took the badge. Fixel is sleeping with his head on the badge and will not wake to noise — he wakes only when offered food (ласощі, риба, смачненьке, treat, fish). Nudge the player to think about food, without saying the code or directly spelling out the trick.",
   },
   "dan-asked": {
     replyId: "sofia-hint-after-dan",

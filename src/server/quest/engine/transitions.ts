@@ -121,7 +121,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "fixel-sleeping-rejected",
     actor: () => "fixel",
     isAvailable: (state) => state.hooverClueGiven && !state.codeRevealed,
-    factsCheck: (_state, facts) => facts.hasFixel && !facts.hasWakeAttempt,
+    factsCheck: (_state, facts) => facts.hasFixel && !facts.hasFoodOffer,
     apply: (state) => state,
     describe: (state, lang) =>
       MOVE_SCENARIO_DATA["fixel-sleeping-rejected"].describe(state, lang),
@@ -132,7 +132,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "code-revealed",
     actor: () => "fixel",
     isAvailable: (state) => state.hooverClueGiven && !state.codeRevealed,
-    factsCheck: (_state, facts) => facts.hasFixel && facts.hasWakeAttempt,
+    factsCheck: (_state, facts) => facts.hasFixel && facts.hasFoodOffer,
     apply: (state) => ({ ...state, codeRevealed: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["code-revealed"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -216,7 +216,7 @@ export function getAllowedQuestTransitions(
         hasHintIntent: false,
         hasVccIntent: false,
         hasGentleHooverAddress: false,
-        hasWakeAttempt: false,
+        hasFoodOffer: false,
         hasLossSuggestion: false,
         hasSmalltalk: false,
       }),

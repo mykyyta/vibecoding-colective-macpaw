@@ -97,10 +97,14 @@ The happy path is intentionally small:
 6. When addressed gently, Hoover says that Fixel took the badge. The Fixel
    name tag appears, and a badge edge appears under Fixel while the code
    remains hidden.
-7. The user addresses Fixel and tries to wake him; pre-activation Fixel
-   addresses route to Sofiia.
-8. Fixel wakes lazily or rolls over with a nonverbal sleepy cat sound. The
-   badge becomes visible and reveals code `404`.
+7. The user addresses Fixel. Fixel sleeps with his head resting on the
+   badge. Loud wake attempts ("прокидайся", "hey", "boo") are ignored —
+   he does not respond to noise. Pre-activation Fixel addresses route to
+   Sofiia.
+8. The user offers Fixel food ("хочеш ласощів?", "риба", "smачн", "treat",
+   "fish", etc). Fixel raises his head, opens his eyes, the badge that
+   was under his head falls and dangles on its lanyard, and code `404`
+   becomes visible. Fixel's reply is a single nonverbal "мррп.".
 9. The user tells code `404` to Dan.
 10. Dan drops vibe-coding mode for the ritual close:
    `Код 404. Двері відчинено. Дякуємо, що були з нами.` /

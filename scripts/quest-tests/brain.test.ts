@@ -177,9 +177,9 @@ const preActivationFixel = await runTurn({
 });
 assert.equal(preActivationFixel.actor, "sofia");
 
-// Fixel wake reveals code, reply forced nonverbal
+// Fixel food offer reveals code, reply forced nonverbal
 const fixelWake = await runTurn({
-  transcript: "Гей, Фіксель, прокидайся",
+  transcript: "Фіксель, хочеш ласощів",
   questState: {
     sofiaIntroduced: true,
     danExplainedDoor: true,
@@ -189,7 +189,7 @@ const fixelWake = await runTurn({
   decision: {
     transitionId: "code-revealed",
     actor: "fixel",
-    reply: "Фіксель перекочується. Бейдж показує код 404.",
+    reply: "Фіксель підіймає голову. Бейдж показує код 404.",
   },
 });
 assert.equal(fixelWake.event.type, "code-revealed");

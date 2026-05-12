@@ -24,12 +24,17 @@ assert.equal(hooverGentle.hasGentleHooverAddress, true, "будь ласка -> 
 // Fixel direct without wake attempt
 const fixelPlain = analyzeQuestTranscript("Фіксель, дай код");
 assert.equal(fixelPlain.hasFixel, true, "Фіксель -> hasFixel");
-assert.equal(fixelPlain.hasWakeAttempt, false, "дай код is not a wake attempt");
+assert.equal(fixelPlain.hasFoodOffer, false, "дай код is not a food offer");
 
-// Fixel direct with wake attempt
+// Fixel direct with food offer
+const fixelFood = analyzeQuestTranscript("Фіксель, хочеш ласощів");
+assert.equal(fixelFood.hasFixel, true, "Фіксель -> hasFixel");
+assert.equal(fixelFood.hasFoodOffer, true, "ласощів -> food offer");
+
+// Plain wake words alone are no longer food offers
 const fixelWake = analyzeQuestTranscript("Гей, Фіксель, прокидайся");
 assert.equal(fixelWake.hasFixel, true, "Фіксель -> hasFixel");
-assert.equal(fixelWake.hasWakeAttempt, true, "прокидайся -> wake attempt");
+assert.equal(fixelWake.hasFoodOffer, false, "прокидайся alone is no longer the trigger");
 
 // Sofia direct address and hint intent
 const sofiaHint = analyzeQuestTranscript("Софіє, дай підказку");
@@ -53,4 +58,4 @@ assert.equal(code404.hasCodeIntent, true, "code -> hasCodeIntent");
 const vcc = analyzeQuestTranscript("VCC?");
 assert.equal(vcc.hasVccIntent, true, "VCC -> hasVccIntent");
 
-console.log("classifier.test: passed (22 assertions)");
+console.log("classifier.test: passed (24 assertions)");
