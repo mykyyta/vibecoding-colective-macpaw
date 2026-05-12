@@ -50,7 +50,7 @@ export function mapProviderLanguageCodeToQuestLanguage(
 }
 
 export interface QuestState {
-  danDoorChecked: boolean;
+  danBadgeAsked: boolean;
   hooverClueGiven: boolean;
   codeRevealed: boolean;
   doorOpen: boolean;
@@ -58,7 +58,7 @@ export interface QuestState {
 
 export type QuestEventType =
   | "chitchat-replied"
-  | "dan-door-checked"
+  | "dan-badge-asked"
   | "hoover-ordinary-rejected"
   | "hoover-clue-given"
   | "fixel-sleeping-rejected"

@@ -3,7 +3,7 @@ import type { QuestNameTagActor } from "../../shared/voice";
 export type RoomState =
   | "idle"
   | "listening"
-  | "danDoorChecked"
+  | "danBadgeAsked"
   | "catRejected"
   | "codeRevealed"
   | "doorOpening"

@@ -89,7 +89,7 @@ export default function Character({
   }
 
   const isSpeaking =
-    roomState === "danDoorChecked" ||
+    roomState === "danBadgeAsked" ||
     roomState === "doorOpening" ||
     roomState === "escaped";
 

@@ -38,28 +38,28 @@ const sofiaHint = await runTurn({
 });
 assert.equal(sofiaHint.event.type, "sofia-hint-given");
 assert.equal(sofiaHint.actor, "sofia");
-assert.equal(sofiaHint.nextQuestState.danDoorChecked, false, "sofia-hint-given does not advance state");
+assert.equal(sofiaHint.nextQuestState.danBadgeAsked, false, "sofia-hint-given does not advance state");
 assert.deepEqual(sofiaHint.nameTagActors, ["sofia", "dan"], "Claude name tag decision is preserved for allowed names");
 
 // Valid Dan door check -> state advances
 const danDoor = await runTurn({
   transcript: "Dan, can you check the door?",
   decision: {
-    transitionId: "dan-door-checked",
+    transitionId: "dan-badge-asked",
     actor: "dan",
     reply: "Looks like a code lock. Hoover was hanging around near the door.",
     nameTagActors: ["dan", "hoover"],
   },
 });
-assert.equal(danDoor.event.type, "dan-door-checked");
-assert.equal(danDoor.nextQuestState.danDoorChecked, true);
+assert.equal(danDoor.event.type, "dan-badge-asked");
+assert.equal(danDoor.nextQuestState.danBadgeAsked, true);
 assert.deepEqual(danDoor.nameTagActors, ["dan", "hoover"], "Hoover tag may appear when Dan checks the door");
 
 // Valid gentle Hoover -> Hoover clue
 const hooverClue = await runTurn({
   transcript: "Hoover, sweet cat, please help",
   questState: {
-    danDoorChecked: true,
+    danBadgeAsked: true,
   },
   decision: {
     transitionId: "hoover-clue-given",
@@ -74,7 +74,7 @@ assert.equal(hooverClue.nextQuestState.hooverClueGiven, true);
 const fixelWake = await runTurn({
   transcript: "Гей, Фіксель, прокидайся",
   questState: {
-    danDoorChecked: true,
+    danBadgeAsked: true,
     hooverClueGiven: true,
   },
   decision: {
@@ -105,7 +105,7 @@ assert.deepEqual(
 const prematureDoor = await runTurn({
   transcript: "Dan, code 404",
   questState: {
-    danDoorChecked: true,
+    danBadgeAsked: true,
   },
   decision: {
     transitionId: "door-opened",
@@ -120,7 +120,7 @@ assert.equal(prematureDoor.nextQuestState.doorOpen, false);
 const doorOpened = await runTurn({
   transcript: "Dan, code 404",
   questState: {
-    danDoorChecked: true,
+    danBadgeAsked: true,
     hooverClueGiven: true,
     codeRevealed: true,
   },
@@ -146,7 +146,7 @@ assert.equal(invalidJson.actor, "sofia");
 const prematureFixelCode = await runTurn({
   transcript: "Фіксель, дай код",
   questState: {
-    danDoorChecked: true,
+    danBadgeAsked: true,
     hooverClueGiven: true,
   },
   decision: {
@@ -181,7 +181,7 @@ assert.deepEqual(earlySofiaHoover.nameTagActors, ["sofia"], "Hoover tag is gated
 const earlySofiaFixel = await runTurn({
   transcript: "Софія, що далі",
   questState: {
-    danDoorChecked: true,
+    danBadgeAsked: true,
   },
   decision: {
     transitionId: "sofia-hint-given",
@@ -227,18 +227,18 @@ assert.equal(fixelNameLeak.reply, "мрр...", "name leak blocked, nonverbal Fix
 const englishDan = await runTurn({
   transcript: "Dan, check the door",
   decision: {
-    transitionId: "dan-door-checked",
+    transitionId: "dan-badge-asked",
     actor: "dan",
     reply: "Looks like a code lock. Hoover was near the door.",
   },
 });
-assert.equal(englishDan.event.type, "dan-door-checked");
+assert.equal(englishDan.event.type, "dan-badge-asked");
 
 // English: door-opened
 const englishDoor = await createQuestBrainTurn({
   transcript: "Dan, code 404",
   questState: {
-    danDoorChecked: true,
+    danBadgeAsked: true,
     hooverClueGiven: true,
     codeRevealed: true,
   },

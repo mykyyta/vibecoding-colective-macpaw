@@ -23,11 +23,11 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
     describe: () =>
       "Use only when the player directly addresses Sofiia and asks for a hint, idea, help, advice, direction, or next step. This never advances quest state.",
   },
-  "dan-door-checked": {
-    id: "dan-door-checked",
+  "dan-badge-asked": {
+    id: "dan-badge-asked",
     describe: () =>
-      "Use when the player directly addresses Dan and asks him to open, check, inspect, unlock, or enter something into the door/code panel. Dan may reveal that it looks like a code lock and that Hoover was near the door, but not Fixel, the badge, or the code.",
-    fallbackLineId: "dan-door-checked",
+      "Use when the player directly addresses Dan and asks about the badge, the lost badge, the code, where to find it, or how to leave/exit. Dan briefly acknowledges the badge and mentions Hoover (the white cat by the door) was around when he last had it, then slips back to vibe-coding chatter. Dan must not raise the badge or door topics himself in any other transition.",
+    fallbackLineId: "dan-badge-asked",
   },
   "hoover-ordinary-rejected": {
     id: "hoover-ordinary-rejected",

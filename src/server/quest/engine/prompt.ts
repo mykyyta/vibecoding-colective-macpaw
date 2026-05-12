@@ -137,7 +137,7 @@ function getQuestStageSummary(state: QuestState): string {
     return "Hoover revealed that Fixel took the badge; the next useful move is waking Fixel";
   }
 
-  if (state.danDoorChecked) {
+  if (state.danBadgeAsked) {
     return "Dan checked the code lock and pointed to Hoover; the next useful move is gently addressing Hoover";
   }
 

@@ -2,7 +2,7 @@ import type { QuestState, VoiceTurnResponse } from "../../shared/voice";
 import type { RoomState } from "../types/scene";
 
 export const initialQuestState: QuestState = {
-  danDoorChecked: false,
+  danBadgeAsked: false,
   hooverClueGiven: false,
   codeRevealed: false,
   doorOpen: false,
@@ -18,8 +18,8 @@ export function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState
     case "fixel-sleeping-rejected":
       return "catRejected";
     case "hoover-clue-given":
-    case "dan-door-checked":
-      return "danDoorChecked";
+    case "dan-badge-asked":
+      return "danBadgeAsked";
     case "chitchat-replied":
     case "sofia-hint-given":
       return mapQuestStateToRoomState(response.nextQuestState);
@@ -39,8 +39,8 @@ export function mapQuestStateToRoomState(questState: QuestState): RoomState {
     return "catRejected";
   }
 
-  if (questState.danDoorChecked) {
-    return "danDoorChecked";
+  if (questState.danBadgeAsked) {
+    return "danBadgeAsked";
   }
 
   return "idle";

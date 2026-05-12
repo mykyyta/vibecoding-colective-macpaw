@@ -64,20 +64,20 @@ const TRANSITIONS: TransitionRecord[] = [
       getQuestReply(getSofiaHintReplyId(state), lang),
   },
   {
-    id: "dan-door-checked",
+    id: "dan-badge-asked",
     actor: () => "dan",
-    isAvailable: (state) => !state.danDoorChecked,
+    isAvailable: (state) => !state.danBadgeAsked,
     factsCheck: (_state, facts) =>
       facts.hasDan && (facts.hasDoor || facts.hasCodeIntent),
-    apply: (state) => ({ ...state, danDoorChecked: true }),
-    describe: (state, lang) => MOVE_SCENARIO_DATA["dan-door-checked"].describe(state, lang),
+    apply: (state) => ({ ...state, danBadgeAsked: true }),
+    describe: (state, lang) => MOVE_SCENARIO_DATA["dan-badge-asked"].describe(state, lang),
     fallbackReply: (_state, lang) =>
-      getQuestReply(MOVE_SCENARIO_DATA["dan-door-checked"].fallbackLineId!, lang),
+      getQuestReply(MOVE_SCENARIO_DATA["dan-badge-asked"].fallbackLineId!, lang),
   },
   {
     id: "hoover-ordinary-rejected",
     actor: () => "hoover",
-    isAvailable: (state) => state.danDoorChecked && !state.hooverClueGiven,
+    isAvailable: (state) => state.danBadgeAsked && !state.hooverClueGiven,
     factsCheck: (_state, facts) =>
       facts.hasHoover && !facts.hasGentleHooverAddress,
     apply: (state) => state,
@@ -89,7 +89,7 @@ const TRANSITIONS: TransitionRecord[] = [
   {
     id: "hoover-clue-given",
     actor: () => "hoover",
-    isAvailable: (state) => state.danDoorChecked && !state.hooverClueGiven,
+    isAvailable: (state) => state.danBadgeAsked && !state.hooverClueGiven,
     factsCheck: (_state, facts) =>
       facts.hasHoover && facts.hasGentleHooverAddress,
     apply: (state) => ({ ...state, hooverClueGiven: true }),
@@ -131,7 +131,7 @@ const TRANSITIONS: TransitionRecord[] = [
 ];
 
 const FALLBACK_CANDIDATE_TRANSITIONS = [
-  "dan-door-checked",
+  "dan-badge-asked",
   "hoover-clue-given",
   "hoover-ordinary-rejected",
   "code-revealed",

@@ -3,7 +3,7 @@ import type { QuestReplyId } from "./lines.js";
 
 export type SofiaHintStage =
   | "initial"
-  | "dan-checked"
+  | "dan-asked"
   | "hoover-clue"
   | "code-revealed"
   | "after-escape";
@@ -29,7 +29,7 @@ export const SOFIA_HINT_STAGES: Record<SofiaHintStage, SofiaHintStageData> = {
     contextText:
       "Current Sofiia hint stage: Hoover revealed that Fixel took the badge. Nudge the player to look at Fixel and wake him, without saying the code.",
   },
-  "dan-checked": {
+  "dan-asked": {
     replyId: "sofia-hint-after-dan",
     contextText:
       "Current Sofiia hint stage: Dan checked the door and pointed toward Hoover. Nudge the player to address Hoover calmly. Do not mention Fixel, the badge, or the code.",
@@ -45,7 +45,7 @@ export function getSofiaHintStageForState(state: QuestState): SofiaHintStage {
   if (state.doorOpen) return "after-escape";
   if (state.codeRevealed) return "code-revealed";
   if (state.hooverClueGiven) return "hoover-clue";
-  if (state.danDoorChecked) return "dan-checked";
+  if (state.danBadgeAsked) return "dan-asked";
 
   return "initial";
 }

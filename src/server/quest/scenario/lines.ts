@@ -8,7 +8,7 @@ export const FINAL_DAN_LINES: Record<QuestLanguage, string> = {
 export const FINAL_DOOR_LINE = FINAL_DAN_LINES.en;
 
 export type QuestReplyId =
-  | "dan-door-checked"
+  | "dan-badge-asked"
   | "hoover-ordinary-rejected"
   | "hoover-clue-given"
   | "fixel-sleeping-rejected"
@@ -32,9 +32,9 @@ export type QuestReplyId =
   | "unknown";
 
 export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
-  "dan-door-checked": {
-    uk: "Схоже, тут кодовий замок. Я можу ввести код, але спершу глянь на Hoover біля дверей: він тут крутився.",
-    en: "Looks like a code lock. I can enter the code, but first check Hoover by the door: he was circling here.",
+  "dan-badge-asked": {
+    uk: "О, бейдж? Я десь його поклав. Слухай, тут весь час білий кіт біля мене крутився — спитай у нього, він точно бачив.",
+    en: "Oh, the badge? I put it down somewhere. Listen, there's been a white cat circling me the whole time — ask him, he definitely saw it.",
   },
   "hoover-ordinary-rejected": {
     uk: "Мяу. Hoover чує команду, але виглядає так, ніби людські накази сьогодні не в пріоритеті.",
@@ -101,8 +101,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "I'm Sofiia. I'm here, keeping the space calm so it is easier to think and try.",
   },
   "smalltalk-dan": {
-    uk: "Dan киває в бік панелі. Він готовий допомогти, коли буде що вводити.",
-    en: "Dan nods toward the panel. He is ready to help once there is something to enter.",
+    uk: "Слухай, ти бачив той демо з агентом, який сам пише тести? Я весь вечір думаю, що ми буквально живемо в майбутньому.",
+    en: "Hey, did you catch that demo with the agent that writes its own tests? I've been thinking all evening — we literally live in the future.",
   },
   "smalltalk-hoover": {
     uk: "Hoover примружується. У нього явно є думка, але не для командного тону.",

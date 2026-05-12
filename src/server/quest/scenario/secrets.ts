@@ -11,8 +11,8 @@ export interface SecretFact {
 export const SECRETS: SecretFact[] = [
   {
     id: "hoover-clue",
-    description: "Hoover must not be mentioned before dan-door-checked",
-    revealedByMoveId: "dan-door-checked",
+    description: "Hoover must not be mentioned before dan-badge-asked",
+    revealedByMoveId: "dan-badge-asked",
     patterns: ["(^|[^\\p{L}\\p{N}_])(hoover|хувер|ховер|гувер)(?=$|[^\\p{L}\\p{N}_])"],
     matchType: "regex",
   },

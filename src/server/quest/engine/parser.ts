@@ -11,7 +11,7 @@ export interface ClaudeQuestDecision {
 
 const TRANSITION_IDS: QuestTransitionId[] = [
   "chitchat-replied",
-  "dan-door-checked",
+  "dan-badge-asked",
   "hoover-ordinary-rejected",
   "hoover-clue-given",
   "fixel-sleeping-rejected",

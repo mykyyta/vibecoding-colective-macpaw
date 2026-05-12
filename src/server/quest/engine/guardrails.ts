@@ -21,7 +21,7 @@ export function isAllowedQuestBrainReply(turn: QuestTurnForGuardrail): boolean {
     return false;
   }
 
-  if (!state.danDoorChecked && containsHooverReveal(reply)) {
+  if (!state.danBadgeAsked && containsHooverReveal(reply)) {
     return false;
   }
 

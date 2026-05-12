@@ -88,7 +88,7 @@ export function getAmbientHint(
     return copy.ambientFixelStage;
   }
 
-  if (questState.danDoorChecked) {
+  if (questState.danBadgeAsked) {
     return copy.ambientHooverClue;
   }
 

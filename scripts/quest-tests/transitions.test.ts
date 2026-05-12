@@ -7,13 +7,13 @@ import type { QuestState } from "../../src/shared/voice.js";
 import { analyzeQuestTranscript } from "../../src/server/quest/index.js";
 
 const initial: QuestState = {
-  danDoorChecked: false,
+  danBadgeAsked: false,
   hooverClueGiven: false,
   codeRevealed: false,
   doorOpen: false,
 };
 
-const danChecked: QuestState = { ...initial, danDoorChecked: true };
+const danChecked: QuestState = { ...initial, danBadgeAsked: true };
 const hooverClue: QuestState = { ...danChecked, hooverClueGiven: true };
 const codeRevealed: QuestState = { ...hooverClue, codeRevealed: true };
 const doorOpen: QuestState = { ...codeRevealed, doorOpen: true };
@@ -25,10 +25,10 @@ assert.ok(initialAllowed.find((t) => t.id === "chitchat-replied"), "chitchat-rep
 // sofia-hint-given is always available but requires facts to be legal
 assert.ok(initialAllowed.find((t) => t.id === "sofia-hint-given"), "sofia-hint-given available");
 
-// dan-door-checked available only before danDoorChecked
-assert.ok(initialAllowed.find((t) => t.id === "dan-door-checked"), "dan-door-checked available at initial");
+// dan-badge-asked available only before danBadgeAsked
+assert.ok(initialAllowed.find((t) => t.id === "dan-badge-asked"), "dan-badge-asked available at initial");
 const danCheckedAllowed = getAllowedQuestTransitions(danChecked, "uk");
-assert.equal(danCheckedAllowed.find((t) => t.id === "dan-door-checked"), undefined);
+assert.equal(danCheckedAllowed.find((t) => t.id === "dan-badge-asked"), undefined);
 
 // Hoover transitions available only after Dan checked door and before Hoover clue
 assert.equal(initialAllowed.find((t) => t.id === "hoover-clue-given"), undefined);
@@ -50,8 +50,8 @@ assert.equal(doorAllowed.find((t) => t.id === "door-opened"), undefined);
 
 // isTransitionLegal: Dan door check
 const danDoor = analyzeQuestTranscript("Dan, check the door");
-assert.equal(isTransitionLegal("dan-door-checked", initial, danDoor), true);
-assert.equal(isTransitionLegal("dan-door-checked", danChecked, danDoor), false);
+assert.equal(isTransitionLegal("dan-badge-asked", initial, danDoor), true);
+assert.equal(isTransitionLegal("dan-badge-asked", danChecked, danDoor), false);
 
 // isTransitionLegal: Hoover gentle clue
 const hooverGentle = analyzeQuestTranscript("Hoover, sweet cat, please help");
