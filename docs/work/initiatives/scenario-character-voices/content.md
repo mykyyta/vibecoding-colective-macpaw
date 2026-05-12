@@ -249,17 +249,21 @@ that match the voice card; canned text is the safety net.
 
 ### 2.1 New reply IDs
 
-**`sofia-introduced`** — fires on turn 1 of every session.
+**`sofia-introduced`** — fires on turn 1 of every session. Kept
+intentionally light: no badge, no code, no specific solution path.
+Sofiia greets, introduces Dan, says the door is locked, and
+softly nudges the player toward Dan. The badge framing is left
+for later when the player engages Dan.
 
-UK: "Привіт, я Софія. Це Ден. Івент уже завершився, нас люб'язно
-попросили на вихід, але двері заблоковані. У Дена був бейджик з
-кодом — він його кудись 'оптимізував'. Думаю, разом ми точно
-розберемось. Спробуй спитати в Дена — він тут поруч."
+UK: "Привіт! Я Софія, а це Ден. Івент уже згорнули, нас попросили
+на вихід — а двері якось заблоковані. Думаю, разом точно щось
+вигадаємо. Ден поруч, з нього й починай — він тут точно більше
+знає."
 
-EN: "Hey, I'm Sofiia. This is Dan. The event has wrapped and
-we've been politely asked out, but the door is locked. Dan had a
-badge with the code — and he's somehow 'optimized' it away. We'll
-sort it out together. Try asking Dan — he's right here."
+EN: "Hi! I'm Sofiia, this is Dan. The event has wrapped and we've
+been asked out — and the door is somehow locked. I think together
+we'll figure something out. Dan is right here — start with him,
+he definitely knows more."
 
 **`pre-activation-hoover-redirect`** — Hoover addressed before
 `danBadgeAsked`.
@@ -282,13 +286,15 @@ it's worth hearing what the white cat by the door has to say."
 ### 2.2 Sofiia chitchat fallbacks
 
 **`sofia-context-initial`** — after intro, before
-`danBadgeAsked`. Short check-in, not a re-intro.
+`danBadgeAsked`. Short check-in. Drops the badge mention since
+the player has not engaged Dan yet; instead it gently keeps
+pointing toward Dan.
 
-UK: "О, ти ще тут. Я чекаю, коли ти Дена розкрутиш на цей
-бейджик — він точно більше пам'ятає, ніж вдає."
+UK: "О, ти ще тут. Спробуй поговорити з Деном — він тут
+найближче до дверей, з нього варто почати."
 
-EN: "Oh, still here. I'm waiting for you to nudge Dan about
-that badge — he definitely remembers more than he lets on."
+EN: "Oh, still here. Try talking to Dan — he's the closest one to
+the door, that's where to start."
 
 **`sofia-context-after-dan`** — after `dan-badge-asked`, before
 `hoover-clue-given`.
@@ -404,14 +410,18 @@ EN: "mrr..."
 
 ### 2.6 Reused / unchanged
 
-**`dan-badge-asked`** (renamed from `dan-door-checked`)
+**`dan-badge-asked`** (renamed from `dan-door-checked`) — fires
+on either a door-intent or a badge-intent player turn aimed at
+Dan. The reply must work for both phrasings, so it opens with
+"the door" rather than assuming the player named the badge.
 
-UK: "О, бейдж? Я десь його поклав. Слухай, тут весь час білий
-кіт біля мене крутився — спитай у нього, він точно бачив."
+UK: "А, двері... ага, без бейджика їх не відчиниш. Я свій десь
+'оптимізував', чесно. Слухай, тут весь час білий кіт біля мене
+крутився — спитай у нього, він точно бачив."
 
-EN: "Oh, the badge? I put it down somewhere. Listen, there's
-been a white cat circling me the whole time — ask him, he
-definitely saw it."
+EN: "Ah, the door... yeah, without a badge you can't open it. I
+'optimized' mine away somewhere, honestly. Listen, the white cat
+was circling me the whole time — ask him, he definitely saw it."
 
 **`hoover-ordinary-rejected`**, **`hoover-clue-given`**,
 **`fixel-sleeping-rejected`**, **`code-revealed`**,

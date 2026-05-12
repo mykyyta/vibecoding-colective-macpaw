@@ -36,12 +36,12 @@ export type QuestReplyId =
 
 export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
   "sofia-introduced": {
-    uk: "Привіт, я Софія. Це Ден. Івент уже завершився, нас люб'язно попросили на вихід, але двері заблоковані. У Дена був бейджик з кодом — він його кудись 'оптимізував'. Думаю, разом ми точно розберемось. Спробуй спитати в Дена — він тут поруч.",
-    en: "Hey, I'm Sofiia. This is Dan. The event has wrapped and we've been politely asked out, but the door is locked. Dan had a badge with the code — and he's somehow 'optimized' it away. We'll sort it out together. Try asking Dan — he's right here.",
+    uk: "Привіт! Я Софія, а це Ден. Івент уже згорнули, нас попросили на вихід — а двері якось заблоковані. Думаю, разом точно щось вигадаємо. Ден поруч, з нього й починай — він тут точно більше знає.",
+    en: "Hi! I'm Sofiia, this is Dan. The event has wrapped and we've been asked out — and the door is somehow locked. I think together we'll figure something out. Dan is right here — start with him, he definitely knows more.",
   },
   "dan-badge-asked": {
-    uk: "О, бейдж? Я десь його поклав. Слухай, тут весь час білий кіт біля мене крутився — спитай у нього, він точно бачив.",
-    en: "Oh, the badge? I put it down somewhere. Listen, there's been a white cat circling me the whole time — ask him, he definitely saw it.",
+    uk: "А, двері... ага, без бейджика їх не відчиниш. Я свій десь 'оптимізував', чесно. Слухай, тут весь час білий кіт біля мене крутився — спитай у нього, він точно бачив.",
+    en: "Ah, the door... yeah, without a badge you can't open it. I 'optimized' mine away somewhere, honestly. Listen, the white cat was circling me the whole time — ask him, he definitely saw it.",
   },
   "hoover-ordinary-rejected": {
     uk: "Мяу. Hoover чує команду, але виглядає так, ніби людські накази сьогодні не в пріоритеті.",
@@ -68,8 +68,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: FINAL_DAN_LINES.en,
   },
   "sofia-context-initial": {
-    uk: "О, ти ще тут. Я чекаю, коли ти Дена розкрутиш на цей бейджик — він точно більше пам'ятає, ніж вдає.",
-    en: "Oh, still here. I'm waiting for you to nudge Dan about that badge — he definitely remembers more than he lets on.",
+    uk: "О, ти ще тут. Спробуй поговорити з Деном — він тут найближче до дверей, з нього варто почати.",
+    en: "Oh, still here. Try talking to Dan — he's the closest one to the door, that's where to start.",
   },
   "sofia-context-after-dan": {
     uk: "Як там пошук? Якщо Ден на когось показав — рухайся туди, тільки спокійно.",
