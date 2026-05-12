@@ -40,8 +40,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "Hi, I'm Sofiia, this is Dan. Today's event was great, but now we need your help with the door. I'm sure we'll figure something out.",
   },
   "dan-badge-asked": {
-    uk: "А, двері... ага, без бейджика їх не відчиниш. Я свій десь 'оптимізував', чесно. Слухай, тут весь час білий кіт біля мене крутився — спитай у нього, він точно бачив.",
-    en: "Ah, the door... yeah, without a badge you can't open it. I 'optimized' mine away somewhere, honestly. Listen, the white cat was circling me the whole time — ask him, he definitely saw it.",
+    uk: "Ага, двері... без бейджика їх не відчиниш, а свій я кудись 'оптимізував' — буквально дамп пам'яті. Тут весь час білий кіт біля мене крутився — спитай у нього, він точно щось бачив.",
+    en: "Ah, the door... can't open it without a badge, and mine I sort of 'optimized' away — basically a memory dump. The white cat was circling me the whole time — ask him, he definitely saw something.",
   },
   "hoover-ordinary-rejected": {
     uk: "Мяу. Hoover чує команду, але виглядає так, ніби людські накази сьогодні не в пріоритеті.",
@@ -116,8 +116,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "Sofiia hints: we'll get to the sleeping cat soon. First it's worth hearing what the white cat by the door has to say.",
   },
   "smalltalk-dan": {
-    uk: "О, привіт. Радий, що ти тут — після сьогоднішнього демо в голові ще багато всього крутиться.",
-    en: "Oh, hi. Glad you're here — after today's demo there's still a lot spinning in my head.",
+    uk: "О, привіт! Класно, що зайшов — у мене ще контекст переповнений після того, що ми сьогодні шейпнули.",
+    en: "Oh, hi! Good you came by — my context is still saturated from everything we shipped today.",
   },
   "smalltalk-hoover": {
     uk: "Мрр. Хувер дивиться поверх тебе так, ніби вже сказав усе важливе.",
