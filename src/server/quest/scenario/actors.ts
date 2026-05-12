@@ -181,7 +181,8 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       direct: ["hoover", "ховер", "хувер", "хувере", "гувер", "гувере"],
       indirect: ["білий кіт", "білий котик", "white cat", "cat by the door", "котик біля дверей"],
     },
-    chitchatFallback: () => "smalltalk-hoover",
+    chitchatFallback: (state) =>
+      state.danBadgeAsked ? "smalltalk-hoover" : "pre-activation-hoover-redirect",
   },
   fixel: {
     id: "fixel",
@@ -210,7 +211,8 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       direct: ["fixel", "fixell", "фіксель", "фіксел", "фікселя", "фікселю", "фиксель", "фиксел"],
       indirect: ["коричневий кіт", "смугастий кіт", "brown cat", "striped cat", "sleeping cat"],
     },
-    chitchatFallback: () => "smalltalk-fixel",
+    chitchatFallback: (state) =>
+      state.hooverClueGiven ? "smalltalk-fixel" : "pre-activation-fixel-redirect",
   },
   system: {
     id: "system",

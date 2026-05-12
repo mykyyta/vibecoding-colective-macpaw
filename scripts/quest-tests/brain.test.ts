@@ -26,61 +26,133 @@ async function runTurn({
   });
 }
 
-// Valid sofia-hint-given decision -> returns turn with state preserved
+// On a fresh session, sofia-introduced fires regardless of who the player addressed
+const introViaPlayer = await runTurn({
+  transcript: "Дене, відчини двері",
+  decision: {
+    transitionId: "sofia-introduced",
+    actor: "sofia",
+    reply: "Привіт, я Софія. Це Ден. Двері заблоковані...",
+    nameTagActors: ["sofia", "dan"],
+  },
+});
+assert.equal(introViaPlayer.event.type, "sofia-introduced", "first turn fires sofia-introduced");
+assert.equal(introViaPlayer.actor, "sofia");
+assert.equal(introViaPlayer.nextQuestState.sofiaIntroduced, true, "intro advances sofiaIntroduced");
+assert.deepEqual(
+  introViaPlayer.nameTagActors,
+  ["sofia", "dan"],
+  "intro reveals Sofiia and Dan name tags",
+);
+
+// If Claude tries to fire dan-badge-asked on turn 1, parser/validator rejects -> fallback sofia-introduced
+const claudeTriesDanFirst = await runTurn({
+  transcript: "Дене, де бейдж",
+  decision: {
+    transitionId: "dan-badge-asked",
+    actor: "dan",
+    reply: "О, бейдж? Я десь його поклав. Хувер тут крутився.",
+    nameTagActors: ["dan", "hoover"],
+  },
+});
+assert.equal(
+  claudeTriesDanFirst.event.type,
+  "sofia-introduced",
+  "first turn must be sofia-introduced even when Claude tries dan-badge-asked",
+);
+assert.equal(claudeTriesDanFirst.actor, "sofia");
+
+// Post-intro Sofia hint passes through
 const sofiaHint = await runTurn({
   transcript: "Софія, чи є ідеї",
+  questState: { sofiaIntroduced: true },
   decision: {
     transitionId: "sofia-hint-given",
     actor: "sofia",
-    reply: "Я б почала з Dan біля дверної панелі.",
+    reply: "Я б почала з Дена — він був із бейджиком.",
     nameTagActors: ["sofia", "dan"],
   },
 });
 assert.equal(sofiaHint.event.type, "sofia-hint-given");
-assert.equal(sofiaHint.actor, "sofia");
 assert.equal(sofiaHint.nextQuestState.danBadgeAsked, false, "sofia-hint-given does not advance state");
-assert.deepEqual(sofiaHint.nameTagActors, ["sofia", "dan"], "Claude name tag decision is preserved for allowed names");
+assert.deepEqual(sofiaHint.nameTagActors, ["sofia", "dan"]);
 
-// Valid Dan door check -> state advances
-const danDoor = await runTurn({
-  transcript: "Dan, can you check the door?",
+// Dan badge ask after intro -> advances state
+const danBadge = await runTurn({
+  transcript: "Дене, де твій бейдж",
+  questState: { sofiaIntroduced: true },
   decision: {
     transitionId: "dan-badge-asked",
     actor: "dan",
-    reply: "Looks like a code lock. Hoover was hanging around near the door.",
+    reply: "О, бейдж? Я десь його поклав. Тут весь час білий кіт крутився.",
     nameTagActors: ["dan", "hoover"],
   },
 });
-assert.equal(danDoor.event.type, "dan-badge-asked");
-assert.equal(danDoor.nextQuestState.danBadgeAsked, true);
-assert.deepEqual(danDoor.nameTagActors, ["dan", "hoover"], "Hoover tag may appear when Dan checks the door");
+assert.equal(danBadge.event.type, "dan-badge-asked");
+assert.equal(danBadge.nextQuestState.danBadgeAsked, true);
+assert.deepEqual(danBadge.nameTagActors, ["dan", "hoover"], "Hoover tag reveals when Dan is asked");
 
-// Valid gentle Hoover -> Hoover clue
-const hooverClue = await runTurn({
-  transcript: "Hoover, sweet cat, please help",
-  questState: {
-    danBadgeAsked: true,
+// Pre-activation Hoover address (after intro, before dan-badge-asked) -> chitchat actor must be sofia
+const preActivationHoover = await runTurn({
+  transcript: "Хувере, привіт",
+  questState: { sofiaIntroduced: true },
+  decision: {
+    transitionId: "chitchat-replied",
+    actor: "hoover",
+    reply: "Мяу!",
+    nameTagActors: ["hoover"],
   },
+});
+assert.equal(preActivationHoover.event.type, "chitchat-replied");
+assert.notEqual(
+  preActivationHoover.actor,
+  "hoover",
+  "pre-activation Hoover address must not produce a Hoover reply",
+);
+assert.equal(
+  preActivationHoover.actor,
+  "sofia",
+  "pre-activation Hoover address redirects to Sofia",
+);
+
+// Gentle Hoover after Dan -> Hoover clue
+const hooverClue = await runTurn({
+  transcript: "Хувере, лагідно, будь ласка, допоможи",
+  questState: { sofiaIntroduced: true, danBadgeAsked: true },
   decision: {
     transitionId: "hoover-clue-given",
     actor: "hoover",
-    reply: "Mrr. Fixel took the badge and made it a pillow.",
+    reply: "Мрр. Фіксель забрав бейдж і зробив з нього подушку.",
   },
 });
 assert.equal(hooverClue.event.type, "hoover-clue-given");
 assert.equal(hooverClue.nextQuestState.hooverClueGiven, true);
 
-// Valid Fixel wake -> code-revealed
+// Pre-activation Fixel address -> chitchat actor must be sofia
+const preActivationFixel = await runTurn({
+  transcript: "Фіксель, прокидайся",
+  questState: { sofiaIntroduced: true, danBadgeAsked: true },
+  decision: {
+    transitionId: "chitchat-replied",
+    actor: "fixel",
+    reply: "мрр.",
+  },
+});
+assert.equal(preActivationFixel.event.type, "chitchat-replied");
+assert.equal(
+  preActivationFixel.actor,
+  "sofia",
+  "pre-activation Fixel address redirects to Sofia",
+);
+
+// Fixel wake -> code revealed, reply forced nonverbal
 const fixelWake = await runTurn({
   transcript: "Гей, Фіксель, прокидайся",
-  questState: {
-    danBadgeAsked: true,
-    hooverClueGiven: true,
-  },
+  questState: { sofiaIntroduced: true, danBadgeAsked: true, hooverClueGiven: true },
   decision: {
     transitionId: "code-revealed",
     actor: "fixel",
-    reply: "Fixel rolls over. The badge shows code 404.",
+    reply: "Фіксель перекочується. Бейдж показує код 404.",
   },
 });
 assert.equal(fixelWake.event.type, "code-revealed");
@@ -98,19 +170,16 @@ assert.deepEqual(
     id: "fixel-wake-mrrp",
     provider: "asset",
   },
-  "Fixel wake maps to local SFX asset",
 );
 
-// Invalid door-opened when state isn't ready -> fallback stays safe
+// Premature door-opened when state isn't ready -> fallback stays safe
 const prematureDoor = await runTurn({
-  transcript: "Dan, code 404",
-  questState: {
-    danBadgeAsked: true,
-  },
+  transcript: "Дене, код 404",
+  questState: { sofiaIntroduced: true, danBadgeAsked: true },
   decision: {
     transitionId: "door-opened",
     actor: "dan",
-    reply: "Code 404. Door open. Thanks for being with us.",
+    reply: "Код 404. Двері відчинено. Дякуємо, що були з нами.",
   },
 });
 assert.notEqual(prematureDoor.event.type, "door-opened", "premature door-opened falls back");
@@ -118,8 +187,9 @@ assert.equal(prematureDoor.nextQuestState.doorOpen, false);
 
 // door-opened reply forced to final line regardless of Claude reply
 const doorOpened = await runTurn({
-  transcript: "Dan, code 404",
+  transcript: "Дене, код 404",
   questState: {
+    sofiaIntroduced: true,
     danBadgeAsked: true,
     hooverClueGiven: true,
     codeRevealed: true,
@@ -131,24 +201,37 @@ const doorOpened = await runTurn({
   },
 });
 assert.equal(doorOpened.event.type, "door-opened");
-assert.equal(doorOpened.reply, "Код 404. Двері відчинено. Дякуємо, що були з нами.", "door reply forced to final Dan line");
+assert.equal(
+  doorOpened.reply,
+  "Код 404. Двері відчинено. Дякуємо, що були з нами.",
+  "door reply forced to final Dan line",
+);
 assert.equal(doorOpened.nextQuestState.doorOpen, true);
 
-// Invalid JSON from Claude -> fallback turn (Sofiia default context)
-const invalidJson = await runTurn({
+// Invalid JSON from Claude on fresh state -> fallback fires sofia-introduced
+const invalidJsonFresh = await runTurn({
   transcript: "привіт",
   decision: "not json",
 });
-assert.equal(invalidJson.event.type, "chitchat-replied", "invalid JSON -> fallback");
-assert.equal(invalidJson.actor, "sofia");
+assert.equal(
+  invalidJsonFresh.event.type,
+  "sofia-introduced",
+  "invalid JSON on turn 1 falls back to sofia-introduced",
+);
+
+// Invalid JSON post-intro -> chitchat fallback
+const invalidJsonPostIntro = await runTurn({
+  transcript: "привіт",
+  questState: { sofiaIntroduced: true },
+  decision: "not json",
+});
+assert.equal(invalidJsonPostIntro.event.type, "chitchat-replied", "invalid JSON post-intro -> chitchat");
+assert.equal(invalidJsonPostIntro.actor, "sofia");
 
 // Reply with leaked code 404 before code-revealed -> invalid transition falls back safely
 const prematureFixelCode = await runTurn({
   transcript: "Фіксель, дай код",
-  questState: {
-    danBadgeAsked: true,
-    hooverClueGiven: true,
-  },
+  questState: { sofiaIntroduced: true, danBadgeAsked: true, hooverClueGiven: true },
   decision: {
     transitionId: "code-revealed",
     actor: "fixel",
@@ -159,9 +242,10 @@ assert.equal(prematureFixelCode.event.type, "fixel-sleeping-rejected", "prematur
 assert.equal(prematureFixelCode.nextQuestState.codeRevealed, false);
 assert.doesNotMatch(prematureFixelCode.reply, /404/u, "fallback reply has no 404");
 
-// Early Sofiia mention of Hoover is blocked before Dan checks the door
+// Sofiia mentioning Hoover before dan-badge-asked is blocked by guardrail
 const earlySofiaHoover = await runTurn({
   transcript: "Софія, дай підказку",
+  questState: { sofiaIntroduced: true },
   decision: {
     transitionId: "sofia-hint-given",
     actor: "sofia",
@@ -175,14 +259,12 @@ assert.equal(
   "Я б почала з Дена. Він був із бейджиком і точно пам'ятає більше, ніж вдає.",
   "early Hoover leak replaced by canned Sofiia hint",
 );
-assert.deepEqual(earlySofiaHoover.nameTagActors, ["sofia"], "Hoover tag is gated before Dan checks the door");
+assert.deepEqual(earlySofiaHoover.nameTagActors, ["sofia"], "Hoover tag is gated before Dan is asked");
 
-// Early Sofiia mention of Fixel/badge is blocked after Dan but before Hoover clue
+// Sofiia mentioning Fixel before Hoover clue is blocked by guardrail
 const earlySofiaFixel = await runTurn({
   transcript: "Софія, що далі",
-  questState: {
-    danBadgeAsked: true,
-  },
+  questState: { sofiaIntroduced: true, danBadgeAsked: true },
   decision: {
     transitionId: "sofia-hint-given",
     actor: "sofia",
@@ -194,42 +276,31 @@ assert.equal(earlySofiaFixel.event.type, "sofia-hint-given");
 assert.equal(
   earlySofiaFixel.reply,
   "Якщо Ден на когось показав — звернись до нього без тиску. Коти не дуже на накази.",
-  "early Fixel/badge leak replaced by canned Sofiia hint",
+  "early Fixel leak replaced by canned Sofiia hint",
 );
 assert.deepEqual(earlySofiaFixel.nameTagActors, ["sofia"], "Fixel tag is gated before Hoover clue");
 
-// Unaddressed sofia-hint (no direct Sofia address) -> illegal, fallback
+// Unaddressed help -> illegal sofia-hint, fallback to chitchat
 const unaddressedHelp = await runTurn({
   transcript: "чи є ідеї",
+  questState: { sofiaIntroduced: true },
   decision: {
     transitionId: "sofia-hint-given",
     actor: "sofia",
-    reply: "Спробуй почати з Dan.",
+    reply: "Спробуй почати з Дена.",
   },
 });
 assert.equal(unaddressedHelp.event.type, "chitchat-replied", "unaddressed help not a sofia-hint");
 assert.equal(unaddressedHelp.actor, "sofia");
 
-// Chitchat reply with leaked Fixel name early -> guardrail fires, canned fallback
-const fixelNameLeak = await runTurn({
-  transcript: "котику, як тебе звати",
-  decision: {
-    transitionId: "chitchat-replied",
-    actor: "fixel",
-    reply: "Мене звати Fixel.",
-  },
-});
-assert.equal(fixelNameLeak.event.type, "chitchat-replied");
-assert.equal(fixelNameLeak.actor, "fixel");
-assert.equal(fixelNameLeak.reply, "мрр...", "name leak blocked, nonverbal Fixel fallback used");
-
-// English: Dan door check
+// English: Dan badge ask
 const englishDan = await runTurn({
-  transcript: "Dan, check the door",
+  transcript: "Dan, where is your badge?",
+  questState: { sofiaIntroduced: true },
   decision: {
     transitionId: "dan-badge-asked",
     actor: "dan",
-    reply: "Looks like a code lock. Hoover was near the door.",
+    reply: "Oh, the badge? I put it down somewhere. The white cat was right here.",
   },
 });
 assert.equal(englishDan.event.type, "dan-badge-asked");
@@ -238,6 +309,7 @@ assert.equal(englishDan.event.type, "dan-badge-asked");
 const englishDoor = await createQuestBrainTurn({
   transcript: "Dan, code 404",
   questState: {
+    sofiaIntroduced: true,
     danBadgeAsked: true,
     hooverClueGiven: true,
     codeRevealed: true,
@@ -254,4 +326,4 @@ assert.equal(englishDoor.event.type, "door-opened");
 assert.equal(englishDoor.reply, "Code 404. Door open. Thanks for being with us.");
 assert.equal(englishDoor.nextQuestState.doorOpen, true);
 
-console.log("brain.test: passed (28 assertions)");
+console.log("brain.test: passed (37 assertions)");

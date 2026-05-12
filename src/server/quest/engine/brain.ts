@@ -191,13 +191,19 @@ function filterNameTagActors(
   transitionId: QuestTurn["event"]["type"],
 ): QuestNameTagActor[] {
   const nextState =
-    transitionId === "dan-badge-asked"
-      ? { ...state, danBadgeAsked: true }
-      : transitionId === "hoover-clue-given"
-        ? { ...state, hooverClueGiven: true }
-        : state;
+    transitionId === "sofia-introduced"
+      ? { ...state, sofiaIntroduced: true }
+      : transitionId === "dan-badge-asked"
+        ? { ...state, danBadgeAsked: true }
+        : transitionId === "hoover-clue-given"
+          ? { ...state, hooverClueGiven: true }
+          : state;
 
   return actors.filter((actor) => {
+    if (actor === "sofia" || actor === "dan") {
+      return nextState.sofiaIntroduced;
+    }
+
     if (actor === "hoover") {
       return nextState.danBadgeAsked;
     }

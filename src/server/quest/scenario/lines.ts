@@ -8,6 +8,7 @@ export const FINAL_DAN_LINES: Record<QuestLanguage, string> = {
 export const FINAL_DOOR_LINE = FINAL_DAN_LINES.en;
 
 export type QuestReplyId =
+  | "sofia-introduced"
   | "dan-badge-asked"
   | "hoover-ordinary-rejected"
   | "hoover-clue-given"
@@ -25,6 +26,8 @@ export type QuestReplyId =
   | "sofia-hint-after-escape"
   | "sofia-conversation-vcc"
   | "sofia-conversation-smalltalk"
+  | "pre-activation-hoover-redirect"
+  | "pre-activation-fixel-redirect"
   | "smalltalk-dan"
   | "smalltalk-hoover"
   | "smalltalk-fixel"
@@ -32,6 +35,10 @@ export type QuestReplyId =
   | "unknown";
 
 export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>> = {
+  "sofia-introduced": {
+    uk: "Привіт, я Софія. Це Ден. Івент уже завершився, нас люб'язно попросили на вихід, але двері заблоковані. У Дена був бейджик з кодом — він його кудись 'оптимізував'. Думаю, разом ми точно розберемось. Спробуй спитати в Дена — він тут поруч.",
+    en: "Hey, I'm Sofiia. This is Dan. The event has wrapped and we've been politely asked out, but the door is locked. Dan had a badge with the code — and he's somehow 'optimized' it away. We'll sort it out together. Try asking Dan — he's right here.",
+  },
   "dan-badge-asked": {
     uk: "О, бейдж? Я десь його поклав. Слухай, тут весь час білий кіт біля мене крутився — спитай у нього, він точно бачив.",
     en: "Oh, the badge? I put it down somewhere. Listen, there's been a white cat circling me the whole time — ask him, he definitely saw it.",
@@ -99,6 +106,14 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
   "sofia-conversation-smalltalk": {
     uk: "Я Софія. Радію, що ти тут — простір живий, коли в ньому є хтось ще.",
     en: "I'm Sofiia. Glad you're here — the space comes alive when there's someone else in it.",
+  },
+  "pre-activation-hoover-redirect": {
+    uk: "Софія м'яко: білий кіт поки сам по собі. Думаю, варто спершу спитати в Дена — він тут не просто так.",
+    en: "Sofiia gently: the white cat is on his own for now. I think it's worth asking Dan first — he's here for a reason.",
+  },
+  "pre-activation-fixel-redirect": {
+    uk: "Софія підказує: до сплячого кота ми ще дійдемо. Спершу варто почути, що скаже білий кіт біля дверей.",
+    en: "Sofiia hints: we'll get to the sleeping cat soon. First it's worth hearing what the white cat by the door has to say.",
   },
   "smalltalk-dan": {
     uk: "Слухай, ти бачив той демо з агентом, який сам пише тести? Я весь вечір думаю, що ми буквально живемо в майбутньому.",

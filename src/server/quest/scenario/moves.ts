@@ -18,6 +18,19 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
         "may answer without revealing gated facts.",
       ].join(" "),
   },
+  "sofia-introduced": {
+    id: "sofia-introduced",
+    describe: () =>
+      [
+        "Use on the player's very first turn of the session, regardless of what",
+        "the player said or whom they addressed. Sofiia takes the floor: she",
+        "introduces herself, introduces Dan, mentions that the door is locked",
+        "and they need the player's help, and that the badge with the code was",
+        "at Dan but he misplaced it. The reply may include a soft nudge to ask",
+        "Dan. Actor must be Sofiia. nameTagActors must include sofia and dan.",
+      ].join(" "),
+    fallbackLineId: "sofia-introduced",
+  },
   "sofia-hint-given": {
     id: "sofia-hint-given",
     describe: () =>

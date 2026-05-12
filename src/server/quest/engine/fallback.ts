@@ -75,7 +75,7 @@ export function createHeuristicFallbackTurn(
     );
   }
 
-  const actor = getChitchatActor(facts);
+  const actor = getChitchatActor(previousQuestState, facts);
   const reply = getChitchatFallbackReply(actor, previousQuestState, replyLanguage);
   return buildTurn("chitchat-replied", actor, reply, replyLanguage, previousQuestState);
 }

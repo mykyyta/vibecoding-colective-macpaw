@@ -47,6 +47,12 @@ export const CODE_INTENT_ALIASES: string[] = [
   "password",
   "passcode",
   "pin",
+  "бейдж",
+  "бедж",
+  "пропуск",
+  "перепустк",
+  "badge",
+  "pass",
 ];
 
 export const HINT_INTENT_ALIASES: string[] = [

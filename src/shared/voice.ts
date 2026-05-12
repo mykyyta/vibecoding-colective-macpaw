@@ -50,6 +50,7 @@ export function mapProviderLanguageCodeToQuestLanguage(
 }
 
 export interface QuestState {
+  sofiaIntroduced: boolean;
   danBadgeAsked: boolean;
   hooverClueGiven: boolean;
   codeRevealed: boolean;
@@ -58,6 +59,7 @@ export interface QuestState {
 
 export type QuestEventType =
   | "chitchat-replied"
+  | "sofia-introduced"
   | "dan-badge-asked"
   | "hoover-ordinary-rejected"
   | "hoover-clue-given"

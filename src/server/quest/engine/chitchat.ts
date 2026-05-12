@@ -3,20 +3,32 @@ import type { QuestTranscriptFacts } from "./classifier.js";
 import { PERSONAS } from "../scenario/actors.js";
 import { getQuestReply } from "../scenario/lines.js";
 
-export function getChitchatActor(facts: QuestTranscriptFacts): QuestActor {
+export function getChitchatActor(state: QuestState, facts: QuestTranscriptFacts): QuestActor {
   if (facts.hasSofiaAddress || (!facts.hasDan && !facts.hasHoover && !facts.hasFixel)) {
     return "sofia";
   }
 
   if (facts.hasDan) return "dan";
-  if (facts.hasHoover) return "hoover";
-  if (facts.hasFixel) return "fixel";
+
+  // Pre-activation Hoover/Fixel addresses redirect to Sofiia.
+  if (facts.hasHoover && state.danBadgeAsked) return "hoover";
+  if (facts.hasFixel && state.hooverClueGiven) return "fixel";
 
   return "sofia";
 }
 
-export function getChitchatActors(): QuestActor[] {
-  return ["sofia", "dan", "hoover", "fixel"];
+export function getChitchatActors(state: QuestState): QuestActor[] {
+  const actors: QuestActor[] = ["sofia", "dan"];
+
+  if (state.danBadgeAsked) {
+    actors.push("hoover");
+  }
+
+  if (state.hooverClueGiven) {
+    actors.push("fixel");
+  }
+
+  return actors;
 }
 
 export function getChitchatFallbackReply(

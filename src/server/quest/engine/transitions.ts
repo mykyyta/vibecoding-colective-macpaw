@@ -40,10 +40,20 @@ interface TransitionRecord {
 
 const TRANSITIONS: TransitionRecord[] = [
   {
+    id: "sofia-introduced",
+    actor: () => "sofia",
+    isAvailable: (state) => !state.sofiaIntroduced,
+    factsCheck: () => true,
+    apply: (state) => ({ ...state, sofiaIntroduced: true }),
+    describe: (state, lang) => MOVE_SCENARIO_DATA["sofia-introduced"].describe(state, lang),
+    fallbackReply: (_state, lang) =>
+      getQuestReply(MOVE_SCENARIO_DATA["sofia-introduced"].fallbackLineId!, lang),
+  },
+  {
     id: "chitchat-replied",
-    actor: (_state, facts) => getChitchatActor(facts),
-    allowedActors: () => getChitchatActors(),
-    isAvailable: () => true,
+    actor: (state, facts) => getChitchatActor(state, facts),
+    allowedActors: (state) => getChitchatActors(state),
+    isAvailable: (state) => state.sofiaIntroduced,
     apply: (state) => state,
     describe: (state, lang) => MOVE_SCENARIO_DATA["chitchat-replied"].describe(state, lang),
     fallbackReply: (state, lang) =>
@@ -52,7 +62,7 @@ const TRANSITIONS: TransitionRecord[] = [
   {
     id: "sofia-hint-given",
     actor: () => "sofia",
-    isAvailable: () => true,
+    isAvailable: (state) => state.sofiaIntroduced,
     factsCheck: (_state, facts) => facts.hasSofiaAddress && facts.hasHintIntent,
     apply: (state) => state,
     describe: (state, _lang) =>
@@ -66,7 +76,7 @@ const TRANSITIONS: TransitionRecord[] = [
   {
     id: "dan-badge-asked",
     actor: () => "dan",
-    isAvailable: (state) => !state.danBadgeAsked,
+    isAvailable: (state) => state.sofiaIntroduced && !state.danBadgeAsked,
     factsCheck: (_state, facts) =>
       facts.hasDan && (facts.hasDoor || facts.hasCodeIntent),
     apply: (state) => ({ ...state, danBadgeAsked: true }),
@@ -131,6 +141,7 @@ const TRANSITIONS: TransitionRecord[] = [
 ];
 
 const FALLBACK_CANDIDATE_TRANSITIONS = [
+  "sofia-introduced",
   "dan-badge-asked",
   "hoover-clue-given",
   "hoover-ordinary-rejected",
