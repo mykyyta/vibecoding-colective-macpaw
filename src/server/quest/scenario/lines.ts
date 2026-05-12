@@ -116,8 +116,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "Sofiia hints: we'll get to the sleeping cat soon. First it's worth hearing what the white cat by the door has to say.",
   },
   "smalltalk-dan": {
-    uk: "Слухай, ти бачив той демо з агентом, який сам пише тести? Я весь вечір думаю, що ми буквально живемо в майбутньому.",
-    en: "Hey, did you catch that demo with the agent that writes its own tests? I've been thinking all evening — we literally live in the future.",
+    uk: "О, привіт. Радий, що ти тут — після сьогоднішнього демо в голові ще багато всього крутиться.",
+    en: "Oh, hi. Glad you're here — after today's demo there's still a lot spinning in my head.",
   },
   "smalltalk-hoover": {
     uk: "Мрр. Хувер дивиться поверх тебе так, ніби вже сказав усе важливе.",
