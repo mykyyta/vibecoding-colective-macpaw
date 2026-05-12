@@ -32,12 +32,12 @@ export const SOFIA_HINT_STAGES: Record<SofiaHintStage, SofiaHintStageData> = {
   "dan-asked": {
     replyId: "sofia-hint-after-dan",
     contextText:
-      "Current Sofiia hint stage: Dan checked the door and pointed toward Hoover. Nudge the player to address Hoover calmly. Do not mention Fixel, the badge, or the code.",
+      "Current Sofiia hint stage: the player asked Dan about the badge and Dan pointed toward the white cat. Nudge the player to address that cat calmly and without pressure. Do not mention Fixel, the badge's current location, or the code.",
   },
   initial: {
     replyId: "sofia-hint-initial",
     contextText:
-      "Current Sofiia hint stage: the door has not been checked. Nudge the player to start with Dan and the door panel.",
+      "Current Sofiia hint stage: the player has not yet asked Dan about the badge. Nudge the player to start with Dan — Sofiia already framed that the badge was at Dan and he misplaced it.",
   },
 };
 

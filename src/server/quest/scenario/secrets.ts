@@ -17,12 +17,12 @@ export const SECRETS: SecretFact[] = [
     matchType: "regex",
   },
   {
-    id: "fixel-badge",
-    description: "Fixel and the badge must not be revealed before hoover-clue-given",
+    id: "fixel-name",
+    description:
+      "Fixel's name must not be revealed before hoover-clue-given. The badge itself is no longer secret — Sofiia frames it from the start.",
     revealedByMoveId: "hoover-clue-given",
     patterns: [
       "(^|[^\\p{L}\\p{N}_])(fixel|фіксель|фіксел|фиксель|фиксел)(?=$|[^\\p{L}\\p{N}_])",
-      "(бейдж|бедж|badge)",
     ],
     matchType: "regex",
   },

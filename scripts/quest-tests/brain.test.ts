@@ -172,7 +172,7 @@ const earlySofiaHoover = await runTurn({
 assert.equal(earlySofiaHoover.event.type, "sofia-hint-given");
 assert.equal(
   earlySofiaHoover.reply,
-  "Я б почала з Dan. Він ближче до дверної панелі й може зрозуміти, що саме заблоковано.",
+  "Я б почала з Дена. Він був із бейджиком і точно пам'ятає більше, ніж вдає.",
   "early Hoover leak replaced by canned Sofiia hint",
 );
 assert.deepEqual(earlySofiaHoover.nameTagActors, ["sofia"], "Hoover tag is gated before Dan checks the door");
@@ -193,7 +193,7 @@ const earlySofiaFixel = await runTurn({
 assert.equal(earlySofiaFixel.event.type, "sofia-hint-given");
 assert.equal(
   earlySofiaFixel.reply,
-  "Dan дав напрям. Спробуй звернутися до Hoover спокійно й без тиску.",
+  "Якщо Ден на когось показав — звернись до нього без тиску. Коти не дуже на накази.",
   "early Fixel/badge leak replaced by canned Sofiia hint",
 );
 assert.deepEqual(earlySofiaFixel.nameTagActors, ["sofia"], "Fixel tag is gated before Hoover clue");

@@ -38,7 +38,7 @@ export {
   isAllowedQuestBrainReply,
   isAllowedSofiaReply,
   containsHooverReveal,
-  containsFixelOrBadgeReveal,
+  containsFixelReveal,
   containsCodeReveal,
   containsDoorOpenClaim,
   normalizeForGuardrail,

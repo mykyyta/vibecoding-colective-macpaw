@@ -25,7 +25,7 @@ export function isAllowedQuestBrainReply(turn: QuestTurnForGuardrail): boolean {
     return false;
   }
 
-  if (!state.hooverClueGiven && containsFixelOrBadgeReveal(reply)) {
+  if (!state.hooverClueGiven && containsFixelReveal(reply)) {
     return false;
   }
 
@@ -115,13 +115,10 @@ export function containsHooverReveal(reply: string): boolean {
   return /(^|[^\p{L}\p{N}_])(hoover|хувер|ховер|гувер)(?=$|[^\p{L}\p{N}_])/u.test(text);
 }
 
-export function containsFixelOrBadgeReveal(reply: string): boolean {
+export function containsFixelReveal(reply: string): boolean {
   const text = normalizeForGuardrail(reply);
 
-  return (
-    /(^|[^\p{L}\p{N}_])(fixel|фіксель|фіксел|фиксель|фиксел)(?=$|[^\p{L}\p{N}_])/u.test(text) ||
-    /(бейдж|бедж|badge)/u.test(text)
-  );
+  return /(^|[^\p{L}\p{N}_])(fixel|фіксель|фіксел|фиксель|фиксел)(?=$|[^\p{L}\p{N}_])/u.test(text);
 }
 
 export function containsCodeReveal(reply: string): boolean {
