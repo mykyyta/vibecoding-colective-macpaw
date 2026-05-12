@@ -193,11 +193,13 @@ function filterNameTagActors(
   const nextState =
     transitionId === "sofia-introduced"
       ? { ...state, sofiaIntroduced: true }
-      : transitionId === "dan-badge-asked"
-        ? { ...state, danBadgeAsked: true }
-        : transitionId === "hoover-clue-given"
-          ? { ...state, hooverClueGiven: true }
-          : state;
+      : transitionId === "dan-explained-door"
+        ? { ...state, danExplainedDoor: true }
+        : transitionId === "dan-badge-asked"
+          ? { ...state, danBadgeAsked: true }
+          : transitionId === "hoover-clue-given"
+            ? { ...state, hooverClueGiven: true }
+            : state;
 
   return actors.filter((actor) => {
     if (actor === "sofia" || actor === "dan") {

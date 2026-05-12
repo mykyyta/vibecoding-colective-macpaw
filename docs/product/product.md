@@ -79,22 +79,25 @@ The happy path is intentionally small:
    say or whom they address, Sofiia takes the floor and introduces herself
    and Dan, says the door is locked, and mentions that Dan had a badge with
    the code but somehow misplaced it. The Sofiia and Dan name tags appear.
-2. The user addresses Dan and asks about the badge, the code, or how to
-   leave. Dan briefly admits he had the badge, mentions that a white cat
-   was around when he last had it, and slips back into vibe-coding talk.
-   The Hoover name tag appears.
-3. The user addresses Hoover directly. Hoover does not progress the quest
+2. The user addresses Dan and asks about the door, exit, code, or badge.
+   Dan reveals there's a badge with the code and that he had one but
+   lost it. He does not mention the cat yet.
+3. The user follows up with Dan — asks where he last saw the badge,
+   when, who could have taken it, or whether a cat might have been
+   around. Dan now recalls that the white cat was circling him the
+   whole time and suggests asking the cat. The Hoover name tag appears.
+4. The user addresses Hoover directly. Hoover does not progress the quest
    unless the user addresses him gently; pre-activation Hoover addresses
    route to Sofiia.
-4. When addressed gently, Hoover says that Fixel took the badge. The Fixel
+5. When addressed gently, Hoover says that Fixel took the badge. The Fixel
    name tag appears, and a badge edge appears under Fixel while the code
    remains hidden.
-5. The user addresses Fixel and tries to wake him; pre-activation Fixel
+6. The user addresses Fixel and tries to wake him; pre-activation Fixel
    addresses route to Sofiia.
-6. Fixel wakes lazily or rolls over with a nonverbal sleepy cat sound. The
+7. Fixel wakes lazily or rolls over with a nonverbal sleepy cat sound. The
    badge becomes visible and reveals code `404`.
-7. The user tells code `404` to Dan.
-8. Dan drops vibe-coding mode for the ritual close:
+8. The user tells code `404` to Dan.
+9. Dan drops vibe-coding mode for the ritual close:
    `Код 404. Двері відчинено. Дякуємо, що були з нами.` /
    `Code 404. Door open. Thanks for being with us.`
 

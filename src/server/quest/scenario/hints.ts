@@ -3,6 +3,7 @@ import type { QuestReplyId } from "./lines.js";
 
 export type SofiaHintStage =
   | "initial"
+  | "dan-explained"
   | "dan-asked"
   | "hoover-clue"
   | "code-revealed"
@@ -32,12 +33,17 @@ export const SOFIA_HINT_STAGES: Record<SofiaHintStage, SofiaHintStageData> = {
   "dan-asked": {
     replyId: "sofia-hint-after-dan",
     contextText:
-      "Current Sofiia hint stage: the player asked Dan about the badge and Dan pointed toward the white cat. Nudge the player to address that cat calmly and without pressure. Do not mention Fixel, the badge's current location, or the code.",
+      "Current Sofiia hint stage: Dan revealed the white cat was around him the whole time. Nudge the player to address that cat calmly and without pressure. Do not mention Fixel, the badge's current location, or the code.",
+  },
+  "dan-explained": {
+    replyId: "sofia-hint-after-explained",
+    contextText:
+      "Current Sofiia hint stage: Dan admitted he had a badge with the code and lost it. The player should now follow up with Dan — ask where he last saw it, what happened, who could have taken it, or whether maybe a cat was around. Do not yet mention Hoover or the white cat by name.",
   },
   initial: {
     replyId: "sofia-hint-initial",
     contextText:
-      "Current Sofiia hint stage: the player has not yet asked Dan about the badge. Nudge the player to start with Dan — Sofiia already framed that the badge was at Dan and he misplaced it.",
+      "Current Sofiia hint stage: the player has not yet asked Dan about the door or the badge. Nudge the player to start with Dan.",
   },
 };
 
@@ -46,6 +52,7 @@ export function getSofiaHintStageForState(state: QuestState): SofiaHintStage {
   if (state.codeRevealed) return "code-revealed";
   if (state.hooverClueGiven) return "hoover-clue";
   if (state.danBadgeAsked) return "dan-asked";
+  if (state.danExplainedDoor) return "dan-explained";
 
   return "initial";
 }

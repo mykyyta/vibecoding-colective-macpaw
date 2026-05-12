@@ -74,9 +74,20 @@ const TRANSITIONS: TransitionRecord[] = [
       getQuestReply(getSofiaHintReplyId(state), lang),
   },
   {
+    id: "dan-explained-door",
+    actor: () => "dan",
+    isAvailable: (state) => state.sofiaIntroduced && !state.danExplainedDoor,
+    factsCheck: (_state, facts) =>
+      facts.hasDan && (facts.hasDoor || facts.hasCodeIntent),
+    apply: (state) => ({ ...state, danExplainedDoor: true }),
+    describe: (state, lang) => MOVE_SCENARIO_DATA["dan-explained-door"].describe(state, lang),
+    fallbackReply: (_state, lang) =>
+      getQuestReply(MOVE_SCENARIO_DATA["dan-explained-door"].fallbackLineId!, lang),
+  },
+  {
     id: "dan-badge-asked",
     actor: () => "dan",
-    isAvailable: (state) => state.sofiaIntroduced && !state.danBadgeAsked,
+    isAvailable: (state) => state.danExplainedDoor && !state.danBadgeAsked,
     factsCheck: (_state, facts) =>
       facts.hasDan && (facts.hasDoor || facts.hasCodeIntent),
     apply: (state) => ({ ...state, danBadgeAsked: true }),
@@ -142,6 +153,7 @@ const TRANSITIONS: TransitionRecord[] = [
 
 const FALLBACK_CANDIDATE_TRANSITIONS = [
   "sofia-introduced",
+  "dan-explained-door",
   "dan-badge-asked",
   "hoover-clue-given",
   "hoover-ordinary-rejected",

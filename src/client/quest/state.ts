@@ -3,6 +3,7 @@ import type { RoomState } from "../types/scene";
 
 export const initialQuestState: QuestState = {
   sofiaIntroduced: false,
+  danExplainedDoor: false,
   danBadgeAsked: false,
   hooverClueGiven: false,
   codeRevealed: false,
@@ -22,6 +23,7 @@ export function getRoomStateForVoiceTurn(response: VoiceTurnResponse): RoomState
     case "dan-badge-asked":
       return "danBadgeAsked";
     case "sofia-introduced":
+    case "dan-explained-door":
     case "chitchat-replied":
     case "sofia-hint-given":
       return mapQuestStateToRoomState(response.nextQuestState);

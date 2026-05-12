@@ -39,10 +39,16 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
     describe: () =>
       "Use only when the player directly addresses Sofiia and asks for a hint, idea, help, advice, direction, or next step. This never advances quest state.",
   },
+  "dan-explained-door": {
+    id: "dan-explained-door",
+    describe: () =>
+      "Phase 1 of the Dan dialogue. Use when the player directly addresses Dan and asks about the door, exit, code, badge, or how to get out, and danExplainedDoor is still false. Dan answers in his own voice: the door needs a badge with the code, he had one but he can't find it now. Dan must NOT mention the white cat, Hoover, or any specific clue about where the badge went in this reply — that comes in phase 2 when the player follows up.",
+    fallbackLineId: "dan-explained-door",
+  },
   "dan-badge-asked": {
     id: "dan-badge-asked",
     describe: () =>
-      "Use when the player directly addresses Dan and asks about the badge, the lost badge, the code, where to find it, or how to leave/exit. Dan briefly acknowledges the badge and mentions Hoover (the white cat by the door) was around when he last had it, then slips back to vibe-coding chatter. Dan must not raise the badge or door topics himself in any other transition.",
+      "Phase 2 of the Dan dialogue. Use when danExplainedDoor is true and the player follows up with Dan about the badge — asking where he last saw it, when, who could have taken it, whether maybe a cat was involved, or any pointed follow-up question. Dan now recalls that the white cat was circling him the whole time and suggests asking the cat. Dan must not raise this clue himself outside this transition.",
     fallbackLineId: "dan-badge-asked",
   },
   "hoover-ordinary-rejected": {

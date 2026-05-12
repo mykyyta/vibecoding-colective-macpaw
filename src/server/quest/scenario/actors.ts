@@ -87,6 +87,7 @@ export const PERSONAS: Record<QuestActor, Persona> = {
       if (state.doorOpen) return "smalltalk-after-escape";
       if (state.hooverClueGiven && !state.codeRevealed) return "sofia-context-after-hoover";
       if (state.danBadgeAsked && !state.hooverClueGiven) return "sofia-context-after-dan";
+      if (state.danExplainedDoor && !state.danBadgeAsked) return "sofia-context-after-explained";
       return "sofia-context-initial";
     },
   },

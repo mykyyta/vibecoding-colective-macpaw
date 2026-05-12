@@ -414,20 +414,37 @@ EN: "mrr..."
 
 ### 2.6 Reused / unchanged
 
-**`dan-badge-asked`** (renamed from `dan-door-checked`) — fires
-on either a door-intent or a badge-intent player turn aimed at
-Dan. Opens with "the door" so it works for both phrasings; the
-tech metaphor ("дамп пам'яті" / "memory dump") sits inside the
-admission about the badge, not as a separate beat.
+**Dan's dialogue is two-phase.** Live testing showed that one
+single Dan reply revealing both the badge problem AND the cat clue
+was too fast — the player had no room to investigate. We split
+the conversation into two beats.
 
-UK: "Ага, двері... без бейджика їх не відчиниш, а свій я кудись
-'оптимізував' — буквально дамп пам'яті. Тут весь час білий кіт
-біля мене крутився — спитай у нього, він точно щось бачив."
+**`dan-explained-door`** (phase 1) — fires when the player first
+asks Dan about the door, exit, code, or badge after the intro.
+Dan reveals he had a badge with the code and lost it. He does
+NOT mention the cat in this reply.
 
-EN: "Ah, the door... can't open it without a badge, and mine I
-sort of 'optimized' away — basically a memory dump. The white
-cat was circling me the whole time — ask him, he definitely saw
-something."
+UK: "Ага, двері... тут проста історія: потрібен бейдж з кодом,
+у мене такий був, але я його кудись 'оптимізував' і знайти не
+можу — буквально дамп пам'яті."
+
+EN: "Ah, the door... simple story really: you need a badge with
+the code, I had one, but I 'optimized' it away somewhere and
+can't find it — basically a memory dump."
+
+**`dan-badge-asked`** (phase 2; renamed semantically from the
+old single-step dan-badge-asked) — fires when the player follows
+up with Dan after phase 1 — asks where he last saw the badge,
+when, who could have taken it, whether a cat was around, or any
+pointed follow-up question. Dan now recalls the white cat.
+
+UK: "Хм, де я його останній раз бачив... ага, точно — тут увесь
+час білий кіт біля мене крутився. Скоріш за все саме він щось
+знає — спитай у нього."
+
+EN: "Hmm, where did I last see it... ah, right — the white cat
+was circling me the whole time. Most likely he's the one who
+knows something — ask him."
 
 **`hoover-ordinary-rejected`**, **`hoover-clue-given`**,
 **`fixel-sleeping-rejected`**, **`code-revealed`**,

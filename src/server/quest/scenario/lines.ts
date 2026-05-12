@@ -9,6 +9,7 @@ export const FINAL_DOOR_LINE = FINAL_DAN_LINES.en;
 
 export type QuestReplyId =
   | "sofia-introduced"
+  | "dan-explained-door"
   | "dan-badge-asked"
   | "hoover-ordinary-rejected"
   | "hoover-clue-given"
@@ -17,9 +18,11 @@ export type QuestReplyId =
   | "code-not-revealed"
   | "door-opened"
   | "sofia-context-initial"
+  | "sofia-context-after-explained"
   | "sofia-context-after-dan"
   | "sofia-context-after-hoover"
   | "sofia-hint-initial"
+  | "sofia-hint-after-explained"
   | "sofia-hint-after-dan"
   | "sofia-hint-after-hoover"
   | "sofia-hint-code-revealed"
@@ -39,9 +42,13 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     uk: "Привіт, я Софія, це Ден. Сьогодні був класний івент, але тепер нам потрібна твоя допомога з дверима. Я впевнена — щось точно придумаємо.",
     en: "Hi, I'm Sofiia, this is Dan. Today's event was great, but now we need your help with the door. I'm sure we'll figure something out.",
   },
+  "dan-explained-door": {
+    uk: "Ага, двері... тут проста історія: потрібен бейдж з кодом, у мене такий був, але я його кудись 'оптимізував' і знайти не можу — буквально дамп пам'яті.",
+    en: "Ah, the door... simple story really: you need a badge with the code, I had one, but I 'optimized' it away somewhere and can't find it — basically a memory dump.",
+  },
   "dan-badge-asked": {
-    uk: "Ага, двері... без бейджика їх не відчиниш, а свій я кудись 'оптимізував' — буквально дамп пам'яті. Тут весь час білий кіт біля мене крутився — спитай у нього, він точно щось бачив.",
-    en: "Ah, the door... can't open it without a badge, and mine I sort of 'optimized' away — basically a memory dump. The white cat was circling me the whole time — ask him, he definitely saw something.",
+    uk: "Хм, де я його останній раз бачив... ага, точно — тут увесь час білий кіт біля мене крутився. Скоріш за все саме він щось знає — спитай у нього.",
+    en: "Hmm, where did I last see it... ah, right — the white cat was circling me the whole time. Most likely he's the one who knows something — ask him.",
   },
   "hoover-ordinary-rejected": {
     uk: "Мяу. Hoover чує команду, але виглядає так, ніби людські накази сьогодні не в пріоритеті.",
@@ -71,6 +78,10 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     uk: "О, ти ще тут. Спробуй поговорити з Деном — він тут найближче до дверей, з нього варто почати.",
     en: "Oh, still here. Try talking to Dan — he's the closest one to the door, that's where to start.",
   },
+  "sofia-context-after-explained": {
+    uk: "Ну ось, бейдж кудись поділся. Розпитай Дена ще — він точно пам'ятає більше, ніж сказав з першого разу.",
+    en: "Well, the badge is gone somewhere. Ask Dan a bit more — he definitely remembers more than he said the first time.",
+  },
   "sofia-context-after-dan": {
     uk: "Як там пошук? Якщо Ден на когось показав — рухайся туди, тільки спокійно.",
     en: "How's the search? If Dan pointed at someone — go that way, just gently.",
@@ -80,8 +91,12 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "Almost there. Somewhere a stage — and a very sleepy reason the badge is still quiet.",
   },
   "sofia-hint-initial": {
-    uk: "Я б почала з Дена. Він був із бейджиком і точно пам'ятає більше, ніж вдає.",
-    en: "I'd start with Dan. He had the badge — he remembers more than he lets on.",
+    uk: "Я б почала з Дена. Спитай його прямо про двері — він точно знає більше, ніж видно зараз.",
+    en: "I'd start with Dan. Ask him directly about the door — he knows more than it looks right now.",
+  },
+  "sofia-hint-after-explained": {
+    uk: "Ден уже зізнався, що бейдж загубив. Розпитай його ще — де він його залишив, хто був поруч. Може, ще хтось бачив.",
+    en: "Dan already admitted he lost the badge. Ask him a bit more — where he left it, who was around. Maybe someone else saw.",
   },
   "sofia-hint-after-dan": {
     uk: "Якщо Ден на когось показав — звернись до нього без тиску. Коти не дуже на накази.",
