@@ -94,14 +94,44 @@ assert.equal(
 );
 assert.equal(claudeSkipsPhase1.nextQuestState.danBadgeAsked, false);
 
-// Phase 2: Dan reveals the white cat. Hoover tag appears.
-const danPointsCat = await runTurn({
-  transcript: "Дене, а де ти бейдж залишив",
+// Stall: between phase 1 and phase 2, asking again without loss-suggestion keeps Dan stalling
+const danStalls = await runTurn({
+  transcript: "Дене, а де бейдж",
+  questState: { sofiaIntroduced: true, danExplainedDoor: true },
+  decision: {
+    transitionId: "chitchat-replied",
+    actor: "dan",
+    reply: "Зараз-зараз, я ось-ось знайду його...",
+  },
+});
+assert.equal(danStalls.event.type, "chitchat-replied");
+assert.equal(danStalls.actor, "dan");
+assert.equal(danStalls.nextQuestState.danBadgeAsked, false, "stall does not advance to phase 2");
+
+// Stall: Claude trying dan-badge-asked without loss-suggestion is rejected -> fallback
+const claudeSkipsLossPrompt = await runTurn({
+  transcript: "Дене, а де бейдж",
   questState: { sofiaIntroduced: true, danExplainedDoor: true },
   decision: {
     transitionId: "dan-badge-asked",
     actor: "dan",
-    reply: "А, точно — тут білий кіт біля мене крутився.",
+    reply: "Білий кіт бачив!",
+  },
+});
+assert.notEqual(
+  claudeSkipsLossPrompt.event.type,
+  "dan-badge-asked",
+  "phase 2 only fires on an explicit loss-suggestion",
+);
+
+// Phase 2: explicit loss-suggestion unlocks the cat clue and Hoover tag
+const danPointsCat = await runTurn({
+  transcript: "Дене, може ти його загубив",
+  questState: { sofiaIntroduced: true, danExplainedDoor: true },
+  decision: {
+    transitionId: "dan-badge-asked",
+    actor: "dan",
+    reply: "Мабуть, ти правий — не можу знайти. Тут білий кіт крутився, спитай у нього.",
     nameTagActors: ["dan", "hoover"],
   },
 });
@@ -258,8 +288,8 @@ const earlySofiaHoover = await runTurn({
 assert.equal(earlySofiaHoover.event.type, "sofia-hint-given");
 assert.equal(
   earlySofiaHoover.reply,
-  "Ден уже зізнався, що бейдж загубив. Розпитай його ще — де він його залишив, хто був поруч. Може, ще хтось бачив.",
-  "early Hoover leak replaced by phase-1 canned hint",
+  "Він уже хвилин п'ять шукає. Спробуй просто запитати, чи він часом не загубив його — може, тоді нарешті визнає.",
+  "early Hoover leak replaced by dan-explained canned hint nudging toward loss-suggestion",
 );
 assert.equal(earlySofiaHoover.nameTagActors.includes("hoover"), false);
 
@@ -307,12 +337,12 @@ const englishPhase1 = await runTurn({
 assert.equal(englishPhase1.event.type, "dan-explained-door");
 
 const englishPhase2 = await runTurn({
-  transcript: "Dan, where did you put the badge?",
+  transcript: "Dan, maybe you lost it?",
   questState: { sofiaIntroduced: true, danExplainedDoor: true },
   decision: {
     transitionId: "dan-badge-asked",
     actor: "dan",
-    reply: "Ah, right — the white cat was circling me.",
+    reply: "Ah, you might be right — the white cat was circling me.",
   },
 });
 assert.equal(englishPhase2.event.type, "dan-badge-asked");
@@ -338,4 +368,4 @@ const englishDoor = await createQuestBrainTurn({
 assert.equal(englishDoor.event.type, "door-opened");
 assert.equal(englishDoor.reply, "Code 404. Door open. Thanks for being with us.");
 
-console.log("brain.test: passed (39 assertions)");
+console.log("brain.test: passed (42 assertions)");

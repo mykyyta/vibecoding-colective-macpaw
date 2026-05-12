@@ -88,8 +88,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "dan-badge-asked",
     actor: () => "dan",
     isAvailable: (state) => state.danExplainedDoor && !state.danBadgeAsked,
-    factsCheck: (_state, facts) =>
-      facts.hasDan && (facts.hasDoor || facts.hasCodeIntent),
+    factsCheck: (_state, facts) => facts.hasDan && facts.hasLossSuggestion,
     apply: (state) => ({ ...state, danBadgeAsked: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["dan-badge-asked"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -218,6 +217,7 @@ export function getAllowedQuestTransitions(
         hasVccIntent: false,
         hasGentleHooverAddress: false,
         hasWakeAttempt: false,
+        hasLossSuggestion: false,
         hasSmalltalk: false,
       }),
       allowedActors: record.allowedActors?.(state),

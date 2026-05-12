@@ -38,7 +38,7 @@ export const SOFIA_HINT_STAGES: Record<SofiaHintStage, SofiaHintStageData> = {
   "dan-explained": {
     replyId: "sofia-hint-after-explained",
     contextText:
-      "Current Sofiia hint stage: Dan admitted he had a badge with the code and lost it. The player should now follow up with Dan — ask where he last saw it, what happened, who could have taken it, or whether maybe a cat was around. Do not yet mention Hoover or the white cat by name.",
+      "Current Sofiia hint stage: Dan claims he has the badge on him and keeps stalling — \"give me a second, almost got it\". He is NOT admitting it's lost yet. The player must explicitly suggest the badge might be lost (\"може, ти його загубив?\", \"maybe you lost it?\", \"missing?\") to break Dan out of the stall. Sofiia's hint should nudge the player toward asking that exact kind of question. Do not yet mention Hoover, Fixel, or the cat by name.",
   },
   initial: {
     replyId: "sofia-hint-initial",

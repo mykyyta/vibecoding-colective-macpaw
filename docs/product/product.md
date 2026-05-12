@@ -80,24 +80,29 @@ The happy path is intentionally small:
    and Dan, says the door is locked, and mentions that Dan had a badge with
    the code but somehow misplaced it. The Sofiia and Dan name tags appear.
 2. The user addresses Dan and asks about the door, exit, code, or badge.
-   Dan reveals there's a badge with the code and that he had one but
-   lost it. He does not mention the cat yet.
-3. The user follows up with Dan — asks where he last saw the badge,
-   when, who could have taken it, or whether a cat might have been
-   around. Dan now recalls that the white cat was circling him the
-   whole time and suggests asking the cat. The Hoover name tag appears.
-4. The user addresses Hoover directly. Hoover does not progress the quest
+   Dan confirms the door needs a badge, claims he has it on him, and
+   starts looking ("just a second, almost got it"). He does not admit
+   losing it and does not mention the cat.
+3. The user keeps asking Dan about the badge. Dan stays in the stall
+   loop, repeating fresh variations of "I have it, give me a second".
+   The loop has no turn limit.
+4. The user breaks the loop by suggesting Dan lost the badge ("maybe
+   you lost it?", "може ти його загубив?"). Only on that explicit
+   loss-suggestion does Dan finally admit he can't find it and
+   casually mention that the white cat Hoover was hanging around him.
+   The Hoover name tag appears.
+5. The user addresses Hoover directly. Hoover does not progress the quest
    unless the user addresses him gently; pre-activation Hoover addresses
    route to Sofiia.
-5. When addressed gently, Hoover says that Fixel took the badge. The Fixel
+6. When addressed gently, Hoover says that Fixel took the badge. The Fixel
    name tag appears, and a badge edge appears under Fixel while the code
    remains hidden.
-6. The user addresses Fixel and tries to wake him; pre-activation Fixel
+7. The user addresses Fixel and tries to wake him; pre-activation Fixel
    addresses route to Sofiia.
-7. Fixel wakes lazily or rolls over with a nonverbal sleepy cat sound. The
+8. Fixel wakes lazily or rolls over with a nonverbal sleepy cat sound. The
    badge becomes visible and reveals code `404`.
-8. The user tells code `404` to Dan.
-9. Dan drops vibe-coding mode for the ritual close:
+9. The user tells code `404` to Dan.
+10. Dan drops vibe-coding mode for the ritual close:
    `Код 404. Двері відчинено. Дякуємо, що були з нами.` /
    `Code 404. Door open. Thanks for being with us.`
 

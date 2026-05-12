@@ -10,6 +10,7 @@ export const FINAL_DOOR_LINE = FINAL_DAN_LINES.en;
 export type QuestReplyId =
   | "sofia-introduced"
   | "dan-explained-door"
+  | "dan-stalling"
   | "dan-badge-asked"
   | "hoover-ordinary-rejected"
   | "hoover-clue-given"
@@ -43,12 +44,16 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "Hi, I'm Sofiia, this is Dan. Today's event was great, but now we need your help with the door. I'm sure we'll figure something out.",
   },
   "dan-explained-door": {
-    uk: "Ага, двері... тут проста історія: потрібен бейдж з кодом, у мене такий був, але я його кудись 'оптимізував' і знайти не можу — буквально дамп пам'яті.",
-    en: "Ah, the door... simple story really: you need a badge with the code, I had one, but I 'optimized' it away somewhere and can't find it — basically a memory dump.",
+    uk: "А, двері — без бейджа з кодом їх не відкриєш. У мене такий якраз був, зараз дістану — ось він, секунду, зараз...",
+    en: "Ah, the door — you can't open it without a badge with the code. I have one right here, just a second, getting it... one moment...",
+  },
+  "dan-stalling": {
+    uk: "Зараз, секунду — він точно десь тут був, в одній з кишень. Ось-ось знайду.",
+    en: "One second — it was right here, in one of my pockets. Almost got it.",
   },
   "dan-badge-asked": {
-    uk: "Хм, де я його останній раз бачив... ага, точно — тут увесь час білий кіт біля мене крутився. Скоріш за все саме він щось знає — спитай у нього.",
-    en: "Hmm, where did I last see it... ah, right — the white cat was circling me the whole time. Most likely he's the one who knows something — ask him.",
+    uk: "Хм... мабуть, ти правий — я його ніяк не знайду, але точно ж десь був. Хоча, до речі, біля мене довго крутився якийсь білий кіт, Хувер. Спитай у нього — раптом щось бачив.",
+    en: "Hmm... you might be right — I really can't find it, but it was definitely here. Although, come to think of it, a white cat called Hoover was hanging around me for a while. Ask him — maybe he saw something.",
   },
   "hoover-ordinary-rejected": {
     uk: "Мяу. Hoover чує команду, але виглядає так, ніби людські накази сьогодні не в пріоритеті.",
@@ -79,8 +84,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "Oh, still here. Try talking to Dan — he's the closest one to the door, that's where to start.",
   },
   "sofia-context-after-explained": {
-    uk: "Ну ось, бейдж кудись поділся. Розпитай Дена ще — він точно пам'ятає більше, ніж сказав з першого разу.",
-    en: "Well, the badge is gone somewhere. Ask Dan a bit more — he definitely remembers more than he said the first time.",
+    uk: "Дивись, Ден усе шукає, і шукає, і шукає... Як думаєш — а раптом він просто загубив?",
+    en: "Look, Dan keeps searching and searching and searching... What if he just lost it?",
   },
   "sofia-context-after-dan": {
     uk: "Як там пошук? Якщо Ден на когось показав — рухайся туди, тільки спокійно.",
@@ -95,8 +100,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "I'd start with Dan. Ask him directly about the door — he knows more than it looks right now.",
   },
   "sofia-hint-after-explained": {
-    uk: "Ден уже зізнався, що бейдж загубив. Розпитай його ще — де він його залишив, хто був поруч. Може, ще хтось бачив.",
-    en: "Dan already admitted he lost the badge. Ask him a bit more — where he left it, who was around. Maybe someone else saw.",
+    uk: "Він уже хвилин п'ять шукає. Спробуй просто запитати, чи він часом не загубив його — може, тоді нарешті визнає.",
+    en: "He's been searching for ages. Try just asking him whether he maybe lost it — that might make him finally admit it.",
   },
   "sofia-hint-after-dan": {
     uk: "Якщо Ден на когось показав — звернись до нього без тиску. Коти не дуже на накази.",

@@ -144,5 +144,17 @@ function pickChitchatReply(
     }
   }
 
+  // Dan stall loop: between phase 1 and phase 2, any door/code/badge ask
+  // without a loss-suggestion keeps Dan in denial.
+  if (
+    actor === "dan" &&
+    state.danExplainedDoor &&
+    !state.danBadgeAsked &&
+    (facts.hasDoor || facts.hasCodeIntent) &&
+    !facts.hasLossSuggestion
+  ) {
+    return getQuestReply("dan-stalling", replyLanguage);
+  }
+
   return getChitchatFallbackReply(actor, state, replyLanguage);
 }

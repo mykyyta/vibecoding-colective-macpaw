@@ -72,10 +72,12 @@ assert.equal(isTransitionLegal("dan-explained-door", fresh, danDoorAsk), false, 
 assert.equal(isTransitionLegal("dan-explained-door", introduced, danDoorAsk), true);
 assert.equal(isTransitionLegal("dan-explained-door", danExplained, danDoorAsk), false, "phase 1 fires once");
 
-// isTransitionLegal: phase 2 fires only after phase 1
+// isTransitionLegal: phase 2 requires loss-suggestion
 const danBadgeFollowup = analyzeQuestTranscript("Дене, а де ти бачив бейдж");
-assert.equal(isTransitionLegal("dan-badge-asked", introduced, danBadgeFollowup), false, "phase 2 needs phase 1");
-assert.equal(isTransitionLegal("dan-badge-asked", danExplained, danBadgeFollowup), true);
+assert.equal(isTransitionLegal("dan-badge-asked", danExplained, danBadgeFollowup), false, "follow-up without loss-suggestion stays in stall");
+const danLossSuggestion = analyzeQuestTranscript("Дене, може ти його загубив");
+assert.equal(isTransitionLegal("dan-badge-asked", introduced, danLossSuggestion), false, "phase 2 needs phase 1");
+assert.equal(isTransitionLegal("dan-badge-asked", danExplained, danLossSuggestion), true, "loss-suggestion triggers phase 2");
 
 // isTransitionLegal: gentle Hoover after phase 2
 const hooverGentle = analyzeQuestTranscript("Хувере, лагідно, будь ласка, допоможи");
@@ -109,4 +111,4 @@ assert.equal(isTransitionLegal("sofia-hint-given", introduced, sofiaHint), true)
 const unaddressedHelp = analyzeQuestTranscript("дай підказку");
 assert.equal(isTransitionLegal("sofia-hint-given", introduced, unaddressedHelp), false);
 
-console.log("transitions.test: passed (37 assertions)");
+console.log("transitions.test: passed (38 assertions)");

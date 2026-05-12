@@ -5,6 +5,7 @@ import {
   CODE_INTENT_ALIASES,
   GENTLE_ALIASES,
   HINT_INTENT_ALIASES,
+  LOSS_SUGGESTION_ALIASES,
   VCC_ALIASES,
   SMALLTALK_ALIASES,
   WAKE_ALIASES,
@@ -27,6 +28,7 @@ export interface QuestTranscriptFacts {
   hasVccIntent: boolean;
   hasGentleHooverAddress: boolean;
   hasWakeAttempt: boolean;
+  hasLossSuggestion: boolean;
   hasSmalltalk: boolean;
 }
 
@@ -55,6 +57,7 @@ export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts
   const hasGentleHooverAddress =
     hasHoover && includesAny(text, GENTLE_ALIASES, matched);
   const hasWakeAttempt = includesAny(text, WAKE_ALIASES, matched);
+  const hasLossSuggestion = includesAny(text, LOSS_SUGGESTION_ALIASES, matched);
   const hasSmalltalk = includesAny(text, SMALLTALK_ALIASES, matched);
 
   return {
@@ -74,6 +77,7 @@ export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts
     hasVccIntent,
     hasGentleHooverAddress,
     hasWakeAttempt,
+    hasLossSuggestion,
     hasSmalltalk,
   };
 }

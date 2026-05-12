@@ -414,37 +414,55 @@ EN: "mrr..."
 
 ### 2.6 Reused / unchanged
 
-**Dan's dialogue is two-phase.** Live testing showed that one
-single Dan reply revealing both the badge problem AND the cat clue
-was too fast — the player had no room to investigate. We split
-the conversation into two beats.
+**Dan's dialogue is two-phase with a stall loop between them.**
+Live testing iterations:
+- a single-step `dan-badge-asked` was too fast: the player learned
+  the entire badge-and-cat story in one question;
+- a simple "phase 1 then phase 2 on any follow-up" was still too
+  easy: the player only had to ask twice;
+- final shape: phase 1 puts Dan in stall mode (he insists he has
+  the badge, just looking for it). Phase 2 only unlocks when the
+  player explicitly suggests Dan **lost** the badge. The player
+  must come up with the right question themselves.
 
-**`dan-explained-door`** (phase 1) — fires when the player first
-asks Dan about the door, exit, code, or badge after the intro.
-Dan reveals he had a badge with the code and lost it. He does
-NOT mention the cat in this reply.
+**`dan-explained-door`** (phase 1) — fires once when the player
+first asks Dan about the door/exit/code/badge after the intro.
+Dan confirms there is a badge, claims he has it on him, and
+starts looking. He does NOT yet admit losing it.
 
-UK: "Ага, двері... тут проста історія: потрібен бейдж з кодом,
-у мене такий був, але я його кудись 'оптимізував' і знайти не
-можу — буквально дамп пам'яті."
+UK: "А, двері — без бейджа з кодом їх не відкриєш. У мене такий
+якраз був, зараз дістану — ось він, секунду, зараз..."
 
-EN: "Ah, the door... simple story really: you need a badge with
-the code, I had one, but I 'optimized' it away somewhere and
-can't find it — basically a memory dump."
+EN: "Ah, the door — you can't open it without a badge with the
+code. I have one right here, just a second, getting it... one
+moment..."
 
-**`dan-badge-asked`** (phase 2; renamed semantically from the
-old single-step dan-badge-asked) — fires when the player follows
-up with Dan after phase 1 — asks where he last saw the badge,
-when, who could have taken it, whether a cat was around, or any
-pointed follow-up question. Dan now recalls the white cat.
+**`dan-stalling`** (stall loop) — fires through chitchat-replied
+with actor=dan whenever the player asks Dan again about the
+badge/door/code WITHOUT suggesting it might be lost. The reply
+is a fresh variation of "I have it, almost got it, give me a
+sec". The loop has no turn limit.
 
-UK: "Хм, де я його останній раз бачив... ага, точно — тут увесь
-час білий кіт біля мене крутився. Скоріш за все саме він щось
-знає — спитай у нього."
+UK: "Зараз, секунду — він точно десь тут був, в одній з кишень.
+Ось-ось знайду."
 
-EN: "Hmm, where did I last see it... ah, right — the white cat
-was circling me the whole time. Most likely he's the one who
-knows something — ask him."
+EN: "One second — it was right here, in one of my pockets.
+Almost got it."
+
+**`dan-badge-asked`** (phase 2) — fires ONLY when the player
+explicitly suggests Dan lost the badge ("може, ти його
+загубив?", "maybe you lost it?", "missing?"). Only then does Dan
+admit he can't find it and casually mention the white cat Hoover
+was hanging around him.
+
+UK: "Хм... мабуть, ти правий — я його ніяк не знайду, але точно
+ж десь був. Хоча, до речі, біля мене довго крутився якийсь білий
+кіт, Хувер. Спитай у нього — раптом щось бачив."
+
+EN: "Hmm... you might be right — I really can't find it, but it
+was definitely here. Although, come to think of it, a white cat
+called Hoover was hanging around me for a while. Ask him — maybe
+he saw something."
 
 **`hoover-ordinary-rejected`**, **`hoover-clue-given`**,
 **`fixel-sleeping-rejected`**, **`code-revealed`**,

@@ -103,6 +103,29 @@ export const GENTLE_ALIASES: string[] = [
   "nice cat",
 ];
 
+export const LOSS_SUGGESTION_ALIASES: string[] = [
+  "загуб",
+  "загубл",
+  "втрат",
+  "пропа",
+  "запропа",
+  "посіял",
+  "посія",
+  "посіяв",
+  "посіяла",
+  "загубив",
+  "загубила",
+  "загубили",
+  "загубило",
+  "загубилось",
+  "загубився",
+  "lost",
+  "lose",
+  "misplac",
+  "missing",
+  "gone",
+];
+
 export const WAKE_ALIASES: string[] = [
   "прокидай",
   "прокинь",

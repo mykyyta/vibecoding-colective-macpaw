@@ -42,13 +42,13 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
   "dan-explained-door": {
     id: "dan-explained-door",
     describe: () =>
-      "Phase 1 of the Dan dialogue. Use when the player directly addresses Dan and asks about the door, exit, code, badge, or how to get out, and danExplainedDoor is still false. Dan answers in his own voice: the door needs a badge with the code, he had one but he can't find it now. Dan must NOT mention the white cat, Hoover, or any specific clue about where the badge went in this reply — that comes in phase 2 when the player follows up.",
+      "Phase 1 of the Dan dialogue. Use when the player directly addresses Dan with door/exit/code/badge intent and danExplainedDoor is still false. Dan says the door needs a badge with the code, that he has one on him, and that he is reaching for it now (\"зараз, секунду\"). Dan does NOT admit losing the badge yet, does NOT mention the white cat or Hoover, and stays confident.",
     fallbackLineId: "dan-explained-door",
   },
   "dan-badge-asked": {
     id: "dan-badge-asked",
     describe: () =>
-      "Phase 2 of the Dan dialogue. Use when danExplainedDoor is true and the player follows up with Dan about the badge — asking where he last saw it, when, who could have taken it, whether maybe a cat was involved, or any pointed follow-up question. Dan now recalls that the white cat was circling him the whole time and suggests asking the cat. Dan must not raise this clue himself outside this transition.",
+      "Phase 2 of the Dan dialogue. Use ONLY when danExplainedDoor is true AND the player explicitly suggests that Dan lost the badge (\"може, ти його загубив?\", \"maybe you lost it?\", \"missing?\", \"can't find it?\"). Only on that explicit loss-suggestion does Dan admit he can't find it — and casually adds that a white cat called Hoover was hanging around him, suggesting the player ask the cat. Any other follow-up keeps Dan in stall mode (chitchat-replied with actor=dan, dan-stalling line).",
     fallbackLineId: "dan-badge-asked",
   },
   "hoover-ordinary-rejected": {
