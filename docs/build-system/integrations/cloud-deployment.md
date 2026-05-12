@@ -107,7 +107,6 @@ adapters used by the product:
 - `GEMINI_MODEL`
 - `ELEVENLABS_API_KEY`
 - `ELEVENLABS_STT_MODEL`
-- `ELEVENLABS_TTS_MODEL`
 - `DEMO_API_TOKEN` if paid routes are exposed beyond the demo team
 - `LEADERBOARD_TABLE_NAME` and `LEADERBOARD_COMPLETION_TOKEN_SECRET` when
   persistent leaderboard storage is enabled

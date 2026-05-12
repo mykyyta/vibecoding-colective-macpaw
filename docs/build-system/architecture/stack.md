@@ -69,11 +69,17 @@ npm start
 - `SERVER_PORT` controls the Express API port.
 - `CLAUDE_API_KEY` and `CLAUDE_MODEL` configure server-side Claude text generation.
 - `GEMINI_API_KEY` and `GEMINI_MODEL` configure server-side Gemini text generation and image-generation readiness.
-- `ELEVENLABS_API_KEY`, `ELEVENLABS_TTS_MODEL`, and `ELEVENLABS_SFX_MODEL`
+- `ELEVENLABS_API_KEY`, `ELEVENLABS_STT_MODEL`, and `ELEVENLABS_SFX_MODEL`
   configure server-side or script-driven ElevenLabs direct API calls.
+- The ElevenLabs TTS model is a code constant in `src/server/providers/config.ts`.
+  The quest uses `eleven_v3` for more expressive character speech rather than a
+  deployment environment variable.
 - ElevenLabs voice IDs for Dan, Hoover, and Sofiia are code constants in
-  `src/server/providers/config.ts`, not deployment environment variables. There
-  is no room or door TTS voice in the current scenario.
+  `src/server/providers/config.ts`, not deployment environment variables.
+  Per-character ElevenLabs TTS tuning lives in
+  `src/server/quest/engine/voice-adapter.ts`; Sofia and Dan intentionally use
+  slower, more expressive settings so their voices read deeper and more
+  emotional. There is no room or door TTS voice in the current scenario.
 - Fixel is a nonverbal actor. His purr/grumble audio should be generated as
   static ElevenLabs Sound Effects assets under `public/audio/` with
   `npm run elevenlabs:sfx:fixel -- --yes`, then played as local assets at

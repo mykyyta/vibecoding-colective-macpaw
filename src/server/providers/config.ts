@@ -42,6 +42,7 @@ export interface ElevenLabsRealtimeSttConfig {
   model: string;
 }
 
+const DEFAULT_ELEVENLABS_TTS_MODEL = "eleven_v3";
 const DEFAULT_ELEVENLABS_STT_MODEL = "scribe_v2_realtime";
 const ELEVENLABS_VOICE_IDS = {
   dan: "CwhRBWXzGAHq8TQ4Fs17",
@@ -91,14 +92,11 @@ export function getGeminiConfig(env: EnvSource = process.env): GeminiProviderCon
 export function getElevenLabsConfig(
   env: EnvSource = process.env,
 ): ElevenLabsProviderConfig {
-  requireProviderEnv("elevenlabs", env, [
-    "ELEVENLABS_API_KEY",
-    "ELEVENLABS_TTS_MODEL",
-  ]);
+  requireProviderEnv("elevenlabs", env, ["ELEVENLABS_API_KEY"]);
 
   return {
     apiKey: readEnv(env, "ELEVENLABS_API_KEY")!,
-    ttsModel: readEnv(env, "ELEVENLABS_TTS_MODEL")!,
+    ttsModel: DEFAULT_ELEVENLABS_TTS_MODEL,
     defaultVoiceId: ELEVENLABS_VOICE_IDS.dan,
     voiceIds: ELEVENLABS_VOICE_IDS,
   };
@@ -126,10 +124,7 @@ export function getProviderReadiness(
 ): ProviderReadiness[] {
   const claudeMissing = missingEnv(env, ["CLAUDE_API_KEY", "CLAUDE_MODEL"]);
   const geminiMissing = missingEnv(env, ["GEMINI_API_KEY", "GEMINI_MODEL"]);
-  const elevenLabsMissing = missingEnv(env, [
-    "ELEVENLABS_API_KEY",
-    "ELEVENLABS_TTS_MODEL",
-  ]);
+  const elevenLabsMissing = missingEnv(env, ["ELEVENLABS_API_KEY"]);
 
   return [
     {

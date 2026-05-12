@@ -52,8 +52,8 @@ export function getBrowserSpeechSettings(actor: QuestActor): {
     case "system":
       return { rate: 0.9, pitch: 0.72 };
     case "sofia":
-      return { rate: 0.94, pitch: 1.04 };
+      return { rate: 0.9, pitch: 0.92 };
     case "dan":
-      return { rate: 0.98, pitch: 0.9 };
+      return { rate: 0.9, pitch: 0.78 };
   }
 }

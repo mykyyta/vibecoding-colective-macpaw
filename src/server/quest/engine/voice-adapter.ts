@@ -21,6 +21,20 @@ const VOICE_ROLE_BY_ACTOR: Record<ElevenLabsSpeechActor, ElevenLabsVoiceRole> = 
 const VOICE_SETTINGS_BY_ACTOR: Partial<
   Record<ElevenLabsSpeechActor, ElevenLabsVoiceSettings>
 > = {
+  sofia: {
+    stability: 0.38,
+    similarityBoost: 0.82,
+    style: 0.52,
+    speed: 0.9,
+    useSpeakerBoost: true,
+  },
+  dan: {
+    stability: 0.45,
+    similarityBoost: 0.84,
+    style: 0.46,
+    speed: 0.88,
+    useSpeakerBoost: true,
+  },
   hoover: {
     stability: 0.42,
     similarityBoost: 0.78,
