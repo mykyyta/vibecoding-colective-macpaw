@@ -19,11 +19,11 @@ on top of the already shipped organizers-cat-badge scenario.
 
 | # | Packet | Owner | Status | Notes |
 | --- | --- | --- | --- | --- |
-| 1 | Dan Trigger Rename And Vibe-Coding Default | unassigned | Not started | Lands first to minimize churn on files Packets 2–4 will touch. |
-| 2 | Voice Cards And Style Reframing | unassigned | Not started | Voice cards in `actors.ts`, global irony removed from `style.ts`. |
-| 3 | Sofia Opening Knowledge And Proactive Tone | unassigned | Not started | Splits the parent rule about badge mention; rewrites Sofiia fallbacks. |
-| 4 | First-Turn Intro And Strict Pre-Activation Routing | unassigned | Not started | Adds new `sofiaIntroduced` state flag and `sofia-introduced` transition; changes `getAllowedQuestTransitions` and `getChitchatActor`. |
-| 5 | Validation | unassigned | Not started | Includes a grep smoke for stale rename literals. |
+| 1 | Dan Trigger Rename And Vibe-Coding Default | Codex | Completed | Rename landed across shared, scenario, engine, client, tests. |
+| 2 | Voice Cards And Style Reframing | Codex | Completed | Voice cards in `actors.ts`, anti-template rules in `style.ts`. |
+| 3 | Sofia Opening Knowledge And Proactive Tone | Codex | Completed | Sofiia frames the badge from turn 1; `containsFixelOrBadgeReveal` simplified to `containsFixelReveal`. |
+| 4 | First-Turn Intro And Strict Pre-Activation Routing | Codex | Completed | `sofiaIntroduced` flag added; `sofia-introduced` transition gates turn 1; `getChitchatActor` redirects pre-activation cats to Sofiia; `filterNameTagActors` gates Sofiia/Dan tags behind `sofiaIntroduced`; fallback path also surfaces the right name tags and redirect replies. |
+| 5 | Validation | Codex | Completed | All quest tests, scenario purity, rename smoke, manual UK/EN happy paths green. |
 
 ## Current Decisions
 
@@ -98,7 +98,30 @@ edge-case decisions live in
 for `actors.ts`, `lines.ts`, and `style.ts` until the initiative
 completes.
 
+## Validation Results (2026-05-12)
+
+- `npm run typecheck` — passed.
+- `npm run test:quest` — passed: state 16 assertions, transitions
+  36 assertions, classifier 22 assertions, language 12 assertions,
+  prompt 10 assertions, brain 37 assertions.
+- `npm run check:scenario-purity` — passed.
+- `npm run check:rename-stale` — passed (new script; src and
+  scripts trees free of `dan-door-checked` / `danDoorChecked`).
+- Manual UK happy path via local `/api/voice-turn` with empty
+  Claude provider (heuristic fallback): turn 1 → sofia-introduced
+  with sofia+dan tags; "Хувере, привіт" pre-activation →
+  chitchat-replied, actor=sofia, reply is the canned redirect; Dan
+  badge ask → dan-badge-asked with hoover tag added; gentle Hoover
+  → hoover-clue-given with fixel tag; "Гей, Фіксель,
+  прокидайся" → code-revealed with nonverbal `мррп.`; Dan + 404
+  → door-opened with the fixed ritual UK line.
+- Manual EN happy path: turn 1 → English intro line; Dan badge ask
+  → Dan's vibe-coding-style EN reply; door-opened → English ritual
+  line.
+
 ## Next Action
 
-Review brief and content. Once approved, start Packet 1 — Dan
-Trigger Rename And Vibe-Coding Default.
+Voice-side polish during play testing: refine canned reply
+wording, persona examples, and TTS intonation cues as live runs
+expose drift. No further structural work expected before that
+testing pass.

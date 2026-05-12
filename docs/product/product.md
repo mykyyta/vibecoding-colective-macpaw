@@ -75,29 +75,36 @@ sleeping above or near the stage.
 
 The happy path is intentionally small:
 
-1. The user gives a generic door command or asks what is happening.
-2. Because there is no explicit addressee, Sofiia answers with short general
-   context: the event is over, the door seems locked, and Dan may know more
-   about the door panel.
-3. The user addresses Dan and asks him to open the door, check the door, or
-   enter a code.
-4. Dan checks the door and says it looks like a code lock. He cannot open it
-   yet, but he noticed Hoover hanging around near the door.
-5. The user addresses Hoover directly.
-6. Hoover does not move the quest forward until the user addresses him gently.
-7. When addressed gently, Hoover says that Fixel took the badge.
-8. Fixel is visible from the start. After Hoover points to Fixel, the visual
-   state reveals the edge of a badge under Fixel, but the code is still hidden.
-9. The user addresses Fixel and tries to wake him.
-10. Fixel wakes lazily or rolls over with a nonverbal sleepy cat sound. The
-    badge becomes visible and reveals code `404`.
-11. The user tells code `404` to Dan.
-12. Dan enters the code and opens the door with the line:
-    `Код 404. Двері відчинено. Дякуємо, що були з нами.` /
-    `Code 404. Door open. Thanks for being with us.`
+1. The user speaks their first line of the session. Regardless of what they
+   say or whom they address, Sofiia takes the floor and introduces herself
+   and Dan, says the door is locked, and mentions that Dan had a badge with
+   the code but somehow misplaced it. The Sofiia and Dan name tags appear.
+2. The user addresses Dan and asks about the badge, the code, or how to
+   leave. Dan briefly admits he had the badge, mentions that a white cat
+   was around when he last had it, and slips back into vibe-coding talk.
+   The Hoover name tag appears.
+3. The user addresses Hoover directly. Hoover does not progress the quest
+   unless the user addresses him gently; pre-activation Hoover addresses
+   route to Sofiia.
+4. When addressed gently, Hoover says that Fixel took the badge. The Fixel
+   name tag appears, and a badge edge appears under Fixel while the code
+   remains hidden.
+5. The user addresses Fixel and tries to wake him; pre-activation Fixel
+   addresses route to Sofiia.
+6. Fixel wakes lazily or rolls over with a nonverbal sleepy cat sound. The
+   badge becomes visible and reveals code `404`.
+7. The user tells code `404` to Dan.
+8. Dan drops vibe-coding mode for the ritual close:
+   `Код 404. Двері відчинено. Дякуємо, що були з нами.` /
+   `Code 404. Door open. Thanks for being with us.`
 
 This ending should feel like an organizer closing the event, not a guard
 granting escape.
+
+Character activation is strictly sequential and made visible by name tags:
+Sofiia and Dan after the intro fires, Hoover after `dan-badge-asked`, Fixel
+after `hoover-clue-given`. A name tag over a character means the user can
+address them.
 
 Core line:
 
@@ -106,20 +113,29 @@ Core line:
 
 ## Character Rules
 
-Sofiia is the default responder for unaddressed turns. For ordinary unaddressed
-turns, she gives short general context rather than a puzzle solution. She may
-mention Dan early because Dan is the natural door-panel person. She must not
-mention Hoover, Fixel, the badge, or code `404` before the player reaches those
-facts through the quest path.
+Sofiia is the warm, optimistic presence in the room. She knows about the
+badge and that Dan was its previous owner from the start, and she frames the
+problem in her intro. She is the default responder for unaddressed turns and
+gives proactive check-ins on the player's progress rather than neutral
+facilitation. She must not mention Hoover, Fixel, the badge's current
+location, or code `404` before the player reaches those facts through the
+quest path.
 
-Sofiia gives hints only when the player directly asks Sofiia for a hint, idea,
-help, advice, or next step. She should sound like a calm event organizer and
-facilitator who believes a way out will be found. She should not become a game
-master, narrator, answer key, or generic chatbot.
+Sofiia gives hints only when the player directly asks her for a hint, idea,
+help, advice, or next step. She should sound like a warm event organizer
+who trusts the player completely and never sounds tired or impatient. She
+should not become a game master, narrator, answer key, or generic chatbot,
+and she does not ask follow-up questions.
 
-Dan is not a guard. He is an event organizer who can inspect the door panel and
-enter the code. He should feel competent but constrained by the missing badge or
-code. He should not know or reveal the code before Fixel reveals the badge.
+Dan is an event organizer and a vibe-coding engineer who is fully absorbed
+in post-event enthusiasm. He had the badge with the code and misplaced it,
+but does not think it matters. He never raises the badge, the door, the
+code, or the exit himself; in every reply except `dan-badge-asked` and
+`door-opened` he stays in vibe-coding chitchat (Cursor, agents, prompts,
+demos). When the player asks him directly about the badge or how to leave,
+he briefly mentions the white cat and slips back into vibe-coding talk.
+On the final `door-opened` turn he drops vibe-coding mode and delivers the
+fixed ritual line.
 
 Hoover is the white cat near the door. Hoover reveals the Fixel clue only after
 a direct, gentle Hoover-addressed turn. The LLM may decide gentleness from the

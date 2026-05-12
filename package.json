@@ -19,6 +19,7 @@
     "test:quest:language": "tsx scripts/quest-tests/language.test.ts",
     "test:quest:brain": "tsx scripts/quest-tests/brain.test.ts",
     "check:scenario-purity": "tsx scripts/check-scenario-purity.ts",
+    "check:rename-stale": "tsx scripts/check-rename-stale.ts",
     "test:leaderboard-api": "tsx scripts/leaderboard-api-proof.ts",
     "test:leaderboard-storage": "tsx scripts/leaderboard-storage-proof.ts",
     "start": "node dist/server/index.js",

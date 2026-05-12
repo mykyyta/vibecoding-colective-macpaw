@@ -64,6 +64,13 @@ social logic:
   backend state gates preventing early code reveal.
 - Fixel is visible from the start; after Hoover's clue, the badge edge appears
   under him while the code remains hidden.
+- 2026-05-12: The `scenario-character-voices` initiative renamed the
+  `dan-door-checked` transition to `dan-badge-asked`, renamed the
+  `danDoorChecked` state flag to `danBadgeAsked`, added the
+  `sofia-introduced` first-turn transition with the matching
+  `sofiaIntroduced` state flag, and split the badge-mention rule so
+  Sofiia may now mention the badge and Dan from her opening reply. The
+  earlier wording in this status file is preserved as historical record.
 
 ## Active Constraints
 

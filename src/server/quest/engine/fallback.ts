@@ -14,6 +14,8 @@ import {
   findFirstLegalProgressingTransition,
 } from "./transitions.js";
 import { getChitchatActor, getChitchatFallbackReply } from "./chitchat.js";
+import { getQuestReply } from "../scenario/lines.js";
+import type { QuestTranscriptFacts } from "./classifier.js";
 
 // QuestTurn is structurally reproduced here to avoid a circular value import
 // (index.ts imports createHeuristicFallbackTurn; fallback.ts must not import
@@ -50,10 +52,55 @@ function buildTurn(
     event: { type: transitionId, progressed },
     replyLanguage,
     reply,
-    nameTagActors: [],
+    nameTagActors: defaultNameTagActors(transitionId, nextQuestState),
     previousQuestState,
     nextQuestState,
   };
+}
+
+function defaultNameTagActors(
+  transitionId: QuestTransitionId,
+  nextState: QuestState,
+): QuestNameTagActor[] {
+  const tags: QuestNameTagActor[] = [];
+
+  if (nextState.sofiaIntroduced) {
+    tags.push("sofia", "dan");
+  }
+  if (nextState.danBadgeAsked) {
+    tags.push("hoover");
+  }
+  if (nextState.hooverClueGiven) {
+    tags.push("fixel");
+  }
+
+  // Make sure progression-revealing transitions surface the freshly
+  // activated character even though the heuristic fallback path can
+  // run with state mid-transition.
+  if (transitionId === "sofia-introduced") {
+    return ensure(tags, ["sofia", "dan"]);
+  }
+  if (transitionId === "dan-badge-asked") {
+    return ensure(tags, ["dan", "hoover"]);
+  }
+  if (transitionId === "hoover-clue-given") {
+    return ensure(tags, ["hoover", "fixel"]);
+  }
+
+  return tags;
+}
+
+function ensure(
+  base: QuestNameTagActor[],
+  required: QuestNameTagActor[],
+): QuestNameTagActor[] {
+  const out = [...base];
+  for (const tag of required) {
+    if (!out.includes(tag)) {
+      out.push(tag);
+    }
+  }
+  return out;
 }
 
 export function createHeuristicFallbackTurn(
@@ -76,6 +123,26 @@ export function createHeuristicFallbackTurn(
   }
 
   const actor = getChitchatActor(previousQuestState, facts);
-  const reply = getChitchatFallbackReply(actor, previousQuestState, replyLanguage);
+  const reply = pickChitchatReply(actor, previousQuestState, facts, replyLanguage);
   return buildTurn("chitchat-replied", actor, reply, replyLanguage, previousQuestState);
+}
+
+function pickChitchatReply(
+  actor: QuestActor,
+  state: QuestState,
+  facts: QuestTranscriptFacts,
+  replyLanguage: QuestLanguage,
+): string {
+  // When a pre-activation cat address was redirected to Sofiia, use the
+  // explicit redirect reply rather than the default Sofiia context line.
+  if (actor === "sofia") {
+    if (facts.hasHoover && !state.danBadgeAsked) {
+      return getQuestReply("pre-activation-hoover-redirect", replyLanguage);
+    }
+    if (facts.hasFixel && !state.hooverClueGiven) {
+      return getQuestReply("pre-activation-fixel-redirect", replyLanguage);
+    }
+  }
+
+  return getChitchatFallbackReply(actor, state, replyLanguage);
 }
