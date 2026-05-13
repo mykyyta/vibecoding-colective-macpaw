@@ -6,6 +6,9 @@ export interface VoiceCopy {
   playerName: string;
   doorName: string;
   sofiaName: string;
+  danName: string;
+  hooverName: string;
+  fixelName: string;
   listening: string;
   holdLonger: string;
   thinking: string;
@@ -53,13 +56,7 @@ export interface VoiceCopy {
   relativeJustNow: string;
   relativeMinuteAgo: (minutes: number) => string;
   relativeHourAgo: (hours: number) => string;
-  ambientListening: string;
-  ambientDoorOpening: string;
-  ambientEscaped: string;
-  ambientCodeRevealed: string;
-  ambientFixelStage: string;
-  ambientHooverClue: string;
-  ambientInitial: string;
+  ambientHint: string;
 }
 
 export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
@@ -69,6 +66,9 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     playerName: "Ти",
     doorName: "Двері",
     sofiaName: "Софія",
+    danName: "Ден",
+    hooverName: "Хувер",
+    fixelName: "Фіксель",
     listening: "Слухаю.",
     holdLonger: "Потримай кнопку трохи довше і скажи фразу ще раз.",
     thinking: "Думаю, що ти сказав.",
@@ -94,7 +94,7 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     micWaitAria: "Wait",
     micPressAria: "Push to talk, English or Ukrainian, sound on",
     hintAria: "Показати підказку",
-    restart: "Нова спроба",
+    restart: "Restart",
     leaderboardSubmitted: "Записано. Ти вийшов з кімнати офіційно.",
     leaderboardHeading: "Останні виходи",
     leaderboardSceneLabel: "Сцена",
@@ -122,13 +122,7 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     relativeJustNow: "щойно",
     relativeMinuteAgo: (minutes) => `${minutes} хв тому`,
     relativeHourAgo: (hours) => `${hours} год тому`,
-    ambientListening: "утримуй, говори, відпусти",
-    ambientDoorOpening: "EXIT resolved",
-    ambientEscaped: "EXIT accepted",
-    ambientCodeRevealed: "код видно на бейджі",
-    ambientFixelStage: "розбуди Fixel",
-    ambientHooverClue: "поговори з Hoover лагідно",
-    ambientInitial: "попроси Dan перевірити двері",
+    ambientHint: "Питай персонажів у кімнаті. Вони підкажуть, що робити далі.",
   },
   en: {
     microphoneName: "Microphone",
@@ -136,6 +130,9 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     playerName: "You",
     doorName: "Door",
     sofiaName: "Sofiia",
+    danName: "Dan",
+    hooverName: "Hoover",
+    fixelName: "Fixel",
     listening: "Listening.",
     holdLonger: "Hold the button a little longer and say the phrase again.",
     thinking: "Working out what you said.",
@@ -189,12 +186,6 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     relativeJustNow: "just now",
     relativeMinuteAgo: (minutes) => `${minutes} min ago`,
     relativeHourAgo: (hours) => `${hours} hr ago`,
-    ambientListening: "hold, speak, release",
-    ambientDoorOpening: "EXIT resolved",
-    ambientEscaped: "EXIT accepted",
-    ambientCodeRevealed: "badge code visible",
-    ambientFixelStage: "wake Fixel",
-    ambientHooverClue: "talk gently to Hoover",
-    ambientInitial: "ask Dan to check the door",
+    ambientHint: "Ask the characters in the room. They will point you toward the next step.",
   },
 };

@@ -180,19 +180,20 @@
   position: absolute;
   left: 6%;
   bottom: 13%;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   place-items: center;
   width: 16px;
   height: 18px;
-  border: 1px solid color-mix(in oklch, var(--green), transparent 40%);
+  border: 1px solid color-mix(in oklch, var(--stage), transparent 36%);
   border-radius: 3px;
   background:
-    linear-gradient(180deg, oklch(96% 0.015 95), oklch(86% 0.018 92)),
-    var(--plaster-lit);
+    linear-gradient(180deg, oklch(79% 0.22 135), oklch(61% 0.18 134)),
+    var(--green);
   box-shadow:
-    0 4px 10px color-mix(in oklch, var(--ink), transparent 78%),
-    inset 0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 30%);
+    0 4px 10px color-mix(in oklch, oklch(70% 0.21 135), transparent 62%),
+    inset 0 1px 0 color-mix(in oklch, var(--plaster-lit), transparent 34%),
+    inset 0 0 0 1px color-mix(in oklch, var(--stage), transparent 76%);
   color: var(--stage);
   font-size: 0.5rem;
   font-weight: 900;
@@ -208,19 +209,6 @@
     width 220ms var(--ease-out);
 }
 
-.fixel-badge::before {
-  /* Top clip / lanyard hole. */
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 0;
-  width: 8px;
-  height: 4px;
-  border: 1px solid color-mix(in oklch, var(--stage), transparent 48%);
-  border-bottom: 0;
-  border-radius: 4px 4px 0 0;
-}
-
 .fixel-badge i {
   font-style: normal;
   opacity: 0;
@@ -234,45 +222,52 @@
   /* Hoover gave the clue — a thin sliver of the badge peeks out from
      under Fixel's head. */
   left: 4%;
-  bottom: 10%;
-  width: 18px;
-  opacity: 0.92;
-  transform: translateY(-2px) rotate(-3deg);
+  bottom: 2%;
+  z-index: 2;
+  width: 17px;
+  height: 17px;
+  opacity: 0.98;
+  transform: translateY(3px) rotate(-5deg);
 }
 
 .fixel--badge-code .fixel-badge {
   /* Fixel raised his head — the badge falls and dangles on its lanyard
      below the head. */
-  left: 13%;
-  bottom: -16%;
+  left: 12%;
+  bottom: -42%;
   z-index: 4;
-  width: 27px;
-  height: 17px;
+  width: 29px;
+  height: 18px;
+  box-shadow:
+    0 4px 12px color-mix(in oklch, oklch(70% 0.21 135), transparent 54%),
+    inset 0 1px 0 color-mix(in oklch, var(--plaster-lit), transparent 34%),
+    inset 0 0 0 1px color-mix(in oklch, var(--stage), transparent 76%);
   opacity: 1;
-  font-size: 0.5rem;
-  transform-origin: 50% -34px;
-  animation: fixel-badge-drop 620ms var(--ease-out) both,
-    fixel-badge-swing 1800ms 700ms ease-in-out infinite;
+  color: var(--stage);
+  font-size: 0.54rem;
+  transform-origin: 50% -40px;
+  animation: fixel-badge-drop 760ms 90ms var(--ease-out) both,
+    fixel-badge-swing 1700ms 920ms ease-in-out infinite;
 }
 
 .fixel--badge-code .fixel-badge::after {
-  /* Lanyard string going up from the badge to Fixel's neck. */
+  /* Lanyard is attached to the badge center and tucked behind it. */
   content: "";
   position: absolute;
   left: 50%;
-  top: -34px;
+  top: -40px;
+  z-index: -1;
   width: 4px;
-  height: 35px;
+  height: 41px;
   border-radius: 999px;
   background:
-    linear-gradient(90deg, oklch(66% 0.082 24) 0 45%, color-mix(in oklch, var(--plaster-lit), transparent 72%) 46% 54%, oklch(55% 0.084 24) 55% 100%);
+    linear-gradient(90deg, oklch(71% 0.18 18) 0 45%, color-mix(in oklch, var(--plaster-lit), transparent 64%) 46% 54%, oklch(58% 0.18 18) 55% 100%);
   transform: translateX(-50%);
-  transform-origin: top center;
+  transform-origin: bottom center;
 }
 
 .fixel--badge-code .fixel-badge i {
-  opacity: 1;
-  transform: translateY(0);
+  animation: fixel-code-appear 520ms 520ms var(--ease-out) both;
 }
 
 .screen-rim-cat__shadow {
@@ -280,6 +275,7 @@
   left: 10%;
   right: 4%;
   bottom: 7%;
+  z-index: 0;
   height: 13%;
   border-radius: 50%;
   background: color-mix(in oklch, var(--stage), transparent 18%);
@@ -291,6 +287,7 @@
   position: absolute;
   right: 7%;
   bottom: 10%;
+  z-index: 1;
   width: 64%;
   height: 54%;
   border-radius: 50% 48% 46% 46%;
@@ -313,6 +310,7 @@
   position: absolute;
   left: 5%;
   bottom: 9%;
+  z-index: 3;
   width: 43%;
   height: 62%;
   border-radius: 52% 50% 50% 52%;
@@ -331,19 +329,49 @@
   /* Head lifts — no roll. Eyes (rendered via face background swap below)
      open. Animation finishes slightly above the resting position. */
   z-index: 4;
-  animation: fixel-head-lift 620ms 40ms var(--ease-out) both;
+  animation: fixel-head-lift 760ms 40ms var(--ease-out) both;
   transform-origin: 50% 88%;
 }
 
 .fixel--badge-code .screen-rim-cat__face {
-  /* Open eyes replace the sleeping eye-slits. Two soft amber circles
-     plus the original nose stay. */
+  /* Open eyes follow Hoover's simpler style, with warmer curious irises. */
+  left: 22%;
+  top: 40%;
+  width: 56%;
+  height: 31%;
   background:
-    radial-gradient(circle at 22% 28%, oklch(82% 0.16 80) 0 22%, transparent 23%),
-    radial-gradient(circle at 78% 28%, oklch(82% 0.16 80) 0 22%, transparent 23%),
-    radial-gradient(circle at 22% 28%, color-mix(in oklch, var(--ink), transparent 10%) 0 9%, transparent 10%),
-    radial-gradient(circle at 78% 28%, color-mix(in oklch, var(--ink), transparent 10%) 0 9%, transparent 10%),
-    radial-gradient(circle at 50% 63%, var(--rim-cat-nose) 0 13%, transparent 14%);
+    radial-gradient(circle at 50% 75%, var(--rim-cat-nose) 0 11%, transparent 12%);
+}
+
+.fixel--badge-code .screen-rim-cat__face::before,
+.fixel--badge-code .screen-rim-cat__face::after {
+  content: "";
+  position: absolute;
+  top: 3%;
+  width: 33%;
+  height: 56%;
+  border-radius: 70% 42% 68% 42%;
+  background:
+    radial-gradient(circle at 34% 28%, color-mix(in oklch, var(--plaster-lit), transparent 18%) 0 9%, transparent 10%),
+    linear-gradient(90deg, transparent 0 43%, oklch(13% 0.018 70) 44% 57%, transparent 58%),
+    linear-gradient(180deg, color-mix(in oklch, var(--rim-cat-fur-dark), transparent 34%) 0 12%, transparent 13% 86%, color-mix(in oklch, var(--rim-cat-fur-dark), transparent 42%) 87% 100%),
+    radial-gradient(ellipse at 50% 52%, oklch(82% 0.126 105) 0 58%, oklch(50% 0.09 118) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--plaster-lit), transparent 36%),
+    0 0 0 1px color-mix(in oklch, var(--rim-cat-fur-dark), transparent 40%);
+  clip-path: polygon(6% 50%, 24% 17%, 75% 16%, 96% 50%, 75% 84%, 24% 83%);
+}
+
+.fixel--badge-code .screen-rim-cat__face::before {
+  left: 8%;
+  animation: fixel-eye-open-left 620ms 220ms var(--ease-out) both;
+  transform-origin: 50% 58%;
+}
+
+.fixel--badge-code .screen-rim-cat__face::after {
+  right: 8%;
+  animation: fixel-eye-open-right 620ms 220ms var(--ease-out) both;
+  transform-origin: 50% 58%;
 }
 
 .screen-rim-cat__ear {
@@ -396,7 +424,7 @@
 .fixel--badge-code .screen-rim-cat__tail {
   /* Tail lifts slightly when Fixel raises his head. */
   z-index: 1;
-  animation: fixel-tail-lift 620ms var(--ease-out) both;
+  animation: fixel-tail-lift 760ms var(--ease-out) both;
   transform-origin: left bottom;
 }
 
@@ -505,10 +533,350 @@
   z-index: 2;
 }
 
+.mac-museum {
+  position: absolute;
+  left: 40.5%;
+  top: 28%;
+  width: 28%;
+  height: 42%;
+  transform: perspective(880px) rotateY(-8deg) skewY(-1deg) scale(0.62);
+  transform-origin: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.mac-museum__wall {
+  position: absolute;
+  inset: 0 1% 2% 0;
+  border-radius: 5px;
+  background:
+    radial-gradient(ellipse at 64% 24%, color-mix(in oklch, var(--amber-soft), transparent 72%), transparent 38%),
+    linear-gradient(180deg, color-mix(in oklch, var(--plaster), var(--clay) 22%), color-mix(in oklch, var(--plaster), var(--wood) 13%) 72%, color-mix(in oklch, var(--floor-shadow), var(--green) 9%) 72% 100%);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 74%),
+    inset -18px 0 34px color-mix(in oklch, var(--ink), transparent 91%),
+    14px 20px 34px color-mix(in oklch, var(--ink), transparent 90%);
+  opacity: 0.66;
+}
+
+.mac-museum__wall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(110deg, transparent 0 42%, color-mix(in oklch, var(--plaster-lit), transparent 92%) 43% 47%, transparent 48%),
+    linear-gradient(180deg, transparent 0 71%, color-mix(in oklch, var(--floor-shadow), transparent 80%) 71% 72%, transparent 72%);
+  opacity: 0.5;
+}
+
+.mac-museum__shelf {
+  position: absolute;
+  left: 6%;
+  right: 4%;
+  height: 24%;
+  border-bottom: 3px solid color-mix(in oklch, var(--green), var(--plaster-lit) 62%);
+  filter: drop-shadow(0 7px 8px color-mix(in oklch, var(--ink), transparent 88%));
+  opacity: 0.82;
+}
+
+.mac-museum__shelf::before {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: -4px;
+  height: 7px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--plaster-lit), transparent 58%), color-mix(in oklch, var(--green), transparent 58%), color-mix(in oklch, var(--plaster-lit), transparent 64%));
+  opacity: 0.54;
+}
+
+.mac-museum__shelf::after {
+  content: "";
+  position: absolute;
+  left: 9%;
+  right: 8%;
+  bottom: -10px;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--green), transparent 54%);
+  box-shadow: 0 0 10px color-mix(in oklch, var(--green), transparent 72%);
+}
+
+.mac-museum__shelf--top {
+  top: 5%;
+}
+
+.mac-museum__shelf--middle {
+  top: 38%;
+}
+
+.mac-museum__shelf--bottom {
+  top: 70%;
+}
+
+.museum-mac {
+  position: absolute;
+  bottom: 4px;
+  display: block;
+  background: oklch(91% 0.018 84);
+  box-shadow:
+    inset -5px -4px 0 color-mix(in oklch, var(--ink), transparent 86%),
+    inset 1px 1px 0 color-mix(in oklch, var(--plaster-lit), transparent 8%),
+    0 7px 11px color-mix(in oklch, var(--ink), transparent 83%);
+  opacity: 0.96;
+}
+
+.museum-mac__screen {
+  position: absolute;
+  border-radius: 3px;
+  background:
+    radial-gradient(ellipse at 38% 28%, color-mix(in oklch, var(--plaster-lit), transparent 52%), transparent 34%),
+    linear-gradient(180deg, oklch(35% 0.034 206), oklch(13% 0.02 210));
+  box-shadow:
+    inset 0 0 0 2px color-mix(in oklch, var(--ink), transparent 70%),
+    0 0 0 1px color-mix(in oklch, var(--plaster-lit), transparent 80%);
+}
+
+.museum-mac__badge {
+  position: absolute;
+  left: 7px;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: color-mix(in oklch, var(--amber), var(--plaster-lit) 4%);
+}
+
+.museum-mac__slot {
+  position: absolute;
+  right: 6px;
+  bottom: 10px;
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--ink), transparent 48%);
+}
+
+.museum-mac--classic {
+  left: 31%;
+  width: 48px;
+  height: 62px;
+  border-radius: 6px 6px 4px 4px;
+}
+
+.museum-mac--classic .museum-mac__screen {
+  left: 10px;
+  top: 8px;
+  width: 28px;
+  height: 24px;
+}
+
+.museum-mac--classic::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 0;
+  height: 9px;
+  border-radius: 2px 2px 4px 4px;
+  background:
+    repeating-linear-gradient(90deg, color-mix(in oklch, var(--ink), transparent 62%) 0 1px, transparent 1px 5px),
+    color-mix(in oklch, var(--plaster-lit), transparent 18%);
+  opacity: 0.88;
+}
+
+.museum-mac--small {
+  left: 42%;
+  width: 41px;
+  height: 53px;
+}
+
+.museum-mac--small .museum-mac__screen {
+  left: 8px;
+  top: 7px;
+  width: 25px;
+  height: 20px;
+}
+
+.museum-mac--stubby {
+  left: 10%;
+  width: 43px;
+  height: 49px;
+}
+
+.museum-mac--stubby .museum-mac__screen {
+  left: 8px;
+  top: 7px;
+  width: 26px;
+  height: 19px;
+}
+
+.museum-mac--imac {
+  left: 8%;
+  width: 57px;
+  height: 45px;
+  border-radius: 7px 7px 12px 12px;
+  background:
+    radial-gradient(ellipse at 76% 28%, color-mix(in oklch, var(--plaster-lit), transparent 30%), transparent 26%),
+    oklch(86% 0.036 196);
+}
+
+.museum-mac--imac .museum-mac__screen {
+  left: 9px;
+  top: 7px;
+  width: 39px;
+  height: 24px;
+}
+
+.museum-mac__chin {
+  position: absolute;
+  left: 19px;
+  right: 19px;
+  bottom: 5px;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--ink), transparent 56%);
+}
+
+.museum-mac--mini {
+  left: 66%;
+  width: 43px;
+  height: 34px;
+  border-radius: 5px 5px 9px 9px;
+}
+
+.museum-mac--mini .museum-mac__screen {
+  left: 7px;
+  top: 6px;
+  width: 29px;
+  height: 18px;
+}
+
+.museum-mac--display {
+  left: 7%;
+  width: 54px;
+  height: 40px;
+  border-radius: 5px;
+  background: oklch(85% 0.014 236);
+}
+
+.museum-mac--display .museum-mac__screen {
+  left: 5px;
+  top: 5px;
+  width: 44px;
+  height: 28px;
+}
+
+.museum-mac--display .museum-mac__stem {
+  position: absolute;
+  left: 22px;
+  bottom: -12px;
+  width: 10px;
+  height: 13px;
+  border-radius: 0 0 999px 999px;
+  background: oklch(81% 0.014 236);
+}
+
+.museum-mac--cube {
+  left: 66%;
+  width: 40px;
+  height: 46px;
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, color-mix(in oklch, var(--plaster-lit), transparent 18%), color-mix(in oklch, var(--blue), transparent 56%)),
+    oklch(84% 0.02 238);
+}
+
+.museum-mac--cube .museum-mac__logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 14px;
+  border-radius: 50% 50% 46% 46%;
+  background: color-mix(in oklch, var(--blue), var(--stage) 28%);
+  transform: translate(-50%, -50%) rotate(-12deg);
+  opacity: 0.72;
+}
+
+.museum-mac--laptop {
+  left: 66%;
+  width: 58px;
+  height: 36px;
+  border-radius: 4px 4px 2px 2px;
+  background: oklch(79% 0.02 248);
+}
+
+.museum-mac--laptop .museum-mac__screen {
+  left: 6px;
+  top: 5px;
+  width: 46px;
+  height: 25px;
+}
+
+.museum-mac__base {
+  position: absolute;
+  left: -5px;
+  right: -7px;
+  bottom: -7px;
+  height: 8px;
+  border-radius: 2px 2px 7px 7px;
+  background:
+    linear-gradient(180deg, oklch(83% 0.013 248), oklch(67% 0.019 248));
+  transform: skewX(-16deg);
+}
+
+.museum-mac--open {
+  left: 40%;
+  width: 52px;
+  height: 31px;
+  transform: rotate(-2deg);
+}
+
+.museum-label {
+  position: absolute;
+  left: 12%;
+  bottom: -1px;
+  width: 26px;
+  height: 11px;
+  border-radius: 2px;
+  background:
+    linear-gradient(180deg, color-mix(in oklch, var(--plaster-lit), transparent 6%), color-mix(in oklch, var(--amber-soft), transparent 20%));
+  box-shadow: 0 3px 5px color-mix(in oklch, var(--ink), transparent 84%);
+  opacity: 0.78;
+}
+
+.museum-label::before,
+.museum-label::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  height: 1px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--ink), transparent 76%);
+}
+
+.museum-label::before {
+  top: 4px;
+}
+
+.museum-label::after {
+  top: 7px;
+}
+
+.museum-label--right {
+  left: auto;
+  right: 12%;
+}
+
 .back-signage {
   position: absolute;
   left: 45%;
-  top: 29%;
+  top: 12%;
   padding: 0.45rem 0.7rem;
   transform: perspective(700px) rotateY(-12deg);
   border: 1px solid color-mix(in oklch, var(--line), transparent 40%);

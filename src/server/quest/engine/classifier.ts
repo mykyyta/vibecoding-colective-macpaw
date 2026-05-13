@@ -3,7 +3,7 @@ import {
   DOOR_ALIASES,
   CODE_ALIASES,
   CODE_INTENT_ALIASES,
-  GENTLE_ALIASES,
+  HOOVER_AFFECTION_ALIASES,
   HINT_INTENT_ALIASES,
   LOSS_SUGGESTION_ALIASES,
   VCC_ALIASES,
@@ -16,6 +16,7 @@ export interface QuestTranscriptFacts {
   matched: string[];
   hasDan: boolean;
   hasHoover: boolean;
+  hasHooverAddress: boolean;
   hasFixel: boolean;
   hasCatAddress: boolean;
   hasSofia: boolean;
@@ -37,6 +38,9 @@ export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts
   const matched: string[] = [];
   const hasDan = includesAny(text, PERSONAS.dan.transcriptAliases.direct ?? [], matched);
   const hasHoover = includesAny(text, PERSONAS.hoover.transcriptAliases.direct ?? [], matched);
+  const hasHooverIndirect = includesAny(text, PERSONAS.hoover.transcriptAliases.indirect ?? [], matched);
+  const hasHooverAffection = includesAny(text, HOOVER_AFFECTION_ALIASES, matched);
+  const hasHooverAddress = hasHoover || hasHooverIndirect || hasHooverAffection;
   const hasFixel = includesAny(text, PERSONAS.fixel.transcriptAliases.direct ?? [], matched);
   const hasCatAddress = includesAny(
     text,
@@ -55,7 +59,7 @@ export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts
   const hasHintIntent = includesAny(text, HINT_INTENT_ALIASES, matched);
   const hasVccIntent = includesAny(text, VCC_ALIASES, matched);
   const hasGentleHooverAddress =
-    hasHoover && includesAny(text, GENTLE_ALIASES, matched);
+    hasHooverAddress && hasHooverAffection;
   const hasFoodOffer = includesAny(text, FOOD_OFFER_ALIASES, matched);
   const hasLossSuggestion = includesAny(text, LOSS_SUGGESTION_ALIASES, matched);
   const hasSmalltalk = includesAny(text, SMALLTALK_ALIASES, matched);
@@ -65,6 +69,7 @@ export function analyzeQuestTranscript(transcript: string): QuestTranscriptFacts
     matched,
     hasDan,
     hasHoover,
+    hasHooverAddress,
     hasFixel,
     hasCatAddress,
     hasSofia,

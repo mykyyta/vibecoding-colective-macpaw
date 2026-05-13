@@ -42,10 +42,18 @@ export function isAllowedQuestBrainReply(turn: QuestTurnForGuardrail): boolean {
 
 export function isAllowedSofiaReply(
   reply: string,
-  _eventType: QuestTransitionId,
+  eventType: QuestTransitionId,
 ): boolean {
-  if (reply.length > MAX_SOFIA_REPLY_LENGTH || /[?？]/u.test(reply)) {
+  if (reply.length > MAX_SOFIA_REPLY_LENGTH) {
     return false;
+  }
+
+  if (eventType === "sofia-hint-given" && /[?？]/u.test(reply)) {
+    return false;
+  }
+
+  if (eventType !== "sofia-hint-given") {
+    return true;
   }
 
   const text = normalizeForGuardrail(reply);

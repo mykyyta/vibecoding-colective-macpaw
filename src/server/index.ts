@@ -248,9 +248,13 @@ app.post("/api/voice-turn", async (request, response) => {
 
   try {
     const tts = providerRegistry.getTextToSpeechProvider("elevenlabs");
+    const voiceRole = getElevenLabsVoiceRole(turn.actor);
     const audio = await tts.synthesizeSpeech({
       text: reply,
-      voiceId: tts.voiceIds[getElevenLabsVoiceRole(turn.actor)],
+      voiceId:
+        voiceRole === "sofia" && turn.replyLanguage === "en"
+          ? (tts.voiceIds.sofiaEnglish ?? tts.voiceIds.sofia)
+          : tts.voiceIds[voiceRole],
       voiceSettings: getElevenLabsVoiceSettings(turn.actor),
     });
 

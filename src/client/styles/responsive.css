@@ -102,6 +102,14 @@
     width: 48%;
   }
 
+  .mac-museum {
+    left: 44.5%;
+    top: 29%;
+    width: 28%;
+    height: 42%;
+    transform: perspective(880px) rotateY(-8deg) skewY(-1deg) scale(0.54);
+  }
+
   .screen-rim-cat {
     left: 44%;
     top: -8.5%;
@@ -191,6 +199,63 @@
     top: 13%;
     width: 54%;
     height: 50%;
+  }
+
+  .mac-museum {
+    left: 52%;
+    top: 30%;
+    width: 28%;
+    height: 42%;
+    transform: perspective(880px) rotateY(-8deg) skewY(-1deg) scale(0.42);
+    opacity: 0.72;
+  }
+
+  .mac-museum__shelf--top {
+    top: 1%;
+  }
+
+  .mac-museum__shelf--middle {
+    top: 23%;
+  }
+
+  .mac-museum__shelf--bottom {
+    top: 45%;
+  }
+
+  .mac-museum .museum-mac {
+    transform: scale(0.76);
+    transform-origin: bottom center;
+  }
+
+  .mac-museum__shelf--top .museum-mac--display,
+  .mac-museum__shelf--middle .museum-mac--imac,
+  .mac-museum__shelf--bottom .museum-mac--open,
+  .mac-museum .museum-label {
+    display: none;
+  }
+
+  .mac-museum__shelf--top .museum-mac--classic {
+    left: 18%;
+  }
+
+  .mac-museum__shelf--top .museum-mac--cube {
+    left: 58%;
+  }
+
+  .mac-museum__shelf--middle .museum-mac--small {
+    left: 17%;
+  }
+
+  .mac-museum__shelf--middle .museum-mac--laptop {
+    left: 54%;
+  }
+
+  .mac-museum__shelf--bottom .museum-mac--stubby {
+    left: 12%;
+  }
+
+  .mac-museum__shelf--bottom .museum-mac--mini {
+    left: 46%;
   }
 
   .screen-rim-cat {

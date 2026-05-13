@@ -1,6 +1,6 @@
 import type { QuestActor, QuestLanguage } from "../../shared/voice";
 import { BROWSER_RECOGNITION_LANGUAGE } from "../config/languages";
-import { MAX_REPLY_PLAYBACK_WAIT_MS } from "../config/timing";
+import { REPLY_PLAYBACK_WATCHDOG_MS } from "../config/timing";
 import { stopActiveAudio } from "./state";
 
 export function speakWithBrowser(
@@ -23,7 +23,7 @@ export function speakWithBrowser(
   window.speechSynthesis.cancel();
 
   return new Promise((resolve) => {
-    const speechTimer = window.setTimeout(resolve, MAX_REPLY_PLAYBACK_WAIT_MS);
+    const speechTimer = window.setTimeout(resolve, REPLY_PLAYBACK_WATCHDOG_MS);
 
     const settle = () => {
       window.clearTimeout(speechTimer);

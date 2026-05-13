@@ -114,10 +114,10 @@ completes.
   badge ask → dan-badge-asked with hoover tag added; gentle Hoover
   → hoover-clue-given with fixel tag; "Гей, Фіксель,
   прокидайся" → code-revealed with nonverbal `мррп.`; Dan + 404
-  → door-opened with the fixed ritual UK line.
+  → door-opened with the fixed playful UK congratulation.
 - Manual EN happy path: turn 1 → English intro line; Dan badge ask
-  → Dan's vibe-coding-style EN reply; door-opened → English ritual
-  line.
+  → Dan's vibe-coding-style EN reply; door-opened → English playful
+  congratulation.
 
 ## Next Action
 

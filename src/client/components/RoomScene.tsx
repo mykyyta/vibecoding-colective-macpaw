@@ -66,6 +66,57 @@ export default function RoomScene({
         <span />
       </div>
 
+      <div className="mac-museum" aria-hidden="true">
+        <div className="mac-museum__wall" />
+        <div className="mac-museum__shelf mac-museum__shelf--top">
+          <span className="museum-mac museum-mac--display">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__stem" />
+          </span>
+          <span className="museum-mac museum-mac--classic">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__slot" />
+            <span className="museum-mac__badge" />
+          </span>
+          <span className="museum-mac museum-mac--cube">
+            <span className="museum-mac__logo" />
+          </span>
+          <span className="museum-label" />
+        </div>
+        <div className="mac-museum__shelf mac-museum__shelf--middle">
+          <span className="museum-mac museum-mac--imac">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__chin" />
+          </span>
+          <span className="museum-mac museum-mac--classic museum-mac--small">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__slot" />
+            <span className="museum-mac__badge" />
+          </span>
+          <span className="museum-mac museum-mac--laptop">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__base" />
+          </span>
+          <span className="museum-label museum-label--right" />
+        </div>
+        <div className="mac-museum__shelf mac-museum__shelf--bottom">
+          <span className="museum-mac museum-mac--classic museum-mac--stubby">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__slot" />
+            <span className="museum-mac__badge" />
+          </span>
+          <span className="museum-mac museum-mac--laptop museum-mac--open">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__base" />
+          </span>
+          <span className="museum-mac museum-mac--imac museum-mac--mini">
+            <span className="museum-mac__screen" />
+            <span className="museum-mac__chin" />
+          </span>
+          <span className="museum-label" />
+        </div>
+      </div>
+
       <div
         className={`presentation-wall ${
           leaderboard.isOpen ? "presentation-wall--leaderboard" : ""

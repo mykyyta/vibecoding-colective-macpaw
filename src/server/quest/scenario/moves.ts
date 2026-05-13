@@ -12,10 +12,20 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
     id: "chitchat-replied",
     describe: () =>
       [
-        "Use when no progression transition is legal. If no clear addressee is",
-        "present, actor must be Sofiia and the reply should be short general",
-        "context. If a visible character is clearly addressed, that character",
-        "may answer without revealing gated facts.",
+        "Use when no progression transition is legal. This is the normal route",
+        "for greetings, comments, jokes, reactions, acknowledgments, vague sounds,",
+        "and any non-help remark. If no clear addressee is present, actor must be",
+        "Sofiia and the reply should answer the player's actual phrase with a",
+        "fresh, warm in-scene comment. Do not give the next puzzle action, do not",
+        "ask a follow-up question, and do not copy fallback/canned wording. If a",
+        "visible character is clearly addressed, that character may answer without",
+        "revealing gated facts.",
+        "On Hoover or Fixel stages, if the player seems to be trying something",
+        "but the wording does not legally trigger the cat transition, prefer a",
+        "fresh Sofiia stage-aware comment over a generic fallback line: she may",
+        "notice Hoover being selective or Fixel staying asleep, but she must not",
+        "state the exact missing trigger unless the player explicitly asked for",
+        "a hint.",
       ].join(" "),
   },
   "sofia-introduced": {
@@ -37,30 +47,30 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
   "sofia-hint-given": {
     id: "sofia-hint-given",
     describe: () =>
-      "Use only when the player directly addresses Sofiia and asks for a hint, idea, help, advice, direction, or next step. This never advances quest state.",
+      "Use only when the player explicitly asks for a hint, idea, help, advice, direction, next step, or clearly says they are stuck or do not know what to do. Direct Sofiia address is allowed but not required because Sofiia answers unaddressed help by default. This never advances quest state.",
   },
   "dan-explained-door": {
     id: "dan-explained-door",
     describe: () =>
-      "Phase 1 of the Dan dialogue. Use when the player directly addresses Dan with door/exit/code/badge intent and danExplainedDoor is still false. Dan says the door needs a badge with the code, that he has one on him, and that he is reaching for it now (\"зараз, секунду\"). Dan does NOT admit losing the badge yet, does NOT mention the white cat or Hoover, and stays confident.",
+      "Phase 1 of the Dan dialogue. Use when the player directly addresses Dan with door/exit/code/badge/how-to-leave intent and danExplainedDoor is still false. Do NOT use this for a bare Dan name, greeting, how-are-you, event comment, joke, or ordinary social remark. Required content: the door needs a badge with the code; Dan believes he has one on him; he starts looking for it now. Dan does NOT admit losing the badge yet, does NOT mention the white cat or Hoover, and stays confident. Use fresh Dan wording rather than copying canned or example phrases.",
     fallbackLineId: "dan-explained-door",
   },
   "dan-badge-asked": {
     id: "dan-badge-asked",
     describe: () =>
-      "Phase 2 of the Dan dialogue. Use ONLY when danExplainedDoor is true AND the player explicitly suggests that Dan lost the badge (\"може, ти його загубив?\", \"maybe you lost it?\", \"missing?\", \"can't find it?\"). Only on that explicit loss-suggestion does Dan admit he can't find it — and casually adds that a white cat called Hoover was hanging around him, suggesting the player ask the cat. Any other follow-up keeps Dan in stall mode (chitchat-replied with actor=dan, dan-stalling line).",
+      "Phase 2 of the Dan dialogue. Use ONLY when danExplainedDoor is true AND the player explicitly suggests that Dan lost the badge (\"може, ти його загубив?\", \"maybe you lost it?\", \"missing?\", \"can't find it?\"). Required content: Dan accepts he cannot find the badge; Hoover, a white cat, was near him; Hoover may have seen something. Dan may lightly suggest checking with Hoover, but should use fresh wording and avoid stock tech metaphors unless the player set up that joke. Any other follow-up keeps Dan in stall mode (chitchat-replied with actor=dan, dan-stalling line).",
     fallbackLineId: "dan-badge-asked",
   },
   "hoover-ordinary-rejected": {
     id: "hoover-ordinary-rejected",
     describe: () =>
-      "Use after Dan has pointed toward Hoover when the player addresses Hoover directly, but the wording is not gentle enough. Hoover refuses ordinary commands and reveals no Fixel, badge, or code facts.",
+      "Use after Dan has pointed toward Hoover when the player addresses Hoover or the white cat, but the wording is not affectionate enough. Bare politeness such as 'будь ласка, Хувере' or 'please, Hoover' is not enough. Hoover refuses ordinary commands and reveals no Fixel, badge, or code facts. Use fresh catlike wording instead of copying fallback lines.",
     fallbackLineId: "hoover-ordinary-rejected",
   },
   "hoover-clue-given": {
     id: "hoover-clue-given",
     describe: () =>
-      "Use after Dan has pointed toward Hoover when the player addresses Hoover directly and gently. This is the only transition that may reveal Fixel took the badge.",
+      "Use after Dan has pointed toward Hoover when the player addresses Hoover, the white cat, or an affectionate cat name such as 'Хуверчику', 'котик', 'муркотунчик', 'sweet kitty', 'good kitty', or 'fluffy friend'. Do not require a perfect Hoover transcript when the affectionate cat address is clear. Required content: Fixel took the badge and is using it like a pillow. This is the only transition that may reveal Fixel took the badge. Use fresh catlike wording instead of copying fallback lines.",
     fallbackLineId: "hoover-clue-given",
   },
   "fixel-sleeping-rejected": {

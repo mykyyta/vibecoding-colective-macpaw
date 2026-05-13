@@ -1,6 +1,6 @@
 ---
 state: active
-last_updated: 2026-05-07
+last_updated: 2026-05-13
 owner: Orchestrator
 ---
 
@@ -52,8 +52,9 @@ dependencies and should be accepted packet by packet.
 
 - Direct guard/Oleg non-progress turns resolve to a guard role reply.
 - Direct cat/Pixel non-progress turns resolve to a Pixel role reply.
-- Unaddressed help requests do not become Sofiia hints.
-- Direct Sofiia hint requests produce staged hints without advancing state.
+- Explicit help or stuck requests produce staged Sofiia hints without
+  advancing state, even when unaddressed.
+- Ordinary unaddressed chitchat remains Sofiia chitchat, not a hint.
 - Progress events are the only events that mutate `QuestState`.
 - Claude output no longer needs a separate `route` field.
 - Door replies render as door/room, not as the guard.

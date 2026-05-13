@@ -4,14 +4,17 @@ import { PERSONAS } from "../scenario/actors.js";
 import { getQuestReply } from "../scenario/lines.js";
 
 export function getChitchatActor(state: QuestState, facts: QuestTranscriptFacts): QuestActor {
-  if (facts.hasSofiaAddress || (!facts.hasDan && !facts.hasHoover && !facts.hasFixel)) {
+  if (
+    facts.hasSofiaAddress ||
+    (!facts.hasDan && !facts.hasHooverAddress && !facts.hasFixel)
+  ) {
     return "sofia";
   }
 
   if (facts.hasDan) return "dan";
 
   // Pre-activation Hoover/Fixel addresses redirect to Sofiia.
-  if (facts.hasHoover && state.danBadgeAsked) return "hoover";
+  if (facts.hasHooverAddress && state.danBadgeAsked) return "hoover";
   if (facts.hasFixel && state.hooverClueGiven) return "fixel";
 
   return "sofia";

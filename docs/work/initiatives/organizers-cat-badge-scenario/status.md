@@ -2,7 +2,7 @@
 state: active
 owner: Planner
 created: 2026-05-09
-last_updated: 2026-05-09
+last_updated: 2026-05-13
 ---
 
 # Organizers Cat Badge Scenario Status
@@ -20,7 +20,8 @@ social logic:
 - no room or door spoken actor;
 - Sofiia answers unaddressed turns by default;
 - Dan checks the locked door and later enters the code;
-- Hoover provides the Fixel clue only after direct gentle address;
+- Hoover provides the Fixel clue only after an affectionate Hoover, white-cat,
+  or cat-addressed turn;
 - Fixel reveals the badge code only after being woken, but does not speak in
   words.
 
@@ -681,21 +682,21 @@ Plan:
   - direct Sofiia help should use `sofia-hint-given`;
   - direct Dan door/check/code-panel requests can progress to
     `dan-door-checked`;
-  - direct Hoover without clear gentleness should use
+  - Hoover / white-cat address without clear affection should use
     `hoover-ordinary-rejected`;
-  - direct Hoover plus obvious gentle phrasing may progress to
+  - Hoover / white-cat / affectionate cat address plus obvious affection may progress to
     `hoover-clue-given`;
   - direct Fixel without wake intent should use `fixel-sleeping-rejected`;
   - direct Fixel plus obvious wake intent may progress to `code-revealed`;
   - Dan plus `404` can open only after `codeRevealed`.
-- Let Claude be more semantically flexible than fallback for gentleness and
+- Let Claude be semantically flexible for Hoover affection and
   wake attempts, but keep fallback able to complete the happy path with obvious
   examples from Product Apex.
 
 Acceptance for this phase:
 
-- `npm run test:quest:classifier` covers Dan, Hoover, Fixel, Sofiia, gentle
-  Hoover wording, wake attempts, and early `404`.
+- `npm run test:quest:classifier` covers Dan, Hoover, Fixel, Sofiia,
+  affectionate Hoover wording, wake attempts, and early `404`.
 - Provider-disabled fallback can complete a simple Ukrainian and English happy
   path.
 
@@ -753,8 +754,10 @@ Plan:
 - Update prompt visible-character summary for Sofiia, Dan, Hoover, and Fixel.
 - Update route descriptions so Claude understands:
   - no-address defaults to Sofiia context, not room/system;
-  - Sofiia hints require direct Sofiia address plus help/idea intent;
-  - Hoover gentleness is semantic, not just keyword matching;
+  - Sofiia hints require explicit help/idea/stuck intent; direct Sofiia
+    address is allowed but not required for unaddressed help;
+  - Hoover requires affectionate cat-addressing, while bare politeness is
+    ordinary;
   - Fixel waking may be loud or playful, not necessarily gentle;
   - Dan is the only actor who opens the door.
 - Replace old guardrails:
@@ -769,7 +772,7 @@ Plan:
 Acceptance for this phase:
 
 - Fake-Claude tests cover invalid early code reveal, invalid early door opening,
-  invalid early Sofiia mention of Hoover/Fixel/badge/code, valid gentle Hoover,
+  invalid early Sofiia mention of Hoover/Fixel/badge/code, valid affectionate Hoover,
   valid Fixel wake, and forced final Dan line.
 - Invalid Claude output still falls back to a safe deterministic turn.
 
@@ -822,7 +825,7 @@ belongs to Packet 3, using the final actor/event/state names from this packet.
   result and Hoover clue.
 - Before Dan's clue + direct Hoover request does not reveal Fixel or code.
 - After Dan's clue + rough Hoover command does not reveal Fixel or code.
-- After Dan's clue + gentle Hoover request reveals that Fixel took the badge.
+- After Dan's clue + affectionate Hoover request reveals that Fixel took the badge.
 - After Hoover's clue + `Фіксель, дай код` does not reveal the code if it does
   not plausibly wake him.
 - After Hoover's clue + `Гей, Фіксель, прокидайся` wakes Fixel and reveals the
@@ -839,7 +842,7 @@ belongs to Packet 3, using the final actor/event/state names from this packet.
 - Scenario decision update captured title, subtitle, code, final Dan line,
   Sofiia routing constraints, and Hoover's white-cat affordance.
 - Packet 1 completed: `docs/product/product.md` now captures the accepted
-  **Badge Not Found** scenario, character rules, gentleness examples, waking
+  **Badge Not Found** scenario, character rules, Hoover affection examples, waking
   examples, code `404`, and Dan's final bilingual line.
 - Packet 2 completed: shared actors are now `sofia`, `dan`, `hoover`, and
   `fixel`; quest state is `danDoorChecked`, `hooverClueGiven`, `codeRevealed`,

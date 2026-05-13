@@ -60,37 +60,3 @@ export function getListeningBubble(
 
   return null;
 }
-
-export function getAmbientHint(
-  questState: QuestState,
-  roomState: RoomState,
-  language: QuestLanguage,
-): string {
-  const copy = VOICE_COPY[language];
-
-  if (roomState === "listening") {
-    return copy.ambientListening;
-  }
-
-  if (roomState === "doorOpening") {
-    return copy.ambientDoorOpening;
-  }
-
-  if (questState.doorOpen) {
-    return copy.ambientEscaped;
-  }
-
-  if (questState.codeRevealed) {
-    return copy.ambientCodeRevealed;
-  }
-
-  if (questState.hooverClueGiven || questState.codeRevealed) {
-    return copy.ambientFixelStage;
-  }
-
-  if (questState.danBadgeAsked) {
-    return copy.ambientHooverClue;
-  }
-
-  return copy.ambientInitial;
-}

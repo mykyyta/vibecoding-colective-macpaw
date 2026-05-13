@@ -24,7 +24,7 @@ export default function Character({
   if (actor === "hoover") {
     return (
       <div className={`hoover hoover-cat hoover-cat--${mood}`} aria-label={copy.hooverAria}>
-        {renderNameTag(nameTagVisible, "Hoover")}
+        {renderNameTag(nameTagVisible, copy.hooverName)}
         <span className="hoover-cat-shadow" />
         <span className="hoover-cat-tail" />
         <span className="hoover-cat-body" />
@@ -47,7 +47,7 @@ export default function Character({
         } ${badgeCodeVisible ? "fixel--badge-code" : ""}`}
         aria-label={copy.fixelAria}
       >
-        {renderNameTag(nameTagVisible, "Fixel")}
+        {renderNameTag(nameTagVisible, copy.fixelName)}
         <span className="fixel-badge" aria-hidden="true">
           <i>{badgeCodeVisible ? "404" : ""}</i>
         </span>
@@ -98,7 +98,7 @@ export default function Character({
       className={`dan dan-figure ${isSpeaking ? "dan-figure--speaking" : ""}`}
       aria-label={copy.danAria}
     >
-      {renderNameTag(nameTagVisible, "Dan")}
+      {renderNameTag(nameTagVisible, copy.danName)}
       <span className="dan-figure-shadow" />
       <span className="dan-figure-legs" />
       <span className="dan-figure-body">

@@ -1,7 +1,8 @@
 import type { VoiceTurnResponse } from "../../shared/voice";
 import {
-  MAX_REPLY_PLAYBACK_WAIT_MS,
   REPLY_BUSY_GATE_MS,
+  REPLY_PLAYBACK_END_GRACE_MS,
+  REPLY_PLAYBACK_WATCHDOG_MS,
 } from "../config/timing";
 import type { ActiveReplyPlayback } from "../types/audio";
 import { speakWithBrowser } from "./speech-synthesis";
@@ -151,7 +152,7 @@ async function playBytesWithAudioElement(
 
       playbackTimer = window.setTimeout(() => {
         settle(resolve);
-      }, Math.min(audio.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
+      }, getReplyPlaybackTimeoutMs(audio.duration));
     };
 
     const handleEnded = () => {
@@ -172,7 +173,7 @@ async function playBytesWithAudioElement(
     stopReplyAudioArm({ keepElement: true });
     playbackTimer = window.setTimeout(() => {
       settle(resolve);
-    }, MAX_REPLY_PLAYBACK_WAIT_MS);
+    }, REPLY_PLAYBACK_WATCHDOG_MS);
 
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio.addEventListener("ended", handleEnded);
@@ -254,7 +255,7 @@ export async function playDecodedAudio(
 
     playbackTimer = window.setTimeout(() => {
       settle(resolve);
-    }, Math.min(audioBuffer.duration * 1000 + 1_000, MAX_REPLY_PLAYBACK_WAIT_MS));
+    }, getReplyPlaybackTimeoutMs(audioBuffer.duration));
 
     try {
       source.start();
@@ -273,4 +274,15 @@ export async function waitForReplyBusyGate(playback: Promise<void>): Promise<voi
       window.setTimeout(resolve, REPLY_BUSY_GATE_MS);
     }),
   ]).catch(() => undefined);
+}
+
+function getReplyPlaybackTimeoutMs(durationSeconds: number): number {
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    return REPLY_PLAYBACK_WATCHDOG_MS;
+  }
+
+  return Math.min(
+    durationSeconds * 1000 + REPLY_PLAYBACK_END_GRACE_MS,
+    REPLY_PLAYBACK_WATCHDOG_MS,
+  );
 }

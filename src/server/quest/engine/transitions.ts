@@ -63,7 +63,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "sofia-hint-given",
     actor: () => "sofia",
     isAvailable: (state) => state.sofiaIntroduced,
-    factsCheck: (_state, facts) => facts.hasSofiaAddress && facts.hasHintIntent,
+    factsCheck: (_state, facts) => facts.hasHintIntent,
     apply: (state) => state,
     describe: (state, _lang) =>
       [
@@ -99,7 +99,7 @@ const TRANSITIONS: TransitionRecord[] = [
     actor: () => "hoover",
     isAvailable: (state) => state.danBadgeAsked && !state.hooverClueGiven,
     factsCheck: (_state, facts) =>
-      facts.hasHoover && !facts.hasGentleHooverAddress,
+      facts.hasHooverAddress && !facts.hasGentleHooverAddress,
     apply: (state) => state,
     describe: (state, lang) =>
       MOVE_SCENARIO_DATA["hoover-ordinary-rejected"].describe(state, lang),
@@ -111,7 +111,7 @@ const TRANSITIONS: TransitionRecord[] = [
     actor: () => "hoover",
     isAvailable: (state) => state.danBadgeAsked && !state.hooverClueGiven,
     factsCheck: (_state, facts) =>
-      facts.hasHoover && facts.hasGentleHooverAddress,
+      facts.hasHooverAddress && facts.hasGentleHooverAddress,
     apply: (state) => ({ ...state, hooverClueGiven: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["hoover-clue-given"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -159,18 +159,24 @@ const FALLBACK_CANDIDATE_TRANSITIONS = [
   "code-revealed",
   "fixel-sleeping-rejected",
   "door-opened",
+  "sofia-hint-given",
 ] as const;
 
 export function findFirstLegalProgressingTransition(
   state: QuestState,
   facts: QuestTranscriptFacts,
 ): ProgressingTransition | undefined {
-  return TRANSITIONS.find(
-    (t) =>
-      (FALLBACK_CANDIDATE_TRANSITIONS as readonly string[]).includes(t.id) &&
-      t.isAvailable(state) &&
-      (t.factsCheck?.(state, facts) ?? false),
-  );
+  for (const id of FALLBACK_CANDIDATE_TRANSITIONS) {
+    const transition = findTransition(id);
+    if (
+      transition?.isAvailable(state) &&
+      (transition.factsCheck?.(state, facts) ?? false)
+    ) {
+      return transition;
+    }
+  }
+
+  return undefined;
 }
 
 function findTransition(id: QuestTransitionId): TransitionRecord | undefined {
@@ -186,6 +192,10 @@ export function isTransitionLegal(
 
   if (!record || !record.isAvailable(state)) {
     return false;
+  }
+
+  if (id === "sofia-hint-given") {
+    return true;
   }
 
   return record.factsCheck?.(state, facts) ?? true;
@@ -205,6 +215,7 @@ export function getAllowedQuestTransitions(
         matched: [],
         hasDan: false,
         hasHoover: false,
+        hasHooverAddress: false,
         hasFixel: false,
         hasCatAddress: false,
         hasSofia: false,

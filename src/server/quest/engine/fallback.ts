@@ -136,7 +136,7 @@ function pickChitchatReply(
   // When a pre-activation cat address was redirected to Sofiia, use the
   // explicit redirect reply rather than the default Sofiia context line.
   if (actor === "sofia") {
-    if (facts.hasHoover && !state.danBadgeAsked) {
+    if (facts.hasHooverAddress && !state.danBadgeAsked) {
       return getQuestReply("pre-activation-hoover-redirect", replyLanguage);
     }
     if (facts.hasFixel && !state.hooverClueGiven) {

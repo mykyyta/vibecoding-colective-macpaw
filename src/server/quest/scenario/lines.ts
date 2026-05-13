@@ -1,8 +1,8 @@
 import type { QuestLanguage } from "../../../shared/voice.js";
 
 export const FINAL_DAN_LINES: Record<QuestLanguage, string> = {
-  uk: "Код 404. Двері відчинено. Дякуємо, що були з нами.",
-  en: "Code 404. Door open. Thanks for being with us.",
+  uk: "Ти зміг. Хувер і Фіксель, здається, тепер у твоєму фан-клубі.",
+  en: "You did it. Hoover and Fixel may now be in your fan club.",
 };
 
 export const FINAL_DOOR_LINE = FINAL_DAN_LINES.en;
@@ -80,20 +80,20 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: FINAL_DAN_LINES.en,
   },
   "sofia-context-initial": {
-    uk: "О, ти ще тут. Спробуй поговорити з Деном — він тут найближче до дверей, з нього варто почати.",
-    en: "Oh, still here. Try talking to Dan — he's the closest one to the door, that's where to start.",
+    uk: "Я тут. Після івенту в залі тихіше, але все ще відчувається рух.",
+    en: "I'm here. The room is quieter after the event, but it still feels alive.",
   },
   "sofia-context-after-explained": {
-    uk: "Дивись, Ден усе шукає, і шукає, і шукає... Як думаєш — а раптом він просто загубив?",
-    en: "Look, Dan keeps searching and searching and searching... What if he just lost it?",
+    uk: "Ден усе ще шукає і тримається дуже впевнено для людини, яка явно щось шукає.",
+    en: "Dan is still searching and looks very confident for someone who is clearly searching.",
   },
   "sofia-context-after-dan": {
-    uk: "Як там пошук? Якщо Ден на когось показав — рухайся туди, тільки спокійно.",
-    en: "How's the search? If Dan pointed at someone — go that way, just gently.",
+    uk: "У кімнаті стало уважніше. Хувер ніби теж стежить за розмовою.",
+    en: "The room feels more attentive now. Hoover seems to be following the conversation too.",
   },
   "sofia-context-after-hoover": {
-    uk: "Майже все. На сцені спить хтось дуже впертий — на нього треба підступитися хитро. Може, його чимось пригостити?",
-    en: "Almost there. Someone very stubborn is asleep on the stage — you'll need to approach them cleverly. Maybe offer something tasty?",
+    uk: "На сцені тихо. Fixel спить так переконливо, ніби це теж частина програми.",
+    en: "It's quiet on stage. Fixel is sleeping so convincingly it almost feels scheduled.",
   },
   "sofia-hint-initial": {
     uk: "Я б почала з Дена. Спитай його прямо про двері — він точно знає більше, ніж видно зараз.",
@@ -128,16 +128,16 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "I'm Sofiia. Glad you're here — the space comes alive when there's someone else in it.",
   },
   "pre-activation-hoover-redirect": {
-    uk: "Софія м'яко: білий кіт поки сам по собі. Думаю, варто спершу спитати в Дена — він тут не просто так.",
-    en: "Sofiia gently: the white cat is on his own for now. I think it's worth asking Dan first — he's here for a reason.",
+    uk: "Софія м'яко реагує, але не підхоплює цю нитку. У кімнаті поки все рухається без поспіху.",
+    en: "Sofiia responds gently, but does not pick up that thread yet. The room is still moving at its own calm pace.",
   },
   "pre-activation-fixel-redirect": {
-    uk: "Софія підказує: до сплячого кота ми ще дійдемо. Спершу варто почути, що скаже білий кіт біля дверей.",
-    en: "Sofiia hints: we'll get to the sleeping cat soon. First it's worth hearing what the white cat by the door has to say.",
+    uk: "Софія стишує голос. У цій кімнаті навіть сон виглядає як частина післяівентового настрою.",
+    en: "Sofiia lowers her voice. In this room, even sleep feels like part of the after-event mood.",
   },
   "smalltalk-dan": {
-    uk: "О, привіт! Класно, що зайшов — у мене ще контекст переповнений після того, що ми сьогодні шейпнули.",
-    en: "Oh, hi! Good you came by — my context is still saturated from everything we shipped today.",
+    uk: "О, привіт. Я тут, ще трохи в післяівентовому режимі.",
+    en: "Oh, hi. I'm here, still slightly in post-event mode.",
   },
   "smalltalk-hoover": {
     uk: "Мрр. Хувер дивиться поверх тебе так, ніби вже сказав усе важливе.",

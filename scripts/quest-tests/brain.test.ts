@@ -108,6 +108,68 @@ assert.equal(danStalls.event.type, "chitchat-replied");
 assert.equal(danStalls.actor, "dan");
 assert.equal(danStalls.nextQuestState.danBadgeAsked, false, "stall does not advance to phase 2");
 
+// If Claude picks a gated Dan story event for plain smalltalk, keep the safe reply as chitchat
+const danBareNameMisrouted = await runTurn({
+  transcript: "Ден",
+  questState: { sofiaIntroduced: true },
+  decision: {
+    transitionId: "dan-explained-door",
+    actor: "dan",
+    reply: "О, я тут. Після івенту ще збираю себе по частинах.",
+    nameTagActors: ["dan"],
+  },
+});
+assert.equal(danBareNameMisrouted.event.type, "chitchat-replied");
+assert.equal(danBareNameMisrouted.actor, "dan");
+assert.equal(
+  danBareNameMisrouted.reply,
+  "О, я тут. Після івенту ще збираю себе по частинах.",
+);
+assert.equal(danBareNameMisrouted.nextQuestState.danExplainedDoor, false);
+
+// LLM may choose a Sofiia hint even when classifier would treat the phrase as smalltalk
+const sofiaHintMisrouted = await runTurn({
+  transcript: "класний івент",
+  questState: { sofiaIntroduced: true },
+  decision: {
+    transitionId: "sofia-hint-given",
+    actor: "sofia",
+    reply: "Спробуй почати з Дена.",
+  },
+});
+assert.equal(sofiaHintMisrouted.event.type, "sofia-hint-given");
+assert.equal(sofiaHintMisrouted.reply, "Спробуй почати з Дена.");
+
+// Sofiia chitchat may keep Claude's natural conversational question instead of falling back
+const sofiaNameCall = await runTurn({
+  transcript: "Софія",
+  questState: { sofiaIntroduced: true },
+  decision: {
+    transitionId: "chitchat-replied",
+    actor: "sofia",
+    reply: "Я тут. Тримаю простір, поки всі роблять вигляд, що вечір під контролем?",
+  },
+});
+assert.equal(sofiaNameCall.event.type, "chitchat-replied");
+assert.equal(sofiaNameCall.actor, "sofia");
+assert.equal(
+  sofiaNameCall.reply,
+  "Я тут. Тримаю простір, поки всі роблять вигляд, що вечір під контролем?",
+);
+
+// Sofiia chitchat should not fall back just because Claude asks a light social question
+const sofiaLightQuestion = await runTurn({
+  transcript: "привіт",
+  questState: { sofiaIntroduced: true },
+  decision: {
+    transitionId: "chitchat-replied",
+    actor: "sofia",
+    reply: "Привіт. Як ти тримаєшся після такого насиченого івенту?",
+  },
+});
+assert.equal(sofiaLightQuestion.event.type, "chitchat-replied");
+assert.equal(sofiaLightQuestion.reply, "Привіт. Як ти тримаєшся після такого насиченого івенту?");
+
 // Stall: Claude trying dan-badge-asked without loss-suggestion is rejected -> fallback
 const claudeSkipsLossPrompt = await runTurn({
   transcript: "Дене, а де бейдж",
@@ -123,6 +185,7 @@ assert.notEqual(
   "dan-badge-asked",
   "phase 2 only fires on an explicit loss-suggestion",
 );
+assert.doesNotMatch(claudeSkipsLossPrompt.reply, /білий кіт|Хувер|Hoover/iu);
 
 // Phase 2: explicit loss-suggestion unlocks the cat clue and Hoover tag
 const danPointsCat = await runTurn({
@@ -152,9 +215,9 @@ const preActivationHoover = await runTurn({
 assert.equal(preActivationHoover.event.type, "chitchat-replied");
 assert.equal(preActivationHoover.actor, "sofia", "Hoover stays gated even after phase 1");
 
-// Gentle Hoover after phase 2 -> hoover-clue-given
+// Affectionate Hoover after phase 2 -> hoover-clue-given
 const hooverClue = await runTurn({
-  transcript: "Хувере, лагідно, будь ласка",
+  transcript: "Хуверчику, допоможи",
   questState: { sofiaIntroduced: true, danExplainedDoor: true, danBadgeAsked: true },
   decision: {
     transitionId: "hoover-clue-given",
@@ -238,7 +301,10 @@ const doorOpened = await runTurn({
   },
 });
 assert.equal(doorOpened.event.type, "door-opened");
-assert.equal(doorOpened.reply, "Код 404. Двері відчинено. Дякуємо, що були з нами.");
+assert.equal(
+  doorOpened.reply,
+  "Ти зміг. Хувер і Фіксель, здається, тепер у твоєму фан-клубі.",
+);
 
 // Invalid JSON on fresh state -> sofia-introduced
 const invalidJsonFresh = await runTurn({
@@ -255,6 +321,41 @@ const invalidJsonPostIntro = await runTurn({
 });
 assert.equal(invalidJsonPostIntro.event.type, "chitchat-replied");
 assert.equal(invalidJsonPostIntro.actor, "sofia");
+
+// Explicit unaddressed help falls back to a Sofiia hint, not ambient chitchat
+const invalidJsonPostIntroHelp = await runTurn({
+  transcript: "що мені робити?",
+  questState: { sofiaIntroduced: true },
+  decision: "not json",
+});
+assert.equal(invalidJsonPostIntroHelp.event.type, "sofia-hint-given");
+assert.equal(invalidJsonPostIntroHelp.actor, "sofia");
+assert.match(invalidJsonPostIntroHelp.reply, /Дена|Dan/u);
+
+// Explicit help relies on Claude's generated hint when Claude classifies it correctly
+const explicitHelpLlmHint = await runTurn({
+  transcript: "що мені робити?",
+  questState: { sofiaIntroduced: true },
+  decision: {
+    transitionId: "sofia-hint-given",
+    actor: "sofia",
+    reply: "Я б почала з Дена. Він стоїть біля дверей і точно знає більше про вихід.",
+  },
+});
+assert.equal(explicitHelpLlmHint.event.type, "sofia-hint-given");
+assert.equal(
+  explicitHelpLlmHint.reply,
+  "Я б почала з Дена. Він стоїть біля дверей і точно знає більше про вихід.",
+);
+
+// Specific puzzle progress still wins over a general "help" word in fallback mode
+const hooverHelpFallback = await runTurn({
+  transcript: "Хуверчику, допоможи",
+  questState: { sofiaIntroduced: true, danExplainedDoor: true, danBadgeAsked: true },
+  decision: "not json",
+});
+assert.equal(hooverHelpFallback.event.type, "hoover-clue-given");
+assert.equal(hooverHelpFallback.actor, "hoover");
 
 // Leaked code 404 before code-revealed -> falls back safely
 const prematureFixelCode = await runTurn({
@@ -311,7 +412,7 @@ assert.equal(
 );
 assert.equal(earlySofiaFixel.nameTagActors.includes("fixel"), false);
 
-// Unaddressed help -> chitchat fallback
+// Unaddressed help -> Sofia hint by default
 const unaddressedHelp = await runTurn({
   transcript: "чи є ідеї",
   questState: { sofiaIntroduced: true },
@@ -321,8 +422,17 @@ const unaddressedHelp = await runTurn({
     reply: "Спробуй почати з Дена.",
   },
 });
-assert.equal(unaddressedHelp.event.type, "chitchat-replied");
+assert.equal(unaddressedHelp.event.type, "sofia-hint-given");
 assert.equal(unaddressedHelp.actor, "sofia");
+
+// Ordinary unaddressed chitchat falls back to chitchat when Claude is unavailable
+const unaddressedSmalltalk = await runTurn({
+  transcript: "класний івент",
+  questState: { sofiaIntroduced: true },
+  decision: "not json",
+});
+assert.equal(unaddressedSmalltalk.event.type, "chitchat-replied");
+assert.equal(unaddressedSmalltalk.actor, "sofia");
 
 // English: phase 1 + phase 2
 const englishPhase1 = await runTurn({
@@ -366,6 +476,9 @@ const englishDoor = await createQuestBrainTurn({
     }),
 });
 assert.equal(englishDoor.event.type, "door-opened");
-assert.equal(englishDoor.reply, "Code 404. Door open. Thanks for being with us.");
+assert.equal(
+  englishDoor.reply,
+  "You did it. Hoover and Fixel may now be in your fan club.",
+);
 
-console.log("brain.test: passed (42 assertions)");
+console.log("brain.test: passed (68 assertions)");

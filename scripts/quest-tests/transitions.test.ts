@@ -79,15 +79,20 @@ const danLossSuggestion = analyzeQuestTranscript("Дене, може ти йог
 assert.equal(isTransitionLegal("dan-badge-asked", introduced, danLossSuggestion), false, "phase 2 needs phase 1");
 assert.equal(isTransitionLegal("dan-badge-asked", danExplained, danLossSuggestion), true, "loss-suggestion triggers phase 2");
 
-// isTransitionLegal: gentle Hoover after phase 2
-const hooverGentle = analyzeQuestTranscript("Хувере, лагідно, будь ласка, допоможи");
+// isTransitionLegal: affectionate Hoover after phase 2
+const hooverGentle = analyzeQuestTranscript("Хуверчику, допоможи");
 assert.equal(isTransitionLegal("hoover-clue-given", danAsked, hooverGentle), true);
 assert.equal(isTransitionLegal("hoover-clue-given", danExplained, hooverGentle), false, "Hoover gated on phase 2");
+const hooverCatAffection = analyzeQuestTranscript("Котику муркотунчику, допоможи");
+assert.equal(isTransitionLegal("hoover-clue-given", danAsked, hooverCatAffection), true, "affectionate cat address can trigger Hoover");
 
 // isTransitionLegal: Hoover ordinary rejection
 const hooverRough = analyzeQuestTranscript("Хувере, дай код");
 assert.equal(isTransitionLegal("hoover-ordinary-rejected", danAsked, hooverRough), true);
 assert.equal(isTransitionLegal("hoover-clue-given", danAsked, hooverRough), false);
+const hooverBarePlease = analyzeQuestTranscript("Хувере, будь ласка, допоможи");
+assert.equal(isTransitionLegal("hoover-ordinary-rejected", danAsked, hooverBarePlease), true, "bare politeness is ordinary");
+assert.equal(isTransitionLegal("hoover-clue-given", danAsked, hooverBarePlease), false);
 
 // Fixel food offer reveals code
 const fixelFood = analyzeQuestTranscript("Фіксель, хочеш ласощів?");
@@ -109,11 +114,15 @@ const danCode = analyzeQuestTranscript("Дене, код 404");
 assert.equal(isTransitionLegal("door-opened", codeRevealed, danCode), true);
 assert.equal(isTransitionLegal("door-opened", hooverClue, danCode), false);
 
-// sofia-hint-given requires intro
+// sofia-hint-given requires intro; the LLM may choose it semantically after intro
 const sofiaHint = analyzeQuestTranscript("Софіє, дай підказку");
 assert.equal(isTransitionLegal("sofia-hint-given", fresh, sofiaHint), false);
 assert.equal(isTransitionLegal("sofia-hint-given", introduced, sofiaHint), true);
 const unaddressedHelp = analyzeQuestTranscript("дай підказку");
-assert.equal(isTransitionLegal("sofia-hint-given", introduced, unaddressedHelp), false);
+assert.equal(isTransitionLegal("sofia-hint-given", introduced, unaddressedHelp), true);
+const unaddressedStuck = analyzeQuestTranscript("я не знаю що робити");
+assert.equal(isTransitionLegal("sofia-hint-given", introduced, unaddressedStuck), true);
+const plainSmalltalk = analyzeQuestTranscript("класний івент");
+assert.equal(isTransitionLegal("sofia-hint-given", introduced, plainSmalltalk), true);
 
-console.log("transitions.test: passed (40 assertions)");
+console.log("transitions.test: passed (45 assertions)");

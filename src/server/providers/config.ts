@@ -34,6 +34,7 @@ export interface ElevenLabsProviderConfig {
     dan: string;
     hoover: string;
     sofia: string;
+    sofiaEnglish?: string;
   };
 }
 
@@ -94,11 +95,26 @@ export function getElevenLabsConfig(
 ): ElevenLabsProviderConfig {
   requireProviderEnv("elevenlabs", env, ["ELEVENLABS_API_KEY"]);
 
+  const voiceIds = {
+    dan:
+      readEnv(env, "ELEVENLABS_DAN_VOICE_ID") ??
+      readEnv(env, "ELEVENLABS_DEFAULT_VOICE_ID") ??
+      ELEVENLABS_VOICE_IDS.dan,
+    hoover:
+      readEnv(env, "ELEVENLABS_HOOVER_VOICE_ID") ??
+      readEnv(env, "ELEVENLABS_PIXEL_VOICE_ID") ??
+      ELEVENLABS_VOICE_IDS.hoover,
+    sofia: readEnv(env, "ELEVENLABS_SOFIA_VOICE_ID") ?? ELEVENLABS_VOICE_IDS.sofia,
+    sofiaEnglish:
+      readEnv(env, "ELEVENLABS_SOFIA_EN_VOICE_ID") ??
+      readEnv(env, "ELEVENLABS_ROOM_VOICE_ID"),
+  };
+
   return {
     apiKey: readEnv(env, "ELEVENLABS_API_KEY")!,
     ttsModel: DEFAULT_ELEVENLABS_TTS_MODEL,
-    defaultVoiceId: ELEVENLABS_VOICE_IDS.dan,
-    voiceIds: ELEVENLABS_VOICE_IDS,
+    defaultVoiceId: readEnv(env, "ELEVENLABS_DEFAULT_VOICE_ID") ?? voiceIds.dan,
+    voiceIds,
   };
 }
 

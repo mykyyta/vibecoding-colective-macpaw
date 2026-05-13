@@ -9,6 +9,7 @@ import type {
 } from "../../providers/contracts.js";
 import { getFinalDoorLine, getQuestReply } from "../scenario/lines.js";
 import { buildQuestBrainPromptContent } from "./prompt.js";
+import { getChitchatActor } from "./chitchat.js";
 import { replyPassesGuardrails } from "./guardrails.js";
 import { parseClaudeQuestDecision, type ClaudeQuestDecision } from "./parser.js";
 import {
@@ -66,6 +67,14 @@ export async function createQuestBrainTurn(req: QuestBrainRequest): Promise<Ques
       transitionId: decision.transitionId,
       actor: decision.actor,
     });
+    const salvagedTurn = tryFinalizeInvalidDecisionAsChitchat(decision, ctx);
+    if (salvagedTurn) {
+      logBrainTelemetry("decision.salvaged_as_chitchat", {
+        transitionId: decision.transitionId,
+        actor: decision.actor,
+      });
+      return salvagedTurn;
+    }
     return ctx.fallbackTurn;
   }
 
@@ -129,6 +138,51 @@ function validateDecision(
   }
 
   return { ok: true, allowedTransition };
+}
+
+function tryFinalizeInvalidDecisionAsChitchat(
+  decision: ClaudeQuestDecision,
+  ctx: BrainContext,
+): QuestTurn | undefined {
+  if (ctx.fallbackTurn.event.type !== "chitchat-replied") {
+    return undefined;
+  }
+
+  if (decision.transitionId !== "dan-explained-door") {
+    return undefined;
+  }
+
+  const chitchatTransition = ctx.allowedTransitions.find(
+    (transition) => transition.id === "chitchat-replied",
+  );
+  const expectedActor = getChitchatActor(ctx.state, ctx.facts);
+  const allowedActors = chitchatTransition?.allowedActors ?? [
+    chitchatTransition?.actor,
+  ];
+
+  if (!chitchatTransition || decision.actor !== expectedActor) {
+    return undefined;
+  }
+
+  if (!allowedActors.includes(decision.actor)) {
+    return undefined;
+  }
+
+  const turn = createQuestTurnFromTransition({
+    transcript: ctx.transcript,
+    questState: ctx.state,
+    transitionId: "chitchat-replied",
+    actor: decision.actor,
+    reply: decision.reply,
+    nameTagActors: filterNameTagActors(
+      decision.nameTagActors,
+      ctx.state,
+      "chitchat-replied",
+    ),
+    replyLanguage: ctx.language,
+  });
+
+  return replyPassesGuardrails(turn) ? turn : undefined;
 }
 
 function finalizeAcceptedDecision(
