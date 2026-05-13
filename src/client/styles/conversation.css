@@ -69,7 +69,7 @@
 .scene-mic {
   position: absolute;
   left: 50%;
-  bottom: 1.45rem;
+  bottom: max(1.45rem, calc(env(safe-area-inset-bottom) + 0.85rem));
   z-index: 30;
   display: inline-grid;
   grid-template-columns: 42px minmax(0, auto);

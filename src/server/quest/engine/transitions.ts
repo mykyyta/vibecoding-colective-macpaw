@@ -32,7 +32,8 @@ interface TransitionRecord {
   actor: (state: QuestState, facts: QuestTranscriptFacts) => QuestActor;
   allowedActors?: (state: QuestState) => QuestActor[];
   isAvailable: (state: QuestState) => boolean;
-  factsCheck?: (state: QuestState, facts: QuestTranscriptFacts) => boolean;
+  heuristicCheck?: (state: QuestState, facts: QuestTranscriptFacts) => boolean;
+  criticalCheck?: (state: QuestState, facts: QuestTranscriptFacts) => boolean;
   apply: (state: QuestState) => QuestState;
   describe: (state: QuestState, replyLanguage: QuestLanguage) => string;
   fallbackReply: (state: QuestState, replyLanguage: QuestLanguage) => string;
@@ -43,7 +44,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "sofia-introduced",
     actor: () => "sofia",
     isAvailable: (state) => !state.sofiaIntroduced,
-    factsCheck: () => true,
+    heuristicCheck: () => true,
     apply: (state) => ({ ...state, sofiaIntroduced: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["sofia-introduced"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -63,7 +64,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "sofia-hint-given",
     actor: () => "sofia",
     isAvailable: (state) => state.sofiaIntroduced,
-    factsCheck: (_state, facts) => facts.hasHintIntent,
+    heuristicCheck: (_state, facts) => facts.hasHintIntent,
     apply: (state) => state,
     describe: (state, _lang) =>
       [
@@ -77,7 +78,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "dan-explained-door",
     actor: () => "dan",
     isAvailable: (state) => state.sofiaIntroduced && !state.danExplainedDoor,
-    factsCheck: (_state, facts) =>
+    heuristicCheck: (_state, facts) =>
       facts.hasDan && (facts.hasDoor || facts.hasCodeIntent),
     apply: (state) => ({ ...state, danExplainedDoor: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["dan-explained-door"].describe(state, lang),
@@ -88,7 +89,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "dan-badge-asked",
     actor: () => "dan",
     isAvailable: (state) => state.danExplainedDoor && !state.danBadgeAsked,
-    factsCheck: (_state, facts) => facts.hasDan && facts.hasLossSuggestion,
+    heuristicCheck: (_state, facts) => facts.hasDan && facts.hasLossSuggestion,
     apply: (state) => ({ ...state, danBadgeAsked: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["dan-badge-asked"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -98,7 +99,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "hoover-ordinary-rejected",
     actor: () => "hoover",
     isAvailable: (state) => state.danBadgeAsked && !state.hooverClueGiven,
-    factsCheck: (_state, facts) =>
+    heuristicCheck: (_state, facts) =>
       facts.hasHooverAddress && !facts.hasGentleHooverAddress,
     apply: (state) => state,
     describe: (state, lang) =>
@@ -110,7 +111,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "hoover-clue-given",
     actor: () => "hoover",
     isAvailable: (state) => state.danBadgeAsked && !state.hooverClueGiven,
-    factsCheck: (_state, facts) =>
+    heuristicCheck: (_state, facts) =>
       facts.hasHooverAddress && facts.hasGentleHooverAddress,
     apply: (state) => ({ ...state, hooverClueGiven: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["hoover-clue-given"].describe(state, lang),
@@ -121,7 +122,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "fixel-sleeping-rejected",
     actor: () => "fixel",
     isAvailable: (state) => state.hooverClueGiven && !state.codeRevealed,
-    factsCheck: (_state, facts) => facts.hasFixel && !facts.hasFoodOffer,
+    heuristicCheck: (_state, facts) => facts.hasFixel && !facts.hasFoodOffer,
     apply: (state) => state,
     describe: (state, lang) =>
       MOVE_SCENARIO_DATA["fixel-sleeping-rejected"].describe(state, lang),
@@ -132,7 +133,7 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "code-revealed",
     actor: () => "fixel",
     isAvailable: (state) => state.hooverClueGiven && !state.codeRevealed,
-    factsCheck: (_state, facts) => facts.hasFixel && facts.hasFoodOffer,
+    heuristicCheck: (_state, facts) => facts.hasFixel && facts.hasFoodOffer,
     apply: (state) => ({ ...state, codeRevealed: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["code-revealed"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -142,7 +143,8 @@ const TRANSITIONS: TransitionRecord[] = [
     id: "door-opened",
     actor: () => "dan",
     isAvailable: (state) => state.codeRevealed && !state.doorOpen,
-    factsCheck: (_state, facts) => facts.hasDan && facts.hasCode404,
+    heuristicCheck: (_state, facts) => facts.hasDan && facts.hasCode404,
+    criticalCheck: (_state, facts) => facts.hasCode404,
     apply: (state) => ({ ...state, doorOpen: true }),
     describe: (state, lang) => MOVE_SCENARIO_DATA["door-opened"].describe(state, lang),
     fallbackReply: (_state, lang) =>
@@ -162,6 +164,8 @@ const FALLBACK_CANDIDATE_TRANSITIONS = [
   "sofia-hint-given",
 ] as const;
 
+// Heuristic progression is kept for diagnostics/tests. Runtime fallback should
+// stay non-progressing except for the mandatory first Sofiia introduction.
 export function findFirstLegalProgressingTransition(
   state: QuestState,
   facts: QuestTranscriptFacts,
@@ -170,7 +174,7 @@ export function findFirstLegalProgressingTransition(
     const transition = findTransition(id);
     if (
       transition?.isAvailable(state) &&
-      (transition.factsCheck?.(state, facts) ?? false)
+      (transition.heuristicCheck?.(state, facts) ?? false)
     ) {
       return transition;
     }
@@ -194,11 +198,7 @@ export function isTransitionLegal(
     return false;
   }
 
-  if (id === "sofia-hint-given") {
-    return true;
-  }
-
-  return record.factsCheck?.(state, facts) ?? true;
+  return record.criticalCheck?.(state, facts) ?? true;
 }
 
 export function getAllowedQuestTransitions(

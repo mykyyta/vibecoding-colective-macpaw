@@ -76,7 +76,7 @@ assert.equal(
   "Hoover tag stays hidden after phase 1",
 );
 
-// Claude trying dan-badge-asked before phase 1 -> invalid -> fallback fires phase 1
+// Claude trying dan-badge-asked before phase 1 -> unavailable -> non-progress fallback
 const claudeSkipsPhase1 = await runTurn({
   transcript: "Дене, де бейдж",
   questState: { sofiaIntroduced: true },
@@ -89,8 +89,8 @@ const claudeSkipsPhase1 = await runTurn({
 });
 assert.equal(
   claudeSkipsPhase1.event.type,
-  "dan-explained-door",
-  "phase 2 cannot fire before phase 1; fallback picks phase 1",
+  "chitchat-replied",
+  "phase 2 cannot fire before phase 1; fallback no longer progresses the quest",
 );
 assert.equal(claudeSkipsPhase1.nextQuestState.danBadgeAsked, false);
 
@@ -108,7 +108,7 @@ assert.equal(danStalls.event.type, "chitchat-replied");
 assert.equal(danStalls.actor, "dan");
 assert.equal(danStalls.nextQuestState.danBadgeAsked, false, "stall does not advance to phase 2");
 
-// If Claude picks a gated Dan story event for plain smalltalk, keep the safe reply as chitchat
+// LLM-first: if Claude picks an available Dan story event, backend accepts it
 const danBareNameMisrouted = await runTurn({
   transcript: "Ден",
   questState: { sofiaIntroduced: true },
@@ -119,13 +119,13 @@ const danBareNameMisrouted = await runTurn({
     nameTagActors: ["dan"],
   },
 });
-assert.equal(danBareNameMisrouted.event.type, "chitchat-replied");
+assert.equal(danBareNameMisrouted.event.type, "dan-explained-door");
 assert.equal(danBareNameMisrouted.actor, "dan");
 assert.equal(
   danBareNameMisrouted.reply,
   "О, я тут. Після івенту ще збираю себе по частинах.",
 );
-assert.equal(danBareNameMisrouted.nextQuestState.danExplainedDoor, false);
+assert.equal(danBareNameMisrouted.nextQuestState.danExplainedDoor, true);
 
 // LLM may choose a Sofiia hint even when classifier would treat the phrase as smalltalk
 const sofiaHintMisrouted = await runTurn({
@@ -170,7 +170,7 @@ const sofiaLightQuestion = await runTurn({
 assert.equal(sofiaLightQuestion.event.type, "chitchat-replied");
 assert.equal(sofiaLightQuestion.reply, "Привіт. Як ти тримаєшся після такого насиченого івенту?");
 
-// Stall: Claude trying dan-badge-asked without loss-suggestion is rejected -> fallback
+// LLM-first: Claude may choose phase 2 without classifier loss-suggestion aliases
 const claudeSkipsLossPrompt = await runTurn({
   transcript: "Дене, а де бейдж",
   questState: { sofiaIntroduced: true, danExplainedDoor: true },
@@ -180,12 +180,12 @@ const claudeSkipsLossPrompt = await runTurn({
     reply: "Білий кіт бачив!",
   },
 });
-assert.notEqual(
+assert.equal(
   claudeSkipsLossPrompt.event.type,
   "dan-badge-asked",
-  "phase 2 only fires on an explicit loss-suggestion",
+  "available semantic progression is accepted from the LLM",
 );
-assert.doesNotMatch(claudeSkipsLossPrompt.reply, /білий кіт|Хувер|Hoover/iu);
+assert.equal(claudeSkipsLossPrompt.nextQuestState.danBadgeAsked, true);
 
 // Phase 2: explicit loss-suggestion unlocks the cat clue and Hoover tag
 const danPointsCat = await runTurn({
@@ -240,7 +240,7 @@ const preActivationFixel = await runTurn({
 });
 assert.equal(preActivationFixel.actor, "sofia");
 
-// Fixel food offer reveals code, reply forced nonverbal
+// Fixel food mention reveals code, reply forced nonverbal
 const fixelWake = await runTurn({
   transcript: "Фіксель, хочеш ласощів",
   questState: {
@@ -270,6 +270,40 @@ assert.deepEqual(
     provider: "asset",
   },
 );
+
+const fixelCandy = await runTurn({
+  transcript: "Фіксель, як тобі ця цукерочка?",
+  questState: {
+    sofiaIntroduced: true,
+    danExplainedDoor: true,
+    danBadgeAsked: true,
+    hooverClueGiven: true,
+  },
+  decision: {
+    transitionId: "code-revealed",
+    actor: "fixel",
+    reply: "мррп.",
+  },
+});
+assert.equal(fixelCandy.event.type, "code-revealed");
+assert.equal(fixelCandy.reply, "мррп.");
+
+const fixelPizzaNoAlias = await runTurn({
+  transcript: "Фіксель, може піцу?",
+  questState: {
+    sofiaIntroduced: true,
+    danExplainedDoor: true,
+    danBadgeAsked: true,
+    hooverClueGiven: true,
+  },
+  decision: {
+    transitionId: "code-revealed",
+    actor: "fixel",
+    reply: "мррп.",
+  },
+});
+assert.equal(fixelPizzaNoAlias.event.type, "code-revealed");
+assert.equal(fixelPizzaNoAlias.reply, "мррп.");
 
 // Premature door-opened -> fallback safe
 const prematureDoor = await runTurn({
@@ -322,15 +356,14 @@ const invalidJsonPostIntro = await runTurn({
 assert.equal(invalidJsonPostIntro.event.type, "chitchat-replied");
 assert.equal(invalidJsonPostIntro.actor, "sofia");
 
-// Explicit unaddressed help falls back to a Sofiia hint, not ambient chitchat
+// Invalid JSON does not use deterministic hint routing anymore
 const invalidJsonPostIntroHelp = await runTurn({
   transcript: "що мені робити?",
   questState: { sofiaIntroduced: true },
   decision: "not json",
 });
-assert.equal(invalidJsonPostIntroHelp.event.type, "sofia-hint-given");
+assert.equal(invalidJsonPostIntroHelp.event.type, "chitchat-replied");
 assert.equal(invalidJsonPostIntroHelp.actor, "sofia");
-assert.match(invalidJsonPostIntroHelp.reply, /Дена|Dan/u);
 
 // Explicit help relies on Claude's generated hint when Claude classifies it correctly
 const explicitHelpLlmHint = await runTurn({
@@ -348,16 +381,16 @@ assert.equal(
   "Я б почала з Дена. Він стоїть біля дверей і точно знає більше про вихід.",
 );
 
-// Specific puzzle progress still wins over a general "help" word in fallback mode
+// Invalid JSON does not use deterministic puzzle progression anymore
 const hooverHelpFallback = await runTurn({
   transcript: "Хуверчику, допоможи",
   questState: { sofiaIntroduced: true, danExplainedDoor: true, danBadgeAsked: true },
   decision: "not json",
 });
-assert.equal(hooverHelpFallback.event.type, "hoover-clue-given");
+assert.equal(hooverHelpFallback.event.type, "chitchat-replied");
 assert.equal(hooverHelpFallback.actor, "hoover");
 
-// Leaked code 404 before code-revealed -> falls back safely
+// LLM-first: code reveal routing is accepted at the Fixel stage; Fixel reply remains nonverbal
 const prematureFixelCode = await runTurn({
   transcript: "Фіксель, дай код",
   questState: {
@@ -372,7 +405,8 @@ const prematureFixelCode = await runTurn({
     reply: "Код 404.",
   },
 });
-assert.equal(prematureFixelCode.event.type, "fixel-sleeping-rejected");
+assert.equal(prematureFixelCode.event.type, "code-revealed");
+assert.equal(prematureFixelCode.reply, "мррп.");
 assert.doesNotMatch(prematureFixelCode.reply, /404/u);
 
 // Sofiia mentioning Hoover before phase 2 is blocked -> canned hint
@@ -481,4 +515,4 @@ assert.equal(
   "You did it. Hoover and Fixel may now be in your fan club.",
 );
 
-console.log("brain.test: passed (68 assertions)");
+console.log("brain.test: passed (72 assertions)");

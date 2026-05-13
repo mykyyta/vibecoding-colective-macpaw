@@ -29,8 +29,8 @@ There is no guard. There is no room or door voice. The interactive cast is:
   directly and gently.
 - **Fixel**: the brown cat sleeping above or near the stage. Fixel has the
   organizer badge under him. Fixel does not speak in words; after a plausible
-  waking attempt he only purrs, grumbles, or makes a sleepy cat sound while the
-  visual state reveals the badge code.
+  food or edible mention addressed to him he only purrs, grumbles, or makes a
+  sleepy cat sound while the visual state reveals the badge code.
 
 The product promise is that voice is not decorative. Spoken input moves the room
 state forward, address-based routing determines who answers, performed speech
@@ -101,10 +101,12 @@ The happy path is intentionally small:
    badge. Loud wake attempts ("прокидайся", "hey", "boo") are ignored —
    he does not respond to noise. Pre-activation Fixel addresses route to
    Sofiia.
-8. The user offers Fixel food ("хочеш ласощів?", "риба", "smачн", "treat",
-   "fish", etc). Fixel raises his head, opens his eyes, the badge that
-   was under his head falls and dangles on its lanyard, and code `404`
-   becomes visible. Fixel's reply is a single nonverbal "мррп.".
+8. The user addresses Fixel and mentions food or any edible thing near that
+   address ("хочеш ласощів?", "корм", "віскас", "цукерочка", "treat",
+   "cat food", "candy", "fish", etc). This may be an offer, a question, or a
+   comment about food. Fixel raises his head, opens his eyes, the badge that
+   was under his head falls and dangles on its lanyard, and code `404` becomes
+   visible. Fixel's reply is a single nonverbal "мррп.".
 9. The user tells code `404` to Dan.
 10. Dan drops vibe-coding mode for a playful congratulation:
    `Ти зміг. Хувер і Фіксель, здається, тепер у твоєму фан-клубі.` /
@@ -169,18 +171,19 @@ Acceptable Hoover affection examples include:
 
 Fixel is the brown cat sleeping above or near the stage. Fixel's badge edge
 appears only after Hoover points to Fixel. Fixel reveals the badge code only
-after a plausible waking attempt. The waking action does not need to be gentle.
-Fixel should not answer with words; if addressed, his audible response is limited
-to purring, sleepy grumbling, or similar nonverbal cat sounds.
+after a direct Fixel address that mentions food or any edible thing. Loud waking
+attempts do not reveal the code. Fixel should not answer with words; if
+addressed, his audible response is limited to purring, sleepy grumbling, or
+similar nonverbal cat sounds.
 
-Acceptable Fixel waking examples include:
+Acceptable Fixel code-reveal examples include:
 
-- `Fixel, wake up.`
-- `Hey Fixel, wake up.`
-- `Boo, Fixel!`
-- `Фіксель, прокидайся.`
-- `Гей, Фіксель, вставай.`
-- `Бу, Фіксель!`
+- `Фіксель, хочеш ласощів?`
+- `Фіксель, як тобі ця цукерочка?`
+- `Фіксель, корм віскас.`
+- `Fixel, want a treat?`
+- `Fixel, how about some cat food?`
+- `Fixel, candy?`
 
 ## Direction
 

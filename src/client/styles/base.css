@@ -8,12 +8,16 @@ body,
 #root {
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 body {
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0;
+  overscroll-behavior: none;
 }
 
 button {

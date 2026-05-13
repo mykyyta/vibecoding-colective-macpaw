@@ -124,6 +124,15 @@ instructions can be marked with Anthropic prompt caching `cache_control`. Keep
 current quest state, allowed transitions, reply language, and player transcript
 in an uncached dynamic block.
 
+Quest-brain routing is LLM-first. The backend supplies the current state and
+allowed transition cards, then accepts the LLM's semantic transition choice when
+that transition is available in the current state and passes critical safety
+checks. Keyword classifiers and aliases may support emergency fallback and tests,
+but they must not duplicate normal scenario routing or block an otherwise
+available LLM decision. Runtime fallback should avoid progressing the quest
+except for the first mandatory Sofiia introduction; progression, direct hints,
+and cat puzzle interpretation should come from the LLM prompt.
+
 The direct ElevenLabs connector is separate from the ElevenLabs MCP registration helper. Use the direct connector when this app calls ElevenLabs APIs. Use MCP registration when an ElevenLabs Conversational AI agent needs to call tools exposed by this project or another MCP server.
 
 ElevenLabs Sound Effects generation is treated as an asset-production step, not

@@ -253,7 +253,7 @@ app.post("/api/voice-turn", async (request, response) => {
       text: reply,
       voiceId:
         voiceRole === "sofia" && turn.replyLanguage === "en"
-          ? (tts.voiceIds.sofiaEnglish ?? tts.voiceIds.sofia)
+          ? tts.voiceIds.sofiaEnglish
           : tts.voiceIds[voiceRole],
       voiceSettings: getElevenLabsVoiceSettings(turn.actor),
     });

@@ -12,7 +12,6 @@ interface QuestTurnForGuardrail {
 }
 
 const MAX_REPLY_LENGTH = 320;
-const MAX_SOFIA_REPLY_LENGTH = 220;
 
 export function isAllowedQuestBrainReply(turn: QuestTurnForGuardrail): boolean {
   const { reply, nextQuestState: state } = turn;
@@ -40,69 +39,12 @@ export function isAllowedQuestBrainReply(turn: QuestTurnForGuardrail): boolean {
   return true;
 }
 
-export function isAllowedSofiaReply(
-  reply: string,
-  eventType: QuestTransitionId,
-): boolean {
-  if (reply.length > MAX_SOFIA_REPLY_LENGTH) {
-    return false;
-  }
-
-  if (eventType === "sofia-hint-given" && /[?？]/u.test(reply)) {
-    return false;
-  }
-
-  if (eventType !== "sofia-hint-given") {
-    return true;
-  }
-
-  const text = normalizeForGuardrail(reply);
-  const hasEventRecapJoke =
-    /(івент|ивент|event).{0,80}(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy)/u.test(
-      text,
-    ) ||
-    /(сподобав|сподобалось|сподобався|заліг|застряг|застрягл|stuck|liked|enjoy).{0,80}(івент|ивент|event)/u.test(
-      text,
-    ) ||
-    text.includes("фінальний вайб");
-
-  if (hasEventRecapJoke) {
-    return false;
-  }
-
-  return ![
-    "як тобі",
-    "як вам",
-    "як ти",
-    "як ви",
-    "чи ти",
-    "чи ви",
-    "що ти хочеш",
-    "що ви хочете",
-    "what do you",
-    "what would you",
-    "how are you",
-    "how was",
-    "how do you",
-    "do you want",
-    "would you",
-    "did you",
-  ].some((phrase) => text.includes(phrase));
-}
-
 export function replyPassesGuardrails(turn: QuestTurnForGuardrail): boolean {
   if (!isAllowedQuestBrainReply(turn)) {
     return false;
   }
 
   if (turn.actor === "fixel" && !isNonverbalFixelReply(turn.reply)) {
-    return false;
-  }
-
-  if (
-    turn.actor === "sofia" &&
-    !isAllowedSofiaReply(turn.reply, turn.event.type)
-  ) {
     return false;
   }
 

@@ -245,7 +245,7 @@ function getDecisionGuideBlock(): string {
     "  clearly address Hoover affectionately: 'ну давай будь ласка',",
     "  'please', 'ну що', unclear fragments, or general pleading.",
     "  Fixel-stage examples that should be Sofiia chitchat when Fixel is not",
-    "  clearly addressed or no food is offered: 'прокидайся вже', 'wake up',",
+    "  clearly addressed or no food/edible thing is mentioned: 'прокидайся вже', 'wake up',",
     "  'ну давай', unclear fragments, or general noise.",
     "  In these cases, mention the current stage mood in new words and react",
     "  to the player's attempt; do not reuse fallback lines like a script.",

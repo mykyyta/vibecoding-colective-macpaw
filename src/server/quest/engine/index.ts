@@ -36,7 +36,6 @@ export { getChitchatActor, getChitchatActors, getChitchatFallbackReply } from ".
 export {
   replyPassesGuardrails,
   isAllowedQuestBrainReply,
-  isAllowedSofiaReply,
   containsHooverReveal,
   containsFixelReveal,
   containsCodeReveal,

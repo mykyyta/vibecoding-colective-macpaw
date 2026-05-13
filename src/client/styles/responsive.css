@@ -383,7 +383,7 @@
 
   .scene-mic {
     left: 50%;
-    bottom: 0.85rem;
+    bottom: max(0.85rem, calc(env(safe-area-inset-bottom) + 0.48rem));
     grid-template-columns: 40px minmax(0, auto);
     width: min(292px, calc(100vw - 1.5rem));
     min-height: 56px;

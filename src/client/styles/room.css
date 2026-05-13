@@ -1,8 +1,11 @@
 
 .quest-app {
-  position: relative;
-  width: 100vw;
+  position: fixed;
+  inset: 0;
+  width: 100%;
   height: 100vh;
+  height: 100svh;
+  height: 100dvh;
   overflow: hidden;
   background:
     radial-gradient(ellipse at 52% 83%, color-mix(in oklch, var(--amber-soft), transparent 35%), transparent 42%),

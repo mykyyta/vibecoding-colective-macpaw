@@ -76,13 +76,13 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
   "fixel-sleeping-rejected": {
     id: "fixel-sleeping-rejected",
     describe: () =>
-      "Use after Hoover's clue when the player addresses Fixel but does NOT offer food. Loud wake attempts (\"гей\", \"бу\", \"прокидайся\", \"hey\", \"boo\", \"wake up\") are explicitly ignored here — Fixel stays asleep. Fixel's reply must be a nonverbal purr or sleepy grumble only.",
+      "Use after Hoover's clue when the player addresses Fixel but does NOT mention food, cat food, a treat, a snack, candy, or another edible thing. Loud wake attempts (\"гей\", \"бу\", \"прокидайся\", \"hey\", \"boo\", \"wake up\") are explicitly ignored here — Fixel stays asleep. Fixel's reply must be a nonverbal purr or sleepy grumble only.",
     fallbackLineId: "fixel-sleeping-rejected",
   },
   "code-revealed": {
     id: "code-revealed",
     describe: () =>
-      "Use after Hoover's clue when the player offers food to Fixel — \"ласощі\", \"риба\", \"смачненьке\", \"кошен\", \"треат\", \"fish\", \"treat\", \"snack\", \"food\", or any mention of edible things. Fixel lifts his head, opens his eyes, and the badge that he was sleeping on falls and dangles on its lanyard, exposing code 404. This is the only transition that may reveal code 404, but Fixel's reply must still be a nonverbal waking sound only.",
+      "Use after Hoover's clue when the player directly addresses Fixel and says anything about food or an edible thing near that address — \"ласощі\", \"риба\", \"корм\", \"віскас\", \"цукерочка\", \"смачненьке\", \"кошен\", \"треат\", \"fish\", \"treat\", \"snack\", \"cat food\", \"candy\", \"food\", or similar. This can be an offer, a question, or a comment about food; it does not need to be phrased as a formal offer. Fixel lifts his head, opens his eyes, and the badge that he was sleeping on falls and dangles on its lanyard, exposing code 404. This is the only transition that may reveal code 404, but Fixel's reply must still be a nonverbal waking sound only.",
     fallbackLineId: "code-revealed",
   },
   "door-opened": {

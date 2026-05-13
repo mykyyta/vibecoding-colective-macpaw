@@ -41,14 +41,22 @@ assert.equal(englishKitty.hasGentleHooverAddress, true, "good kitty -> affection
 // Fixel direct without wake attempt
 const fixelPlain = analyzeQuestTranscript("Фіксель, дай код");
 assert.equal(fixelPlain.hasFixel, true, "Фіксель -> hasFixel");
-assert.equal(fixelPlain.hasFoodOffer, false, "дай код is not a food offer");
+assert.equal(fixelPlain.hasFoodOffer, false, "дай код is not a food mention");
 
-// Fixel direct with food offer
+// Fixel direct with food mention
 const fixelFood = analyzeQuestTranscript("Фіксель, хочеш ласощів");
 assert.equal(fixelFood.hasFixel, true, "Фіксель -> hasFixel");
-assert.equal(fixelFood.hasFoodOffer, true, "ласощів -> food offer");
+assert.equal(fixelFood.hasFoodOffer, true, "ласощів -> food mention");
 
-// Plain wake words alone are no longer food offers
+const fixelCandy = analyzeQuestTranscript("Фіксель, як тобі ця цукерочка?");
+assert.equal(fixelCandy.hasFixel, true, "Фіксель -> hasFixel");
+assert.equal(fixelCandy.hasFoodOffer, true, "цукерочка -> food mention");
+
+const fixelWhiskas = analyzeQuestTranscript("Фіксель, корм віскас");
+assert.equal(fixelWhiskas.hasFixel, true, "Фіксель -> hasFixel");
+assert.equal(fixelWhiskas.hasFoodOffer, true, "корм віскас -> food mention");
+
+// Plain wake words alone are not food mentions
 const fixelWake = analyzeQuestTranscript("Гей, Фіксель, прокидайся");
 assert.equal(fixelWake.hasFixel, true, "Фіксель -> hasFixel");
 assert.equal(fixelWake.hasFoodOffer, false, "прокидайся alone is no longer the trigger");
@@ -87,4 +95,4 @@ assert.equal(code404.hasCodeIntent, true, "code -> hasCodeIntent");
 const vcc = analyzeQuestTranscript("VCC?");
 assert.equal(vcc.hasVccIntent, true, "VCC -> hasVccIntent");
 
-console.log("classifier.test: passed (38 assertions)");
+console.log("classifier.test: passed (42 assertions)");

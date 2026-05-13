@@ -9,10 +9,7 @@ import type {
 import { analyzeQuestTranscript } from "./classifier.js";
 import { normalizeQuestState } from "./state.js";
 import type { QuestTransitionId } from "./transitions.js";
-import {
-  applyQuestTransition,
-  findFirstLegalProgressingTransition,
-} from "./transitions.js";
+import { applyQuestTransition } from "./transitions.js";
 import { getChitchatActor, getChitchatFallbackReply } from "./chitchat.js";
 import { getQuestReply } from "../scenario/lines.js";
 import type { QuestTranscriptFacts } from "./classifier.js";
@@ -111,12 +108,11 @@ export function createHeuristicFallbackTurn(
   const previousQuestState = normalizeQuestState(questState);
   const facts = analyzeQuestTranscript(transcript);
 
-  const progressing = findFirstLegalProgressingTransition(previousQuestState, facts);
-  if (progressing) {
+  if (!previousQuestState.sofiaIntroduced) {
     return buildTurn(
-      progressing.id,
-      progressing.actor(previousQuestState, facts),
-      progressing.fallbackReply(previousQuestState, replyLanguage),
+      "sofia-introduced",
+      "sofia",
+      getQuestReply("sofia-introduced", replyLanguage),
       replyLanguage,
       previousQuestState,
     );

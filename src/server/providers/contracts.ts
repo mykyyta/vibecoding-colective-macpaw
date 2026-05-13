@@ -83,7 +83,7 @@ export interface TextToSpeechProvider {
     dan: string;
     hoover: string;
     sofia: string;
-    sofiaEnglish?: string;
+    sofiaEnglish: string;
   };
   synthesizeSpeech(
     request: TextToSpeechRequest,
