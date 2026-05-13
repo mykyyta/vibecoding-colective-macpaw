@@ -13,24 +13,24 @@ const FIXEL_SOUND_EFFECTS = [
     fileName: "fixel-purr-soft.mp3",
     durationSeconds: 1.8,
     prompt:
-      "A sleepy cat purring softly, close microphone, warm low rumble, no human voice, no words, no music",
-    promptInfluence: 0.72,
+      "Close-microphone recording of a large fluffy Maine Coon cat purring deeply at rest, slow warm low-frequency rumble, soft breathing, content and relaxed, no meow, no chirp, no human voice, no words, no music, no background noise",
+    promptInfluence: 0.85,
   },
   {
     id: "fixel-grumble",
     fileName: "fixel-grumble.mp3",
     durationSeconds: 1.4,
     prompt:
-      "A lazy annoyed cat grumble followed by a short soft purr, no speech, no meow, no human voice, no music",
-    promptInfluence: 0.76,
+      "Close-microphone recording of a lazy Maine Coon cat grumbling sleepily when disturbed, short low irritated 'mrrr' followed by a slow scoffing exhale, annoyed but not aggressive, no meow, no chirp, no human voice, no words, no music, no background noise",
+    promptInfluence: 0.85,
   },
   {
     id: "fixel-wake-mrrp",
     fileName: "fixel-wake-mrrp.mp3",
-    durationSeconds: 1.5,
+    durationSeconds: 2.0,
     prompt:
-      "A drowsy cat waking up with a quiet mrrp and soft purring, cozy indoor room, no words, no human voice, no music",
-    promptInfluence: 0.78,
+      "Close-microphone recording of a Maine Coon cat lifting its head and chirping a quiet curious 'mrrp' trill when it smells food, soft pleased rumble after, awake and interested, no meow, no human voice, no words, no music, no background noise",
+    promptInfluence: 0.85,
   },
 ];
 
