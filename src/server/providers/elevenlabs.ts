@@ -9,6 +9,7 @@ import type {
 } from "./config.js";
 import { throwProviderHttpError } from "./http.js";
 import {
+  isUnsupportedDetectedTranscript,
   mapProviderLanguageCodeToQuestLanguage,
   type QuestLanguageInput,
 } from "../../shared/voice.js";
@@ -129,6 +130,8 @@ export async function createElevenLabsRealtimeSttSession(
     vad_threshold: "0.4",
     min_speech_duration_ms: "100",
     min_silence_duration_ms: "120",
+    include_timestamps: "true",
+    include_language_detection: "true",
     no_verbatim: "false",
   });
 
@@ -183,12 +186,13 @@ export async function transcribeElevenLabsAudio({
     language_probability?: unknown;
   };
   const text = typeof body.text === "string" ? body.text.trim() : "";
+  const language = createElevenLabsLanguageInput(body);
 
   return {
     provider: "elevenlabs",
     modelId,
-    text,
-    language: createElevenLabsLanguageInput(body),
+    text: isUnsupportedDetectedTranscript({ transcript: text, language }) ? "" : text,
+    language,
   };
 }
 

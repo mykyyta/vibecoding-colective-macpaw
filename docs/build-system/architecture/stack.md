@@ -179,6 +179,13 @@ per-turn Ukrainian/English language detection is inconsistent; fallback may use
 the last reliable language or a conservative default. Do not claim browser STT
 has provider-grade language detection.
 
+ElevenLabs STT may auto-detect languages outside the product's supported
+Ukrainian/English set when audio is short, noisy, or ambiguous. Realtime STT
+requests should include provider language detection metadata, and the app should
+treat clearly unsupported detected transcripts, especially CJK-script output
+without Ukrainian or English signal, as unrecognized speech rather than sending
+that transcript into the quest brain.
+
 Do not store raw voice transcripts for language analytics unless the product
 privacy posture is updated first.
 

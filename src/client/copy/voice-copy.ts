@@ -122,7 +122,7 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     relativeJustNow: "щойно",
     relativeMinuteAgo: (minutes) => `${minutes} хв тому`,
     relativeHourAgo: (hours) => `${hours} год тому`,
-    ambientHint: "Питай персонажів у кімнаті. Вони підкажуть, що робити далі.",
+    ambientHint: "Питай персонажів на ім'я.",
   },
   en: {
     microphoneName: "Microphone",
@@ -186,6 +186,6 @@ export const VOICE_COPY: Record<QuestLanguage, VoiceCopy> = {
     relativeJustNow: "just now",
     relativeMinuteAgo: (minutes) => `${minutes} min ago`,
     relativeHourAgo: (hours) => `${hours} hr ago`,
-    ambientHint: "Ask the characters in the room. They will point you toward the next step.",
+    ambientHint: "Ask characters by name.",
   },
 };

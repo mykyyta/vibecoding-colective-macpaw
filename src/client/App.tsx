@@ -9,6 +9,7 @@ import type {
   QuestNameTagActor,
   QuestState,
 } from "../shared/voice";
+import { isUnsupportedDetectedTranscript } from "../shared/voice";
 import {
   requestCreateLeaderboardEntry,
   requestLeaderboard,
@@ -710,6 +711,25 @@ export function App() {
     const cleanedTranscript = transcript.trim();
 
     if (!cleanedTranscript) {
+      return;
+    }
+
+    if (
+      isUnsupportedDetectedTranscript({
+        transcript: cleanedTranscript,
+        language,
+      })
+    ) {
+      const copy = getCurrentVoiceCopy();
+
+      setVoiceBusy(false);
+      setRoomState(previousStateRef.current);
+      setReadout(copy.notUnderstood);
+      setBubble({
+        actor: "room",
+        name: copy.microphoneName,
+        text: copy.notUnderstood,
+      });
       return;
     }
 

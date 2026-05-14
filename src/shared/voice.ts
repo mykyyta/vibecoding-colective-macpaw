@@ -49,6 +49,44 @@ export function mapProviderLanguageCodeToQuestLanguage(
   return undefined;
 }
 
+export function isUnsupportedDetectedTranscript({
+  transcript,
+  language,
+}: {
+  transcript: string;
+  language?: QuestLanguageInput;
+}): boolean {
+  const providerLanguageCode = language?.providerLanguageCode?.trim();
+
+  if (
+    !providerLanguageCode ||
+    mapProviderLanguageCodeToQuestLanguage(providerLanguageCode)
+  ) {
+    return false;
+  }
+
+  const text = transcript.trim();
+
+  if (!text) {
+    return true;
+  }
+
+  const hasUkrainianSignal =
+    /[іїєґ]/iu.test(text) ||
+    /\b(як|тебе|вас|звати|хто|відкрий|відчин|двер|вихід|код|дякую|привіт)\b/iu.test(
+      text,
+    );
+  const hasEnglishSignal =
+    /\b(what|who|your|name|open|door|exit|unlock|code|hello|thanks|please|let|out|dan)\b/iu.test(
+      text,
+    );
+  const hasUnsupportedScript = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(
+    text,
+  );
+
+  return hasUnsupportedScript && !hasUkrainianSignal && !hasEnglishSignal;
+}
+
 export interface QuestState {
   sofiaIntroduced: boolean;
   danExplainedDoor: boolean;

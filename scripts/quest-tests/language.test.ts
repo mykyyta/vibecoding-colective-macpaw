@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { isUnsupportedDetectedTranscript } from "../../src/shared/voice.js";
 import { decideQuestLanguage } from "../../src/server/quest/index.js";
 
 // High-confidence ElevenLabs provider input -> returns provider language
@@ -74,4 +75,43 @@ const lowConfidenceProvider = decideQuestLanguage({
 });
 assert.equal(lowConfidenceProvider.language, "uk", "low-confidence provider loses to heuristic");
 
-console.log("language.test: passed (12 assertions)");
+assert.equal(
+  isUnsupportedDetectedTranscript({
+    transcript: "こんにちは",
+    language: {
+      providerLanguageCode: "ja",
+      source: "elevenlabs",
+      confidence: 0.91,
+    },
+  }),
+  true,
+  "unsupported CJK transcript is rejected",
+);
+
+assert.equal(
+  isUnsupportedDetectedTranscript({
+    transcript: "hello dan",
+    language: {
+      providerLanguageCode: "ja",
+      source: "elevenlabs",
+      confidence: 0.91,
+    },
+  }),
+  false,
+  "english signal survives unsupported provider code",
+);
+
+assert.equal(
+  isUnsupportedDetectedTranscript({
+    transcript: "привіт",
+    language: {
+      providerLanguageCode: "uk",
+      source: "elevenlabs",
+      confidence: 0.91,
+    },
+  }),
+  false,
+  "supported provider code is accepted",
+);
+
+console.log("language.test: passed (15 assertions)");

@@ -417,7 +417,7 @@
 
   .ambient-hint {
     left: max(0.75rem, env(safe-area-inset-left));
-    top: max(3.45rem, calc(env(safe-area-inset-top) + 3.45rem));
+    top: max(0.75rem, env(safe-area-inset-top));
     max-width: calc(100vw - 1.5rem);
     min-height: 34px;
     font-size: 0.64rem;
@@ -435,7 +435,7 @@
   }
 
   .ambient-hint[open] .ambient-hint__text {
-    max-width: calc(100vw - 4.9rem);
+    max-width: calc(100vw - 7.75rem);
     white-space: normal;
   }
 
