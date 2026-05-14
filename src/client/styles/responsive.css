@@ -353,28 +353,46 @@
   }
 
   .speech-bubble--dan {
-    left: calc(13vw + 0.85rem);
-    right: auto;
-    bottom: 60%;
+    left: auto;
+    right: calc(13vw + 0.85rem);
+    bottom: 48%;
+    width: min(164px, calc(100vw - 1.7rem));
   }
 
-  .speech-bubble--hoover,
+  .speech-bubble--hoover {
+    left: auto;
+    top: auto;
+    right: calc(13vw + 0.85rem);
+    bottom: 35%;
+    width: min(174px, calc(100vw - 1.7rem));
+  }
+
   .speech-bubble--fixel {
     left: calc(13vw + 0.85rem);
     top: auto;
     right: auto;
-    bottom: 60%;
+    bottom: 78%;
   }
 
   .speech-bubble--sofia {
-    left: calc(13vw + 0.85rem);
+    left: calc(13vw + 5.6rem);
     right: auto;
-    bottom: 60%;
+    bottom: 45%;
+    width: min(174px, calc(100vw - 1.7rem));
   }
 
   .speech-bubble--room {
     left: calc(13vw + 0.85rem);
-    bottom: 43%;
+    bottom: 18%;
+    width: min(230px, calc(100vw - 1.7rem));
+  }
+
+  .room-scene--leaderboard .speech-bubble--dan {
+    left: auto;
+    right: calc(13vw + 0.3rem);
+    bottom: 40%;
+    width: min(136px, calc(100vw - 1.7rem));
+    z-index: 21;
   }
 
   .speech-bubble strong {
@@ -503,5 +521,33 @@
   .scene-mic-hint {
     display: block;
     font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .speech-bubble--dan {
+    right: calc(13vw + 0.55rem);
+    width: 136px;
+  }
+
+  .speech-bubble--hoover {
+    right: calc(13vw + 0.55rem);
+    width: 142px;
+  }
+
+  .speech-bubble--sofia {
+    left: calc(13vw + 4.85rem);
+    width: 148px;
+  }
+
+  .room-scene--leaderboard .speech-bubble--dan {
+    right: calc(13vw + 0.25rem);
+    bottom: 46%;
+    width: 118px;
+  }
+
+  .room-scene--leaderboard .speech-bubble--dan strong {
+    font-size: 0.68rem;
+    line-height: 1.14;
   }
 }
