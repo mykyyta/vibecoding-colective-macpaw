@@ -423,7 +423,7 @@ const earlySofiaHoover = await runTurn({
 assert.equal(earlySofiaHoover.event.type, "sofia-hint-given");
 assert.equal(
   earlySofiaHoover.reply,
-  "Він уже хвилин п'ять шукає. Спробуй просто запитати, чи він часом не загубив його — може, тоді нарешті визнає.",
+  "Ден застряг у режимі «я зараз знайду». Запитай його прямо: «Дене, може, ти загубив бейдж?»",
   "early Hoover leak replaced by dan-explained canned hint nudging toward loss-suggestion",
 );
 assert.equal(earlySofiaHoover.nameTagActors.includes("hoover"), false);

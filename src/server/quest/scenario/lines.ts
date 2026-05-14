@@ -100,8 +100,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "I'd start with Dan. Ask him directly about the door — he knows more than it looks right now.",
   },
   "sofia-hint-after-explained": {
-    uk: "Він уже хвилин п'ять шукає. Спробуй просто запитати, чи він часом не загубив його — може, тоді нарешті визнає.",
-    en: "He's been searching for ages. Try just asking him whether he maybe lost it — that might make him finally admit it.",
+    uk: "Ден застряг у режимі «я зараз знайду». Запитай його прямо: «Дене, може, ти загубив бейдж?»",
+    en: "Dan is stuck in 'I'll find it any second' mode. Ask him directly: 'Dan, maybe you lost the badge?'",
   },
   "sofia-hint-after-dan": {
     uk: "Якщо Ден на когось показав — звернись до нього без тиску. Коти не дуже на накази.",

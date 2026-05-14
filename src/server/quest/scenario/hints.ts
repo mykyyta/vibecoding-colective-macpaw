@@ -38,7 +38,7 @@ export const SOFIA_HINT_STAGES: Record<SofiaHintStage, SofiaHintStageData> = {
   "dan-explained": {
     replyId: "sofia-hint-after-explained",
     contextText:
-      "Current Sofiia hint stage: Dan claims he has the badge on him and keeps stalling — \"give me a second, almost got it\". He is NOT admitting it's lost yet. The player must explicitly suggest the badge might be lost (\"може, ти його загубив?\", \"maybe you lost it?\", \"missing?\") to break Dan out of the stall. Sofiia's hint should nudge the player toward asking that exact kind of question. Do not yet mention Hoover, Fixel, or the cat by name.",
+      "Current Sofiia hint stage: Dan claims he has the badge on him and keeps stalling — \"give me a second, almost got it\". He is NOT admitting it's lost yet. The player must explicitly suggest to Dan that he may have lost the badge to break him out of the stall. Sofiia's hint should be direct and should include a concrete example question the player can say, such as \"Дене, може, ти загубив бейдж?\" or \"Dan, maybe you lost the badge?\" Do not yet mention Hoover, Fixel, or the cat by name.",
   },
   initial: {
     replyId: "sofia-hint-initial",

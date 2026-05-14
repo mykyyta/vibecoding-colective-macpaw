@@ -900,7 +900,8 @@
   z-index: 40;
   display: inline-flex;
   align-items: center;
-  max-width: min(360px, calc(100vw - 2rem));
+  width: fit-content;
+  max-width: min(42rem, calc(100vw - 2rem));
   min-height: 36px;
   overflow: hidden;
   border: 1px solid color-mix(in oklch, var(--ink), transparent 82%);
@@ -957,14 +958,14 @@
   max-width: 0;
   overflow: hidden;
   opacity: 0;
-  white-space: nowrap;
+  white-space: normal;
   transition:
     max-width 180ms var(--ease-out),
     opacity 140ms var(--ease-out);
 }
 
 .ambient-hint[open] .ambient-hint__text {
-  max-width: 19rem;
+  max-width: min(34rem, calc(100vw - 6rem));
   opacity: 0.9;
 }
 

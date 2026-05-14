@@ -50,6 +50,22 @@ assert.match(contentBlocks[1].text, /closed observation, not a question/u);
 assert.match(contentBlocks[1].text, /If unsure between a hint and chitchat/u);
 assert.match(contentBlocks[1].text, /Do not copy persona examples/u);
 assert.match(contentBlocks[1].text, /For Dan chitchat/u);
+
+const stallHintBlocks = buildQuestBrainPromptContent({
+  transcript: "що мені робити?",
+  questState: { ...initialQuestState, sofiaIntroduced: true, danExplainedDoor: true },
+  allowedTransitions: getAllowedQuestTransitions(
+    { ...initialQuestState, sofiaIntroduced: true, danExplainedDoor: true },
+    "uk",
+  ),
+  replyLanguage: "uk",
+});
+assert.match(
+  stallHintBlocks[1].text,
+  /Sofiia's hint should be direct and should include a concrete example question/u,
+);
+assert.match(stallHintBlocks[1].text, /Дене, може, ти загубив бейдж/u);
+
 assert.equal(
   buildQuestBrainPrompt({
     transcript: "Dan, check the door",
