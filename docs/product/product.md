@@ -159,8 +159,10 @@ Hoover is the white cat near the door. Hoover reveals the Fixel clue only after
 an affectionate Hoover, white-cat, or cat-addressed turn. A perfect transcript
 of Hoover's proper name should not be required after Dan has pointed to the
 white cat, but bare politeness alone is not enough. `Хувере, будь ласка` or
-`please, Hoover` should be treated as ordinary, not affectionate. Backend state
-gates must still prevent early progression.
+`please, Hoover` should be treated as ordinary, not affectionate. On ordinary
+or insufficiently affectionate addresses, Hoover should answer with dry catlike
+irony that hints he wants a gentler tone without turning into an explicit
+tutorial. Backend state gates must still prevent early progression.
 
 Acceptable Hoover affection examples include:
 

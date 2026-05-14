@@ -56,8 +56,8 @@ export const CANNED_REPLIES: Record<QuestReplyId, Record<QuestLanguage, string>>
     en: "Hmm... you might be right — I really can't find it, but it was definitely here. Although, come to think of it, a white cat called Hoover was hanging around me for a while. Ask him — maybe he saw something.",
   },
   "hoover-ordinary-rejected": {
-    uk: "Мяу. Hoover чує команду, але виглядає так, ніби людські накази сьогодні не в пріоритеті.",
-    en: "Meow. Hoover hears the command, but looks like human orders are not today's priority.",
+    uk: "Мрр. Людина знайшла Хувера, але ще не знайшла правильний тон.",
+    en: "Mrr. The human found Hoover, but not the right tone yet.",
   },
   "hoover-clue-given": {
     uk: "Мрр. Так значно краще. Бейдж забрав Fixel і зробив із нього подушку.",

@@ -64,7 +64,7 @@ export const MOVE_SCENARIO_DATA: Record<QuestEventType, MoveScenarioData> = {
   "hoover-ordinary-rejected": {
     id: "hoover-ordinary-rejected",
     describe: () =>
-      "Use after Dan has pointed toward Hoover when the player addresses Hoover or the white cat, but the wording is not affectionate enough. Bare politeness such as 'будь ласка, Хувере' or 'please, Hoover' is not enough. Hoover refuses ordinary commands and reveals no Fixel, badge, or code facts. Use fresh catlike wording instead of copying fallback lines.",
+      "Use after Dan has pointed toward Hoover when the player addresses Hoover or the white cat, but the wording is not affectionate enough. Bare politeness such as 'будь ласка, Хувере' or 'please, Hoover' is not enough. Hoover should turn the reply into a dry catlike hint that the missing ingredient is a gentler, warmer, more affectionate tone, not more information. Do not explain the mechanic like a tutorial. Reveal no Fixel, badge, or code facts. Use fresh catlike wording instead of copying fallback lines.",
     fallbackLineId: "hoover-ordinary-rejected",
   },
   "hoover-clue-given": {
